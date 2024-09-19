@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'Mahasiswa/pekerjaan.dart'; // Import halaman pekerjaan
+import 'Mahasiswa/profile.dart';
+import 'Mahasiswa/riwayat.dart';
 
 // Mahasiswa Dashboard Page
 class MahasiswaDashboard extends StatefulWidget {
@@ -23,6 +25,24 @@ class _MahasiswaDashboardState extends State<MahasiswaDashboard> {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => PekerjaanPage()),
+      );
+    }
+    else if(index==3){
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context)=> ProfilePage())
+        );
+    }
+    else if (index == 2) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => RiwayatPage()),
+      );
+    }
+    else if (index == 4) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => MahasiswaDashboard()),
       );
     }
     
