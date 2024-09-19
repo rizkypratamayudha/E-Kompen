@@ -1,9 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'Mahasiswa/pekerjaan.dart'; // Import halaman pekerjaan
 
 // Mahasiswa Dashboard Page
-class MahasiswaDashboard extends StatelessWidget {
+class MahasiswaDashboard extends StatefulWidget {
   const MahasiswaDashboard({super.key});
+
+  @override
+  _MahasiswaDashboardState createState() => _MahasiswaDashboardState();
+}
+
+class _MahasiswaDashboardState extends State<MahasiswaDashboard> {
+  int _selectedIndex = 0;
+
+  // Fungsi untuk menangani navigasi berdasarkan index dari BottomNavigationBar
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    if (index == 1) {  // Ketika tombol Tugas ditekan
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => PekerjaanPage()),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -124,9 +146,9 @@ class MahasiswaDashboard extends StatelessWidget {
                   _buildKompenCard('Praktikum Basis Data', '8 Jam'),
                   _buildKompenCard('Praktikum Daspro', '4 Jam'),
                   _buildKompenCard('Total Alpha', '12 Jam'),
+                  _buildSummaryCard('Semester Mahasiswa Saat Ini: 5'),
                   _buildSummaryCard(
-                      'Semester Mahasiswa Saat Ini: 5'),
-                  _buildSummaryCard('Total Akumulasi Alpha sampai semester 5 (x2 setiap semester)\n12 * 2^4 = 192 Jam'),
+                      'Total Akumulasi Alpha sampai semester 5 (x2 setiap semester)\n12 * 2^4 = 192 Jam'),
                   _buildKompenCard('Akumulasi Alpha', '192 Jam'),
                 ],
               ),
@@ -134,7 +156,6 @@ class MahasiswaDashboard extends StatelessWidget {
           ],
         ),
       ),
-      
       bottomNavigationBar: BottomNavigationBar(
         items: const [
           BottomNavigationBarItem(
@@ -147,13 +168,15 @@ class MahasiswaDashboard extends StatelessWidget {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.history),
-            label: 'history',
+            label: 'History',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.account_circle),
             label: 'Profile',
-          )
+          ),
         ],
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
         backgroundColor: Colors.white,
         selectedItemColor: Colors.blue,
         unselectedItemColor: Colors.grey,
@@ -161,6 +184,7 @@ class MahasiswaDashboard extends StatelessWidget {
     );
   }
 
+  // Fungsi untuk membangun widget kartu kompen
   Widget _buildKompenCard(String title, String hours) {
     return Card(
       color: Colors.blue,
@@ -180,13 +204,14 @@ class MahasiswaDashboard extends StatelessWidget {
     );
   }
 
+  // Fungsi untuk membangun widget kartu ringkasan
   Widget _buildSummaryCard(String summary) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(10.0),
-        child: Text(summary, style: GoogleFonts.poppins(
-          fontSize: 14
-        ),
+        child: Text(
+          summary,
+          style: GoogleFonts.poppins(fontSize: 14),
         ),
       ),
       color: Colors.grey[400],

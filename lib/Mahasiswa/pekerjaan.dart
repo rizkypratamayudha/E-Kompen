@@ -1,15 +1,15 @@
+// lib/Mahasiswa/pekerjaan.dart
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
-class Pekerjaan extends StatelessWidget{
-  const Pekerjaan({super.key});
-
+class PekerjaanPage extends StatelessWidget {
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pekerjaan'),
-        backgroundColor: Colors.white,
+        title: Text('Tugas Mahasiswa'),
+      ),
+      body: Center(
+        child: Text('Ini adalah halaman Tugas Mahasiswa'),
       ),
     );
   }
