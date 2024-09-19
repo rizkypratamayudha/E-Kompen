@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'Mahasiswa/pekerjaan.dart'; // Import halaman pekerjaan
+import 'Mahasiswa/pekerjaan.dart';
 import 'Mahasiswa/profile.dart';
 import 'Mahasiswa/riwayat.dart';
+import 'bottombar/bottombar.dart';
 
-// Mahasiswa Dashboard Page
 class MahasiswaDashboard extends StatefulWidget {
   const MahasiswaDashboard({super.key});
 
@@ -21,31 +21,24 @@ class _MahasiswaDashboardState extends State<MahasiswaDashboard> {
       _selectedIndex = index;
     });
 
-    if (index == 1) {  // Ketika tombol Tugas ditekan
+    if (index == 1) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => PekerjaanPage()),
+        MaterialPageRoute(builder: (context) => const PekerjaanPage()),
       );
-    }
-    else if(index==3){
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context)=> ProfilePage())
-        );
-    }
-    else if (index == 2) {
+    } else if (index == 2) {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => RiwayatPage()),
       );
-    }
-    else if (index == 4) {
+    } else if (index == 3) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => MahasiswaDashboard()),
+        MaterialPageRoute(builder: (context) => ProfilePage()),
       );
+    } else if (index == 0) {
+      return;
     }
-    
   }
 
   @override
@@ -177,35 +170,14 @@ class _MahasiswaDashboardState extends State<MahasiswaDashboard> {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.assignment_add),
-            label: 'Tugas',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.history),
-            label: 'History',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle),
-            label: 'Profile',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        backgroundColor: Colors.white,
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
+      // Menggunakan BottomNavBar yang sudah dipisahkan
+      bottomNavigationBar: BottomNavBar(
+        selectedIndex: _selectedIndex,
+        onItemTapped: _onItemTapped,
       ),
     );
   }
 
-  // Fungsi untuk membangun widget kartu kompen
   Widget _buildKompenCard(String title, String hours) {
     return Card(
       color: Colors.blue,
@@ -225,9 +197,9 @@ class _MahasiswaDashboardState extends State<MahasiswaDashboard> {
     );
   }
 
-  // Fungsi untuk membangun widget kartu ringkasan
   Widget _buildSummaryCard(String summary) {
     return Card(
+      color: Colors.grey[400],
       child: Padding(
         padding: const EdgeInsets.all(10.0),
         child: Text(
@@ -235,7 +207,7 @@ class _MahasiswaDashboardState extends State<MahasiswaDashboard> {
           style: GoogleFonts.poppins(fontSize: 14),
         ),
       ),
-      color: Colors.grey[400],
+      
     );
   }
 }
