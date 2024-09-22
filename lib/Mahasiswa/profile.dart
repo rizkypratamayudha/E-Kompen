@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../bottombar/bottombar.dart'; // Import BottomNavBar
+import 'riwayat.dart';
+import 'pekerjaan.dart';
+import '../mahasiswa.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -12,26 +16,55 @@ class _ProfilePageState extends State<ProfilePage> {
   bool _isNewPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
 
+  int _selectedIndex = 3;
+
+  void _onItemTapped(int index) {
+    if (index == _selectedIndex) {
+      return;
+    }
+
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    if (index == 1) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => PekerjaanPage()),
+      );
+    } else if (index == 2) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => RiwayatPage()),
+      );
+    } else if (index == 0) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const MahasiswaDashboard()),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView( // Wrap everything with SingleChildScrollView
+      body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(0, 0, 0, 50.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                color: Colors.blue[800], // Blue background
+                color: Colors.blue[800],
                 padding: const EdgeInsets.fromLTRB(20.0, 40.0, 20.0, 30.0),
                 child: Row(
                   children: [
                     const CircleAvatar(
-                      radius: 30, // Ukuran avatar sesuai permintaan
-                      backgroundColor: Colors.grey, // Warna background abu-abu
-                      child: Icon(Icons.person, size: 40), // Ikon orang
+                      radius: 30,
+                      backgroundColor: Colors.grey,
+                      child: Icon(Icons.person, size: 40),
                     ),
-                    const SizedBox(width: 10), // Jarak antara avatar dan teks
+                    const SizedBox(width: 10),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -39,14 +72,14 @@ class _ProfilePageState extends State<ProfilePage> {
                           'M. Isroqi Gelby',
                           style: GoogleFonts.poppins(
                             fontSize: 18,
-                            color: Colors.white, // White text on blue background
+                            color: Colors.white,
                           ),
                         ),
                         Text(
                           '2241760020',
                           style: GoogleFonts.poppins(
                             fontSize: 16,
-                            color: Colors.white, // White text for the ID
+                            color: Colors.white,
                           ),
                         ),
                       ],
@@ -54,7 +87,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     const Spacer(),
                     IconButton(
                       icon: const Icon(Icons.exit_to_app,
-                          size: 30, color: Colors.red), // Larger logout icon
+                          size: 30, color: Colors.red),
                       onPressed: () {
                         // Tambahkan fungsi logout di sini
                       },
@@ -62,7 +95,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ],
                 ),
               ),
-              const SizedBox(height: 60), // Jarak sebelum bagian Ganti Password
+              const SizedBox(height: 60),
               GestureDetector(
                 onTap: () {
                   setState(() {
@@ -71,7 +104,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 },
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
-                  margin: const EdgeInsets.symmetric(horizontal: 10), // Margin to adjust positioning
+                  margin: const EdgeInsets.symmetric(horizontal: 10),
                   decoration: BoxDecoration(
                     color: Colors.grey[300],
                     borderRadius: BorderRadius.circular(10),
@@ -144,6 +177,10 @@ class _ProfilePageState extends State<ProfilePage> {
             ],
           ),
         ),
+      ),
+      bottomNavigationBar: BottomNavBar(
+        selectedIndex: _selectedIndex,
+        onItemTapped: _onItemTapped,
       ),
     );
   }

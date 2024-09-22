@@ -1,12 +1,51 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../bottombar/bottombar.dart'; // Import BottomNavBar
+import 'profile.dart';
+import 'pekerjaan.dart';
+import '../mahasiswa.dart';
 
-class RiwayatPage extends StatelessWidget {
+class RiwayatPage extends StatefulWidget {
+  @override
+  _RiwayatPageState createState() => _RiwayatPageState();
+}
+
+class _RiwayatPageState extends State<RiwayatPage> {
+  int _selectedIndex = 2; // Sesuaikan dengan tab yang sedang aktif
+
+  void _onItemTapped(int index) {
+    if (index == _selectedIndex) {
+      return;
+    }
+
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    if (index == 2) {
+      return;
+    } else if (index == 1) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => PekerjaanPage()),
+      );
+    } else if (index == 3) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => ProfilePage()),
+      );
+    } else if (index == 0) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const MahasiswaDashboard()),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
-        // Menggunakan Google Fonts Poppins secara global
         textTheme: GoogleFonts.poppinsTextTheme(
           Theme.of(context).textTheme,
         ),
@@ -14,12 +53,15 @@ class RiwayatPage extends StatelessWidget {
       home: Scaffold(
         appBar: AppBar(
           title: Padding(
-            padding: const EdgeInsets.only(left: 20.0), // Geser teks ke kanan
+            padding: const EdgeInsets.only(left: 10.0),
             child: Text('Riwayat'),
           ),
         ),
         body: RiwayatScreen(),
-        
+        bottomNavigationBar: BottomNavBar(
+          selectedIndex: _selectedIndex,
+          onItemTapped: _onItemTapped,
+        ),
       ),
     );
   }
@@ -32,32 +74,58 @@ class RiwayatScreen extends StatefulWidget {
 
 class _RiwayatScreenState extends State<RiwayatScreen> {
   PageController _pageController = PageController(initialPage: 0);
+  int _selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Tab indicator di bagian atas
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            TabButton(
-              text: "Proses",
-              isSelected: _pageController.hasClients && (_pageController.page == 0 || _pageController.page == null),
-              onTap: () => _pageController.animateToPage(0,
-                  duration: Duration(milliseconds: 300), curve: Curves.easeInOut),
+            Expanded(
+              child: TabButton(
+                icon: Icons.access_time, // Ikon jam untuk 'Proses'
+                text: "Proses",
+                isSelected: _selectedIndex == 0,
+                onTap: () {
+                  setState(() {
+                    _selectedIndex = 0;
+                  });
+                  _pageController.animateToPage(0,
+                      duration: Duration(milliseconds: 300),
+                      curve: Curves.easeInOut);
+                },
+              ),
             ),
-            TabButton(
-              text: "Telah Selesai",
-              isSelected: _pageController.hasClients && _pageController.page == 1,
-              onTap: () => _pageController.animateToPage(1,
-                  duration: Duration(milliseconds: 300), curve: Curves.easeInOut),
+            Expanded(
+              child: TabButton(
+                icon: Icons.check_circle_outline, // Ikon ceklis untuk 'Telah Selesai'
+                text: "Telah Selesai",
+                isSelected: _selectedIndex == 1,
+                onTap: () {
+                  setState(() {
+                    _selectedIndex = 1;
+                  });
+                  _pageController.animateToPage(1,
+                      duration: Duration(milliseconds: 300),
+                      curve: Curves.easeInOut);
+                },
+              ),
             ),
-            TabButton(
-              text: "TTD Kaprodi",
-              isSelected: _pageController.hasClients && _pageController.page == 2,
-              onTap: () => _pageController.animateToPage(2,
-                  duration: Duration(milliseconds: 300), curve: Curves.easeInOut),
+            Expanded(
+              child: TabButton(
+                icon: Icons.edit, // Ikon tanda tangan untuk 'TTD Kaprodi'
+                text: "TTD Kaprodi",
+                isSelected: _selectedIndex == 2,
+                onTap: () {
+                  setState(() {
+                    _selectedIndex = 2;
+                  });
+                  _pageController.animateToPage(2,
+                      duration: Duration(milliseconds: 300),
+                      curve: Curves.easeInOut);
+                },
+              ),
             ),
           ],
         ),
@@ -66,14 +134,13 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
           child: PageView(
             controller: _pageController,
             onPageChanged: (index) {
-              setState(() {});
+              setState(() {
+                _selectedIndex = index;
+              });
             },
             children: [
               _buildRiwayat('Memasukkan Nilai'),
-
-              // Halaman 2: Telah Selesai
               _buildRiwayat('Pembuatan Nilai'),
-              // Halaman 3: TTD Kaprodi
               Center(
                 child: Text('Halaman TTD Kaprodi'),
               ),
@@ -86,11 +153,13 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
 }
 
 class TabButton extends StatelessWidget {
+  final IconData icon; // Tambahkan parameter ikon
   final String text;
   final bool isSelected;
   final VoidCallback onTap;
 
   const TabButton({
+    required this.icon, // Parameter ikon harus disertakan
     required this.text,
     required this.isSelected,
     required this.onTap,
@@ -100,38 +169,45 @@ class TabButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Column(
-        children: [
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              color: isSelected ? Colors.blue : Colors.black,
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.blue : Colors.white,
+          border: Border.all(color: Colors.black),
+        ),
+        alignment: Alignment.center,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? Colors.white : Colors.black, // Ubah warna ikon sesuai kondisi isSelected
             ),
-          ),
-          SizedBox(height: 4),
-          if (isSelected)
-            Container(
-              width: 30,
-              height: 3,
-              color: Colors.blue,
+            SizedBox(width: 6), // Jarak antara ikon dan teks
+            Text(
+              text,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: isSelected ? Colors.white : Colors.black,
+              ),
             ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
 
-  Widget _buildRiwayat(String title) {
+Widget _buildRiwayat(String title) {
   return Align(
-    alignment: Alignment.topCenter, // Menyelaraskan box ke atas tengah
+    alignment: Alignment.topCenter,
     child: FractionallySizedBox(
       widthFactor: 0.9,
       child: Card(
         color: Colors.blue,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(10, 5, 10, 5), // Padding diseluruh sisi
+          padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
           child: ListTile(
             title: Text(
               title,
@@ -146,4 +222,3 @@ class TabButton extends StatelessWidget {
     ),
   );
 }
-
