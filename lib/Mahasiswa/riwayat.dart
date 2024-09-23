@@ -139,8 +139,8 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
               });
             },
             children: [
-              _buildRiwayat('Memasukkan Nilai'),
-              _buildRiwayat('Pembuatan Nilai'),
+              _buildRiwayat(context, 'Memasukkan Nilai'),
+              _buildRiwayat(context, 'Pembuatan Nilai'),
               Center(
                 child: Text('Halaman TTD Kaprodi'),
               ),
@@ -199,7 +199,7 @@ class TabButton extends StatelessWidget {
   }
 }
 
-Widget _buildRiwayat(String title) {
+Widget _buildRiwayat(BuildContext context, String title) {
   return Align(
     alignment: Alignment.topCenter,
     child: FractionallySizedBox(
@@ -216,9 +216,80 @@ Widget _buildRiwayat(String title) {
                 color: Colors.white,
               ),
             ),
+            onTap: () {
+              if (title == 'Memasukkan Nilai') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => PengumpulanBuktiPage()),
+                );
+              }
+            },
           ),
         ),
       ),
     ),
   );
 }
+
+
+
+class PengumpulanBuktiPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Pengumpulan Bukti Pekerjaan'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Tugas : Memasukkan Nilai',
+              style: GoogleFonts.poppins(fontSize: 16),
+            ),
+            SizedBox(height: 10),
+            Text(
+              'Batas pengerjaan : 2024-10-30',
+              style: GoogleFonts.poppins(fontSize: 16),
+            ),
+            SizedBox(height: 10),
+            Text(
+              'Jumlah jam : 100 jam',
+              style: GoogleFonts.poppins(fontSize: 16),
+            ),
+            SizedBox(height: 20),
+            Text(
+              'Foto bukti :',
+              style: GoogleFonts.poppins(fontSize: 16),
+            ),
+            SizedBox(height: 10),
+            Container(
+              height: 150,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+              ),
+              child: Center(
+                child: Icon(Icons.image, size: 50, color: Colors.grey),
+              ),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                // Tambahkan logika untuk mengunggah bukti atau mengambil foto
+              },
+              child: Text('+ Tambah / buat'),
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 16),
+                textStyle: GoogleFonts.poppins(fontSize: 16),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
