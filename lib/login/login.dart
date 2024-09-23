@@ -1,8 +1,9 @@
 // Login Page
 import 'package:flutter/material.dart';
-import 'main.dart';
-import 'mahasiswa.dart';
-import 'dosen.dart';
+import '../main.dart';
+import '../mahasiswa.dart';
+import '../dosen.dart';
+import '../kaprodi.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class LoginPage extends StatefulWidget {

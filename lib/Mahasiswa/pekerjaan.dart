@@ -47,28 +47,12 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(30.0, 50.0, 10.0, 10.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Pekerjaan',
-              style: GoogleFonts.poppins(
-                fontSize: 18,
-              ),
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: ListView(
-                children: [
-                  _buildPekerjaan('Pembuatan Web', '2/5'),
-                  _buildPekerjaan('Memasukkan Nilai', '0/2'),
-                  _buildPekerjaan('Pembelian AC', '3/5'),
-                ],
-              ),
-            ),
-          ],
+      body:  SingleChildScrollView(
+        child:  Padding(
+          padding:  const EdgeInsets.fromLTRB(40.0, 40.0, 10.0, 10.0),
+          child: Text('Pekerjaan',
+          style: GoogleFonts.poppins(fontSize: 18),
+          ),
         ),
       ),
       bottomNavigationBar: BottomNavBar(
