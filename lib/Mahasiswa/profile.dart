@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../bottombar/bottombar.dart'; // Import BottomNavBar
+import '../bottombar/bottombar.dart'; 
 import 'riwayat.dart';
 import 'pekerjaan.dart';
 import '../mahasiswa.dart';
+import '../widget/popup_logout.dart'; 
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -89,13 +90,14 @@ class _ProfilePageState extends State<ProfilePage> {
                       icon: const Icon(Icons.exit_to_app,
                           size: 30, color: Colors.red),
                       onPressed: () {
-                        // Tambahkan fungsi logout di sini
+                        // Panggil PopupLogout OOP ketika ikon logout ditekan
+                        PopupLogout.showLogoutDialog(context);
                       },
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 60),
+              const SizedBox(height: 40),
               GestureDetector(
                 onTap: () {
                   setState(() {
@@ -103,7 +105,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   });
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
                   margin: const EdgeInsets.symmetric(horizontal: 10),
                   decoration: BoxDecoration(
                     color: Colors.grey[300],
@@ -115,7 +118,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       Row(
                         children: [
                           const Icon(Icons.vpn_key),
-                          const SizedBox(width: 30),
+                          const SizedBox(width: 25),
                           Text('Ganti Password', style: GoogleFonts.poppins()),
                         ],
                       ),
@@ -128,7 +131,8 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               if (_isPasswordSectionVisible)
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
                   child: Column(
                     children: [
                       buildPasswordField(
@@ -156,20 +160,23 @@ class _ProfilePageState extends State<ProfilePage> {
                         isPasswordVisible: _isConfirmPasswordVisible,
                         toggleVisibility: () {
                           setState(() {
-                            _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+                            _isConfirmPasswordVisible =
+                                !_isConfirmPasswordVisible;
                           });
                         },
                       ),
                       const SizedBox(height: 20),
                       ElevatedButton(
                         onPressed: () {
-                          // Tambahkan fungsi simpan password di sini
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color.fromARGB(255, 22, 126, 211),
-                          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                          backgroundColor:
+                              const Color.fromARGB(255, 22, 126, 211),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 40, vertical: 15),
                         ),
-                        child: Text('Okay', style: GoogleFonts.poppins(color: Colors.white)),
+                        child: Text('Okay',
+                            style: GoogleFonts.poppins(color: Colors.white)),
                       ),
                     ],
                   ),
