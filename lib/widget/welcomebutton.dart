@@ -9,7 +9,7 @@ class Welcomebutton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 30.0 ),
+      padding: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 30.0 ),
       child: ElevatedButton(
       onPressed: () {
         // Navigasi ke halaman login saat tombol ditekan
