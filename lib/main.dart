@@ -1,3 +1,4 @@
+import 'package:firstapp/login/welcomescreen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'login/login.dart';
@@ -17,7 +18,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-      
+      home: const Welcomescreen(),
     );
   }
 }
