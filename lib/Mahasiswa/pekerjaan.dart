@@ -47,11 +47,21 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body:  SingleChildScrollView(
-        child:  Padding(
-          padding:  const EdgeInsets.fromLTRB(40.0, 40.0, 10.0, 10.0),
-          child: Text('Pekerjaan',
-          style: GoogleFonts.poppins(fontSize: 18),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20.0, 50.0, 20.0, 10.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Pekerjaan',
+                style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.normal),
+              ),
+              const SizedBox(height: 40),
+              _buildPekerjaan('Pembuatan Web', '2/5'),
+              _buildPekerjaan('Memasukkan Nilai', '0/2'),
+              _buildPekerjaan('Pembelian AC', '2/5'),
+            ],
           ),
         ),
       ),
@@ -63,22 +73,45 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
   }
 
   Widget _buildPekerjaan(String title, String anggota) {
-    return Card(
-      color: Colors.blue,
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 6.0),
+      decoration: BoxDecoration(
+        color: Colors.blue,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
       child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
         title: Text(
           title,
           style: GoogleFonts.poppins(
-            fontSize: 14,
+            fontSize: 16,
             color: Colors.white,
+            fontWeight: FontWeight.w300,
           ),
         ),
-        trailing: Text(
-          anggota,
-          style: GoogleFonts.poppins(
-            fontSize: 14,
-            color: Colors.white,
-          ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.person,
+              color: Colors.white,
+            ),
+            const SizedBox(width: 5),
+            Text(
+              anggota,
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: Colors.white,
+              ),
+            ),
+          ],
         ),
       ),
     );
