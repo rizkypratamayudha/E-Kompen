@@ -1,6 +1,7 @@
+import 'package:firstapp/dosen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../bottombar/bottombar.dart'; // Import BottomNavBar
+import '../bottombar/bottombarDosen.dart'; // Import BottomNavBar
 import 'profile.dart';
 import 'riwayat.dart';
 import '../mahasiswa.dart';
@@ -39,7 +40,7 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
     } else if (index == 0) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const MahasiswaDashboard()),
+        MaterialPageRoute(builder: (context) => const DosenDashboard()),
       );
     }
   }
@@ -55,7 +56,7 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavBar(
+      bottomNavigationBar: BottomNavBarDosen(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
       ),
