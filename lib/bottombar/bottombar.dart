@@ -14,29 +14,33 @@ class BottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
-      items: const [
+      type: BottomNavigationBarType.shifting, // Gunakan shifting untuk efek pergerakan ikon
+      items: [
         BottomNavigationBarItem(
           icon: Icon(Icons.home),
           label: 'Home',
+          backgroundColor: Colors.white, // Warna background untuk item Home
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.assignment_add),
-          label: 'Pekerjaan',
+          label: 'Tugas',
+          backgroundColor: Colors.white, // Warna background untuk item Tugas
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.history),
           label: 'History',
+          backgroundColor: Colors.white, // Warna background untuk item History
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.account_circle),
           label: 'Profile',
+          backgroundColor: Colors.white, // Warna background untuk item Profile
         ),
       ],
       currentIndex: selectedIndex,
       onTap: onItemTapped,
-      backgroundColor: Colors.white,
-      selectedItemColor: Colors.blue,
-      unselectedItemColor: Colors.grey,
+      selectedItemColor: Colors.blue, // Warna ikon yang dipilih
+      unselectedItemColor: Colors.grey, // Warna ikon yang tidak dipilih
     );
   }
 }

@@ -43,29 +43,32 @@ class _RiwayatPageState extends State<RiwayatPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false, // Menyembunyikan banner "Debug"
-      theme: ThemeData(
-        textTheme: GoogleFonts.poppinsTextTheme(
-          Theme.of(context).textTheme,
+Widget build(BuildContext context) {
+  return MaterialApp(
+    debugShowCheckedModeBanner: false, // Menyembunyikan banner "Debug"
+    theme: ThemeData(
+      textTheme: GoogleFonts.poppinsTextTheme(
+        Theme.of(context).textTheme,
+      ),
+    ),
+    home: Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white, // Warna putih untuk background app bar
+        title: Padding(
+          padding: const EdgeInsets.only(left: 10.0),
+          child: Text('Riwayat'),
         ),
       ),
-      home: Scaffold(
-        appBar: AppBar(
-          title: Padding(
-            padding: const EdgeInsets.only(left: 10.0),
-            child: Text('Riwayat'),
-          ),
-        ),
-        body: RiwayatScreen(),
-        bottomNavigationBar: BottomNavBar(
-          selectedIndex: _selectedIndex,
-          onItemTapped: _onItemTapped,
-        ),
+      backgroundColor: Colors.white, // Menambahkan warna putih untuk background body
+      body: RiwayatScreen(),
+      bottomNavigationBar: BottomNavBar(
+        selectedIndex: _selectedIndex,
+        onItemTapped: _onItemTapped,
       ),
-    );
-  }
+    ),
+  );
+}
+
 }
 
 class RiwayatScreen extends StatefulWidget {
@@ -173,17 +176,18 @@ class TabButton extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.blue : Colors.transparent,
-          border: Border.all(color: Colors.white),
-          borderRadius: BorderRadius.circular(10)
-        ),
+            color: isSelected ? Colors.blue : Colors.transparent,
+            border: Border.all(color: Colors.white),
+            borderRadius: BorderRadius.circular(10)),
         alignment: Alignment.center,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               icon,
-              color: isSelected ? Colors.white : Colors.black, // Ubah warna ikon sesuai kondisi isSelected
+              color: isSelected
+                  ? Colors.white
+                  : Colors.black, // Ubah warna ikon sesuai kondisi isSelected
             ),
             SizedBox(width: 6), // Jarak antara ikon dan teks
             Text(
@@ -222,7 +226,8 @@ Widget _buildRiwayat(BuildContext context, String title) {
               if (title == 'Memasukkan Nilai') {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => PengumpulanBuktiPage()),
+                  MaterialPageRoute(
+                      builder: (context) => PengumpulanBuktiPage()),
                 );
               }
             },
@@ -233,59 +238,80 @@ Widget _buildRiwayat(BuildContext context, String title) {
   );
 }
 
-
-
 class PengumpulanBuktiPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Pengumpulan Bukti Pekerjaan'),
+        title: Text(
+          'Pengumpulan Bukti Pekerjaan',
+          style: GoogleFonts.poppins(fontSize: 20, color: Colors.black),
+        ),
+        backgroundColor: Colors.white, // Warna AppBar putih
+        elevation: 0, // Menghilangkan bayangan AppBar
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.black), // Tombol back dengan ikon hitam
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
       ),
-      body: Padding(
+      body: Container(
+        color: Colors.white, // Warna background body putih
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'Tugas : Memasukkan Nilai',
-              style: GoogleFonts.poppins(fontSize: 16),
+              style: GoogleFonts.poppins(fontSize: 16, color: Colors.black),
             ),
             SizedBox(height: 10),
             Text(
               'Batas pengerjaan : 2024-10-30',
-              style: GoogleFonts.poppins(fontSize: 16),
+              style: GoogleFonts.poppins(fontSize: 16, color: Colors.black),
             ),
             SizedBox(height: 10),
             Text(
               'Jumlah jam : 100 jam',
-              style: GoogleFonts.poppins(fontSize: 16),
+              style: GoogleFonts.poppins(fontSize: 16, color: Colors.black),
             ),
             SizedBox(height: 20),
             Text(
               'Foto bukti :',
-              style: GoogleFonts.poppins(fontSize: 16),
+              style: GoogleFonts.poppins(fontSize: 16, color: Colors.black),
             ),
             SizedBox(height: 10),
             Container(
-              height: 150,
+              height: 200,
               width: double.infinity,
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
+                color: Colors.grey[100], // Warna latar belakang abu muda
+                borderRadius: BorderRadius.circular(10), // Menambahkan border radius
               ),
               child: Center(
                 child: Icon(Icons.image, size: 50, color: Colors.grey),
               ),
             ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                // Tambahkan logika untuk mengunggah bukti atau mengambil foto
-              },
-              child: Text('+ Tambah / buat'),
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(vertical: 16),
-                textStyle: GoogleFonts.poppins(fontSize: 16),
+            SizedBox(height: 200),
+            SizedBox(
+              width: double.infinity, // Lebar tombol memenuhi layar
+              child: ElevatedButton(
+                onPressed: () {
+                  // Tambahkan logika untuk mengunggah bukti atau mengambil foto
+                },
+                child: Text(
+                  '+ Tambah / buat',
+                  style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue, // Warna tombol biru
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  textStyle: GoogleFonts.poppins(fontSize: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10), // Border radius 10
+                  ),
+                ),
               ),
             ),
           ],
@@ -294,4 +320,3 @@ class PengumpulanBuktiPage extends StatelessWidget {
     );
   }
 }
-
