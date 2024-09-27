@@ -133,25 +133,46 @@ class _DosenDashboardState extends State<DosenDashboard> {
                   Row(
                     children: [
                       _buildStatusIndicator(Colors.black, 'Menunggu'),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 25),
                       _buildStatusIndicator(Colors.green, 'Dalam Pekerjaan'),
                     ],
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 30),
+                  _buildTaskCard('Pembuatan Web', Colors.black),
+                  _buildTaskCard('Memasukkan Nilai', Colors.green),
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 40),
 
             // Task List Section
-            Expanded(
-              child: ListView(
+             Container(
+              padding: const EdgeInsets.all(20.0),
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildTaskCard('Pembuatan Web', Colors.black),
-                  _buildTaskCard('Memasukkan Nilai', Colors.green),
-                  const SizedBox(height: 30),
                   _buildTaskSummary('Tugas Aktif', '2'),
+                  const Padding(
+                    padding: EdgeInsets.only(top: 5, bottom: 5),
+                    child: Divider(
+                      color: Colors.white,
+                      thickness: 2,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
                   _buildTaskSummary('Tugas Selesai', '1'),
+                  const Padding(
+                    padding: EdgeInsets.only(top: 5, bottom: 5),
+                    child: Divider(
+                      color: Colors.white,
+                      thickness: 2,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
                   _buildTaskSummary('Total Tugas', '3'),
                 ],
               ),
