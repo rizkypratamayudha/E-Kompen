@@ -21,7 +21,7 @@ class BottomNavBar extends StatelessWidget {
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.assignment_add),
-          label: 'Tugas',
+          label: 'Pekerjaan',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.history),
