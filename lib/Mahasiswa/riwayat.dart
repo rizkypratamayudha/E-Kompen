@@ -45,6 +45,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false, // Menyembunyikan banner "Debug"
       theme: ThemeData(
         textTheme: GoogleFonts.poppinsTextTheme(
           Theme.of(context).textTheme,
@@ -173,7 +174,7 @@ class TabButton extends StatelessWidget {
         padding: EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
           color: isSelected ? Colors.blue : Colors.white,
-          border: Border.all(color: Colors.black),
+          border: Border.all(color: Colors.white),
         ),
         alignment: Alignment.center,
         child: Row(
