@@ -173,9 +173,8 @@ class TabButton extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.blue : Colors.transparent,
+          color: isSelected ? Colors.blue : Colors.white,
           border: Border.all(color: Colors.white),
-          borderRadius: BorderRadius.circular(10)
         ),
         alignment: Alignment.center,
         child: Row(

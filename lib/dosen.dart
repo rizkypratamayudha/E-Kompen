@@ -1,105 +1,217 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'Dosen/pekerjaan.dart'; // Update the path if needed
+import 'Dosen/profile.dart'; // Update the path if needed
+import 'Dosen/riwayat.dart'; // Update the path if needed
+import 'bottombar/bottombarDosen.dart';
 
-
-// Dosen Dashboard Page
-class DosenDashboard extends StatelessWidget {
+class DosenDashboard extends StatefulWidget {
   const DosenDashboard({super.key});
+
+  @override
+  _DosenDashboardState createState() => _DosenDashboardState();
+}
+
+class _DosenDashboardState extends State<DosenDashboard> {
+  int _selectedIndex = 0;
+
+  // Function to handle navigation based on the index from BottomNavigationBar
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    if (index == 1) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const PekerjaanPage()), // Update the page if needed
+      );
+    } else if (index == 2) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => RiwayatPage()), // Update the page if needed
+      );
+    } else if (index == 3) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => ProfilePage()), // Update the page if needed
+      );
+    } else if (index == 0) {
+      return;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Dashboard Dosen'),
-        backgroundColor: Colors.black,
-      ),
       body: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.fromLTRB(10.0, 50.0, 10.0, 10.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Header Section
             Row(
-              children: const [
-                CircleAvatar(
+              children: [
+                const CircleAvatar(
                   radius: 30,
                   backgroundColor: Colors.grey,
                   child: Icon(Icons.person, size: 40),
                 ),
-                SizedBox(width: 10),
-                Text(
-                  'Taufik Abdus S.T',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                const SizedBox(width: 10),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Halo',
+                      style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      'Taufik Abdus S.T',
+                      style: GoogleFonts.poppins(),
+                    ),
+                  ],
                 ),
               ],
             ),
             const SizedBox(height: 20),
-            Card(
-              color: Colors.blue[200],
-              child: ListTile(
-                title: const Text('Jumlah Tugas Aktif : 2'),
-                subtitle: const Text('Status: Terdapat Pengajuan tugas'),
+
+            // Task Summary Section
+            Container(
+              padding: const EdgeInsets.all(20.0),
+              decoration: BoxDecoration(
+                color: Colors.blueAccent,
+                borderRadius: BorderRadius.circular(10),
               ),
-            ),
-            const SizedBox(height: 20),
-            Card(
-              elevation: 2,
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ListTile(
-                    leading: const CircleAvatar(
-                      radius: 10,
-                      backgroundColor: Colors.black,
+                  Text(
+                    'Jumlah Tugas Aktif: 2',
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontSize: 14,
                     ),
-                    title: const Text('Pembuatan Web'),
-                    subtitle: const Text('Menunggu'),
                   ),
-                  const Divider(),
-                  ListTile(
-                    leading: const CircleAvatar(
-                      radius: 10,
-                      backgroundColor: Colors.green,
+                  const Padding(
+                    padding: EdgeInsets.only(top: 5, bottom: 5),
+                    child: Divider(
+                      color: Colors.white,
+                      thickness: 2,
                     ),
-                    title: const Text('Memasukkan Nilai'),
-                    subtitle: const Text('Dalam Pekerjaan'),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    'Status: Terdapat Pengajuan tugas',
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontSize: 14,
+                    ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 20),
-            Card(
+
+            // Task Status Section
+            Container(
+              padding: const EdgeInsets.all(10.0),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(10),
+              ),
               child: Column(
-                children: const [
-                  ListTile(
-                    title: Text('Tugas Aktif'),
-                    trailing: Text('2'),
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Status:',
+                    style: GoogleFonts.poppins(fontSize: 16),
                   ),
-                  ListTile(
-                    title: Text('Tugas Selesai'),
-                    trailing: Text('1'),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      _buildStatusIndicator(Colors.black, 'Menunggu'),
+                      const SizedBox(width: 10),
+                      _buildStatusIndicator(Colors.green, 'Dalam Pekerjaan'),
+                    ],
                   ),
-                  ListTile(
-                    title: Text('Total Tugas'),
-                    trailing: Text('3'),
-                  ),
+                  const SizedBox(height: 10),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Task List Section
+            Expanded(
+              child: ListView(
+                children: [
+                  _buildTaskCard('Pembuatan Web', Colors.black),
+                  _buildTaskCard('Memasukkan Nilai', Colors.green),
+                  const SizedBox(height: 30),
+                  _buildTaskSummary('Tugas Aktif', '2'),
+                  _buildTaskSummary('Tugas Selesai', '1'),
+                  _buildTaskSummary('Total Tugas', '3'),
                 ],
               ),
             ),
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.assignment),
-            label: 'Tugas',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
+      // Using BottomNavBar
+      bottomNavigationBar: BottomNavBarDosen(
+        selectedIndex: _selectedIndex,
+        onItemTapped: _onItemTapped,
+      ),
+    );
+  }
+
+  // Status Indicator Widget
+  Widget _buildStatusIndicator(Color color, String label) {
+    return Row(
+      children: [
+        CircleAvatar(
+          radius: 5,
+          backgroundColor: color,
+        ),
+        const SizedBox(width: 5),
+        Text(
+          label,
+          style: GoogleFonts.poppins(fontSize: 14),
+        ),
+      ],
+    );
+  }
+
+  // Task Card Widget
+  Widget _buildTaskCard(String taskName, Color statusColor) {
+    return Card(
+      child: ListTile(
+        title: Text(
+          taskName,
+          style: GoogleFonts.poppins(fontSize: 14),
+        ),
+        trailing: CircleAvatar(
+          radius: 5,
+          backgroundColor: statusColor,
+        ),
+      ),
+    );
+  }
+
+  // Task Summary Widget
+  Widget _buildTaskSummary(String title, String count) {
+    return Card(
+      child: ListTile(
+        title: Text(
+          title,
+          style: GoogleFonts.poppins(fontSize: 14),
+        ),
+        trailing: Text(
+          count,
+          style: GoogleFonts.poppins(fontSize: 14),
+        ),
       ),
     );
   }
