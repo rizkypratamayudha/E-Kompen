@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'Dosen/pekerjaan.dart'; // Update the path if needed
-import 'Dosen/profile.dart'; // Update the path if needed
-import 'Dosen/riwayat.dart'; // Update the path if needed
+import 'Dosen/pekerjaan.dart'; 
+import 'Dosen/profile.dart'; 
+import 'Dosen/riwayat.dart'; 
 import 'bottombar/bottombarDosen.dart';
 
 class DosenDashboard extends StatefulWidget {
@@ -44,7 +44,8 @@ class _DosenDashboardState extends State<DosenDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
+      body: SingleChildScrollView(
+        physics: BouncingScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(10.0, 50.0, 10.0, 10.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -137,13 +138,13 @@ class _DosenDashboardState extends State<DosenDashboard> {
                       _buildStatusIndicator(Colors.green, 'Dalam Pekerjaan'),
                     ],
                   ),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 20),
                   _buildTaskCard('Pembuatan Web', Colors.black),
                   _buildTaskCard('Memasukkan Nilai', Colors.green),
                 ],
               ),
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 30),
 
             // Task List Section
              Container(
