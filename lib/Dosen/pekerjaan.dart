@@ -1,10 +1,11 @@
-import 'package:firstapp/dosen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../bottombar/bottombarDosen.dart'; // Import BottomNavBar
 import 'profile.dart';
 import 'riwayat.dart';
 import '../dosen.dart';
+import 'editPekerjaan.dart'; // Import EditPekerjaanPage
+import 'tambahPekerjaan.dart'; // Import TambahPekerjaanPage
 
 class PekerjaanPage extends StatefulWidget {
   const PekerjaanPage({super.key});
@@ -48,13 +49,6 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Pekerjaan',
-          style: GoogleFonts.poppins(fontSize: 18),
-        ),
-        backgroundColor: Colors.black,
-      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(10.0, 50.0, 10.0, 10.0),
@@ -77,7 +71,11 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Fungsi untuk menambah pekerjaan baru
+          // Navigasi ke halaman TambahPekerjaanPage
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => TambahPekerjaanPage()),
+          );
         },
         child: const Icon(Icons.add),
         backgroundColor: Colors.green,
@@ -106,12 +104,16 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
             color: Colors.white,
           ),
           onPressed: () {
-            // Navigasi ke halaman detail pekerjaan
+            // Navigasi ke halaman EditPekerjaanPage
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => EditPekerjaanPage(),
+              ),
+            );
           },
         ),
       ),
     );
   }
 }
-
-
