@@ -75,10 +75,17 @@ class RiwayatScreen extends StatefulWidget {
   @override
   _RiwayatScreenState createState() => _RiwayatScreenState();
 }
-
 class _RiwayatScreenState extends State<RiwayatScreen> {
   PageController _pageController = PageController(initialPage: 0);
   int _selectedIndex = 0;
+
+  // Contoh data
+  List<String> prosesItems = ['Memasukkan Nilai'];
+  List<String> selesaiItems = ['Pembuatan Web'];
+  List<Map<String, dynamic>> ttdKaprodiItems = [
+    {'title': 'Pembuatan Mobile', 'isApproved': true},
+    {'title': 'Pembelian AC', 'isApproved': false},
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -143,18 +150,110 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
               });
             },
             children: [
-              _buildRiwayat(context, 'Memasukkan Nilai'),
-              _buildRiwayat(context, 'Pembuatan Nilai'),
-              Center(
-                child: Text('Halaman TTD Kaprodi'),
-              ),
+              _buildRiwayatList(context, prosesItems), // Menampilkan semua item di kategori Proses
+              _buildRiwayatList(context, selesaiItems), // Menampilkan semua item di kategori Telah Selesai
+              _buildTTDKaprodiList(context, ttdKaprodiItems), // Menampilkan semua item di kategori TTD Kaprodi
             ],
           ),
         ),
       ],
     );
   }
+
+  // Fungsi untuk membangun daftar riwayat untuk tiap kategori
+  Widget _buildRiwayatList(BuildContext context, List<String> items) {
+    return ListView.builder(
+      itemCount: items.length,
+      itemBuilder: (context, index) {
+        return _buildRiwayat(context, items[index]);
+      },
+    );
+  }
+
+  // Fungsi untuk membangun satu item riwayat
+  Widget _buildRiwayat(BuildContext context, String title) {
+    return Align(
+      alignment: Alignment.topCenter,
+      child: FractionallySizedBox(
+        widthFactor: 0.9,
+        child: Card(
+          color: Colors.blue,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+            child: ListTile(
+              title: Text(
+                title,
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  color: Colors.white,
+                ),
+              ),
+              onTap: () {
+                if (title == 'Memasukkan Nilai') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => PengumpulanBuktiPage()),
+                  );
+                } else if (title == 'Pembuatan Web') {
+                  _showWebPopup(context);
+                }
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Fungsi untuk membangun daftar TTD Kaprodi untuk tiap kategori
+  Widget _buildTTDKaprodiList(BuildContext context, List<Map<String, dynamic>> items) {
+    return ListView.builder(
+      itemCount: items.length,
+      itemBuilder: (context, index) {
+        String title = items[index]['title'];
+        bool isApproved = items[index]['isApproved'];
+        return _buildTTDKaprodi(context, title, isApproved);
+      },
+    );
+  }
+
+  // Fungsi untuk membangun satu item TTD Kaprodi
+  Widget _buildTTDKaprodi(BuildContext context, String title, bool isApproved) {
+    return Align(
+      alignment: Alignment.topCenter,
+      child: FractionallySizedBox(
+        widthFactor: 0.9,
+        child: Card(
+          color: Colors.blue,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+            child: ListTile(
+              title: Text(
+                title,
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  color: Colors.white,
+                ),
+              ),
+              trailing: Icon(
+                Icons.circle,
+                color: isApproved ? Colors.green : Colors.white, // Hijau jika disetujui, putih jika tidak
+                size: 16, // Ukuran lingkaran
+              ),
+              onTap: () {
+                if (title == 'Pembuatan Mobile') {
+                  _showMobilePopup(context);
+                } 
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
+
 
 class TabButton extends StatelessWidget {
   final IconData icon; // Tambahkan parameter ikon
@@ -203,39 +302,6 @@ class TabButton extends StatelessWidget {
       ),
     );
   }
-}
-
-Widget _buildRiwayat(BuildContext context, String title) {
-  return Align(
-    alignment: Alignment.topCenter,
-    child: FractionallySizedBox(
-      widthFactor: 0.9,
-      child: Card(
-        color: Colors.blue,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-          child: ListTile(
-            title: Text(
-              title,
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                color: Colors.white,
-              ),
-            ),
-            onTap: () {
-              if (title == 'Memasukkan Nilai') {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => PengumpulanBuktiPage()),
-                );
-              }
-            },
-          ),
-        ),
-      ),
-    ),
-  );
 }
 
 class PengumpulanBuktiPage extends StatelessWidget {
@@ -320,3 +386,116 @@ class PengumpulanBuktiPage extends StatelessWidget {
     );
   }
 }
+
+void _showWebPopup(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        content: Container(
+          width: double.maxFinite,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Nama Dosen : Taufiq S.Tr S.I.B', style: GoogleFonts.poppins(fontSize: 14)),
+              SizedBox(height: 8),
+              Text('Nomor Dosen : 083166441802', style: GoogleFonts.poppins(fontSize: 14)),
+              SizedBox(height: 8),
+              Text('Jumlah Jam : 100 Jam', style: GoogleFonts.poppins(fontSize: 14)),
+              SizedBox(height: 8),
+              Text('Persyaratan : Bisa Coding', style: GoogleFonts.poppins(fontSize: 14)),
+              SizedBox(height: 16),
+              Container(
+                padding: EdgeInsets.all(8),
+                color: Colors.grey[200],
+                child: Text(
+                  'Deskripsi Pekerjaan :\n\nMembantu web Sederhana untuk Pelaporan Jumlah Komputer yang Tidak layak pakai Yang terdiri dari 5 Mahasiswa',
+                  style: GoogleFonts.poppins(fontSize: 12),
+                ),
+              ),
+              SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Tutup dialog
+                  },
+                  child: Text('Request TTD Kaprodi', style: GoogleFonts.poppins(fontSize: 14, color: Colors.white)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
+void _showMobilePopup(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        content: Container(
+          width: double.maxFinite,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Nama Dosen : Taufiq S.Tr S.I.B', style: GoogleFonts.poppins(fontSize: 14)),
+              SizedBox(height: 8),
+              Text('Nomor Dosen : 083166441802', style: GoogleFonts.poppins(fontSize: 14)),
+              SizedBox(height: 8),
+              Text('Jumlah Jam : 100 Jam', style: GoogleFonts.poppins(fontSize: 14)),
+              SizedBox(height: 8),
+              Text('Persyaratan : Bisa Coding', style: GoogleFonts.poppins(fontSize: 14)),
+              SizedBox(height: 16),
+              Container(
+                padding: EdgeInsets.all(8),
+                color: Colors.grey[200],
+                child: Text(
+                  'Deskripsi Pekerjaan :\n\nMembantu Mobile Sederhana untuk Pelaporan Jumlah Komputer yang Tidak layak pakai Yang terdiri dari 5 Mahasiswa',
+                  style: GoogleFonts.poppins(fontSize: 12),
+                ),
+              ),
+              SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Tutup dialog
+                  },
+                  child: Text('Cetak Bukti Surat', style: GoogleFonts.poppins(fontSize: 14, color: Colors.white)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
+
+
