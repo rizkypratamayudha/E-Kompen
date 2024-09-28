@@ -4,6 +4,7 @@ import '../bottombar/bottombar.dart'; // Import BottomNavBar
 import 'profile.dart';
 import 'riwayat.dart';
 import '../mahasiswa.dart';
+import '../widget/popup_pekerjaan_mhs.dart'; // Import file popup
 
 class PekerjaanPage extends StatefulWidget {
   const PekerjaanPage({super.key});
@@ -113,6 +114,15 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
             ),
           ],
         ),
+        onTap: () {
+          // Tampilkan popup ketika item diklik
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return const PopUpPekerjaan(); // Memanggil popup yang sudah dibuat
+            },
+          );
+        },
       ),
     );
   }
