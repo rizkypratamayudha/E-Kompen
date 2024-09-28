@@ -43,39 +43,49 @@ class _RiwayatPageState extends State<RiwayatPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false, // Menyembunyikan banner "Debug"
-      theme: ThemeData(
-        textTheme: GoogleFonts.poppinsTextTheme(
-          Theme.of(context).textTheme,
+Widget build(BuildContext context) {
+  return MaterialApp(
+    debugShowCheckedModeBanner: false, // Menyembunyikan banner "Debug"
+    theme: ThemeData(
+      textTheme: GoogleFonts.poppinsTextTheme(
+        Theme.of(context).textTheme,
+      ),
+    ),
+    home: Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white, // Warna putih untuk background app bar
+        title: Padding(
+          padding: const EdgeInsets.only(left: 10.0),
+          child: Text('Riwayat'),
         ),
       ),
-      home: Scaffold(
-        appBar: AppBar(
-          title: Padding(
-            padding: const EdgeInsets.only(left: 10.0),
-            child: Text('Riwayat'),
-          ),
-        ),
-        body: RiwayatScreen(),
-        bottomNavigationBar: BottomNavBar(
-          selectedIndex: _selectedIndex,
-          onItemTapped: _onItemTapped,
-        ),
+      backgroundColor: Colors.white, // Menambahkan warna putih untuk background body
+      body: RiwayatScreen(),
+      bottomNavigationBar: BottomNavBar(
+        selectedIndex: _selectedIndex,
+        onItemTapped: _onItemTapped,
       ),
-    );
-  }
+    ),
+  );
+}
+
 }
 
 class RiwayatScreen extends StatefulWidget {
   @override
   _RiwayatScreenState createState() => _RiwayatScreenState();
 }
-
 class _RiwayatScreenState extends State<RiwayatScreen> {
   PageController _pageController = PageController(initialPage: 0);
   int _selectedIndex = 0;
+
+  // Contoh data
+  List<String> prosesItems = ['Memasukkan Nilai'];
+  List<String> selesaiItems = ['Pembuatan Web'];
+  List<Map<String, dynamic>> ttdKaprodiItems = [
+    {'title': 'Pembuatan Mobile', 'isApproved': true},
+    {'title': 'Pembelian AC', 'isApproved': false},
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -140,18 +150,110 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
               });
             },
             children: [
-              _buildRiwayat(context, 'Memasukkan Nilai'),
-              _buildRiwayat(context, 'Pembuatan Nilai'),
-              Center(
-                child: Text('Halaman TTD Kaprodi'),
-              ),
+              _buildRiwayatList(context, prosesItems), // Menampilkan semua item di kategori Proses
+              _buildRiwayatList(context, selesaiItems), // Menampilkan semua item di kategori Telah Selesai
+              _buildTTDKaprodiList(context, ttdKaprodiItems), // Menampilkan semua item di kategori TTD Kaprodi
             ],
           ),
         ),
       ],
     );
   }
+
+  // Fungsi untuk membangun daftar riwayat untuk tiap kategori
+  Widget _buildRiwayatList(BuildContext context, List<String> items) {
+    return ListView.builder(
+      itemCount: items.length,
+      itemBuilder: (context, index) {
+        return _buildRiwayat(context, items[index]);
+      },
+    );
+  }
+
+  // Fungsi untuk membangun satu item riwayat
+  Widget _buildRiwayat(BuildContext context, String title) {
+    return Align(
+      alignment: Alignment.topCenter,
+      child: FractionallySizedBox(
+        widthFactor: 0.9,
+        child: Card(
+          color: Colors.blue,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+            child: ListTile(
+              title: Text(
+                title,
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  color: Colors.white,
+                ),
+              ),
+              onTap: () {
+                if (title == 'Memasukkan Nilai') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => PengumpulanBuktiPage()),
+                  );
+                } else if (title == 'Pembuatan Web') {
+                  _showWebPopup(context);
+                }
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Fungsi untuk membangun daftar TTD Kaprodi untuk tiap kategori
+  Widget _buildTTDKaprodiList(BuildContext context, List<Map<String, dynamic>> items) {
+    return ListView.builder(
+      itemCount: items.length,
+      itemBuilder: (context, index) {
+        String title = items[index]['title'];
+        bool isApproved = items[index]['isApproved'];
+        return _buildTTDKaprodi(context, title, isApproved);
+      },
+    );
+  }
+
+  // Fungsi untuk membangun satu item TTD Kaprodi
+  Widget _buildTTDKaprodi(BuildContext context, String title, bool isApproved) {
+    return Align(
+      alignment: Alignment.topCenter,
+      child: FractionallySizedBox(
+        widthFactor: 0.9,
+        child: Card(
+          color: Colors.blue,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+            child: ListTile(
+              title: Text(
+                title,
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  color: Colors.white,
+                ),
+              ),
+              trailing: Icon(
+                Icons.circle,
+                color: isApproved ? Colors.green : Colors.white, // Hijau jika disetujui, putih jika tidak
+                size: 16, // Ukuran lingkaran
+              ),
+              onTap: () {
+                if (title == 'Pembuatan Mobile') {
+                  _showMobilePopup(context);
+                } 
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
+
 
 class TabButton extends StatelessWidget {
   final IconData icon; // Tambahkan parameter ikon
@@ -173,17 +275,18 @@ class TabButton extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.blue : Colors.transparent,
-          border: Border.all(color: Colors.white),
-          borderRadius: BorderRadius.circular(10)
-        ),
+            color: isSelected ? Colors.blue : Colors.transparent,
+            border: Border.all(color: Colors.white),
+            borderRadius: BorderRadius.circular(10)),
         alignment: Alignment.center,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               icon,
-              color: isSelected ? Colors.white : Colors.black, // Ubah warna ikon sesuai kondisi isSelected
+              color: isSelected
+                  ? Colors.white
+                  : Colors.black, // Ubah warna ikon sesuai kondisi isSelected
             ),
             SizedBox(width: 6), // Jarak antara ikon dan teks
             Text(
@@ -201,91 +304,80 @@ class TabButton extends StatelessWidget {
   }
 }
 
-Widget _buildRiwayat(BuildContext context, String title) {
-  return Align(
-    alignment: Alignment.topCenter,
-    child: FractionallySizedBox(
-      widthFactor: 0.9,
-      child: Card(
-        color: Colors.blue,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-          child: ListTile(
-            title: Text(
-              title,
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                color: Colors.white,
-              ),
-            ),
-            onTap: () {
-              if (title == 'Memasukkan Nilai') {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => PengumpulanBuktiPage()),
-                );
-              }
-            },
-          ),
-        ),
-      ),
-    ),
-  );
-}
-
-
-
 class PengumpulanBuktiPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Pengumpulan Bukti Pekerjaan'),
+        title: Text(
+          'Pengumpulan Bukti Pekerjaan',
+          style: GoogleFonts.poppins(fontSize: 20, color: Colors.black),
+        ),
+        backgroundColor: Colors.white, // Warna AppBar putih
+        elevation: 0, // Menghilangkan bayangan AppBar
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.black), // Tombol back dengan ikon hitam
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
       ),
-      body: Padding(
+      body: Container(
+        color: Colors.white, // Warna background body putih
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'Tugas : Memasukkan Nilai',
-              style: GoogleFonts.poppins(fontSize: 16),
+              style: GoogleFonts.poppins(fontSize: 16, color: Colors.black),
             ),
             SizedBox(height: 10),
             Text(
               'Batas pengerjaan : 2024-10-30',
-              style: GoogleFonts.poppins(fontSize: 16),
+              style: GoogleFonts.poppins(fontSize: 16, color: Colors.black),
             ),
             SizedBox(height: 10),
             Text(
               'Jumlah jam : 100 jam',
-              style: GoogleFonts.poppins(fontSize: 16),
+              style: GoogleFonts.poppins(fontSize: 16, color: Colors.black),
             ),
             SizedBox(height: 20),
             Text(
               'Foto bukti :',
-              style: GoogleFonts.poppins(fontSize: 16),
+              style: GoogleFonts.poppins(fontSize: 16, color: Colors.black),
             ),
             SizedBox(height: 10),
             Container(
-              height: 150,
+              height: 200,
               width: double.infinity,
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
+                color: Colors.grey[100], // Warna latar belakang abu muda
+                borderRadius: BorderRadius.circular(10), // Menambahkan border radius
               ),
               child: Center(
                 child: Icon(Icons.image, size: 50, color: Colors.grey),
               ),
             ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                // Tambahkan logika untuk mengunggah bukti atau mengambil foto
-              },
-              child: Text('+ Tambah / buat'),
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(vertical: 16),
-                textStyle: GoogleFonts.poppins(fontSize: 16),
+            SizedBox(height: 200),
+            SizedBox(
+              width: double.infinity, // Lebar tombol memenuhi layar
+              child: ElevatedButton(
+                onPressed: () {
+                  // Tambahkan logika untuk mengunggah bukti atau mengambil foto
+                },
+                child: Text(
+                  '+ Tambah / buat',
+                  style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue, // Warna tombol biru
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  textStyle: GoogleFonts.poppins(fontSize: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10), // Border radius 10
+                  ),
+                ),
               ),
             ),
           ],
@@ -294,4 +386,116 @@ class PengumpulanBuktiPage extends StatelessWidget {
     );
   }
 }
+
+void _showWebPopup(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        content: Container(
+          width: double.maxFinite,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Nama Dosen : Taufiq S.Tr S.I.B', style: GoogleFonts.poppins(fontSize: 14)),
+              SizedBox(height: 8),
+              Text('Nomor Dosen : 083166441802', style: GoogleFonts.poppins(fontSize: 14)),
+              SizedBox(height: 8),
+              Text('Jumlah Jam : 100 Jam', style: GoogleFonts.poppins(fontSize: 14)),
+              SizedBox(height: 8),
+              Text('Persyaratan : Bisa Coding', style: GoogleFonts.poppins(fontSize: 14)),
+              SizedBox(height: 16),
+              Container(
+                padding: EdgeInsets.all(8),
+                color: Colors.grey[200],
+                child: Text(
+                  'Deskripsi Pekerjaan :\n\nMembantu web Sederhana untuk Pelaporan Jumlah Komputer yang Tidak layak pakai Yang terdiri dari 5 Mahasiswa',
+                  style: GoogleFonts.poppins(fontSize: 12),
+                ),
+              ),
+              SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Tutup dialog
+                  },
+                  child: Text('Request TTD Kaprodi', style: GoogleFonts.poppins(fontSize: 14, color: Colors.white)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
+void _showMobilePopup(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        content: Container(
+          width: double.maxFinite,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Nama Dosen : Taufiq S.Tr S.I.B', style: GoogleFonts.poppins(fontSize: 14)),
+              SizedBox(height: 8),
+              Text('Nomor Dosen : 083166441802', style: GoogleFonts.poppins(fontSize: 14)),
+              SizedBox(height: 8),
+              Text('Jumlah Jam : 100 Jam', style: GoogleFonts.poppins(fontSize: 14)),
+              SizedBox(height: 8),
+              Text('Persyaratan : Bisa Coding', style: GoogleFonts.poppins(fontSize: 14)),
+              SizedBox(height: 16),
+              Container(
+                padding: EdgeInsets.all(8),
+                color: Colors.grey[200],
+                child: Text(
+                  'Deskripsi Pekerjaan :\n\nMembantu Mobile Sederhana untuk Pelaporan Jumlah Komputer yang Tidak layak pakai Yang terdiri dari 5 Mahasiswa',
+                  style: GoogleFonts.poppins(fontSize: 12),
+                ),
+              ),
+              SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Tutup dialog
+                  },
+                  child: Text('Cetak Bukti Surat', style: GoogleFonts.poppins(fontSize: 14, color: Colors.white)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
+
 

@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../bottombar/bottombarDosen.dart'; // Import BottomNavBar
 import 'profile.dart';
 import 'riwayat.dart';
-import '../mahasiswa.dart';
+import '../dosen.dart';
 
 class PekerjaanPage extends StatefulWidget {
   const PekerjaanPage({super.key});
@@ -48,13 +48,39 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body:  SingleChildScrollView(
-        child:  Padding(
-          padding:  const EdgeInsets.fromLTRB(40.0, 40.0, 10.0, 10.0),
-          child: Text('Pekerjaan',
+      appBar: AppBar(
+        title: Text(
+          'Pekerjaan',
           style: GoogleFonts.poppins(fontSize: 18),
+        ),
+        backgroundColor: Colors.black,
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(10.0, 50.0, 10.0, 10.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Pekerjaan',
+                style: GoogleFonts.poppins(
+                  fontSize: 22,
+                ),
+              ),
+              const SizedBox(height: 20),
+              _buildPekerjaan('Pembuatan Web'),
+              const SizedBox(height: 10),
+              _buildPekerjaan('Memasukkan Nilai'),
+            ],
           ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Fungsi untuk menambah pekerjaan baru
+        },
+        child: const Icon(Icons.add),
+        backgroundColor: Colors.green,
       ),
       bottomNavigationBar: BottomNavBarDosen(
         selectedIndex: _selectedIndex,
@@ -63,7 +89,7 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
     );
   }
 
-  Widget _buildPekerjaan(String title, String anggota) {
+  Widget _buildPekerjaan(String title) {
     return Card(
       color: Colors.blue,
       child: ListTile(
@@ -74,14 +100,18 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
             color: Colors.white,
           ),
         ),
-        trailing: Text(
-          anggota,
-          style: GoogleFonts.poppins(
-            fontSize: 14,
+        trailing: IconButton(
+          icon: const Icon(
+            Icons.menu_book,
             color: Colors.white,
           ),
+          onPressed: () {
+            // Navigasi ke halaman detail pekerjaan
+          },
         ),
       ),
     );
   }
 }
+
+
