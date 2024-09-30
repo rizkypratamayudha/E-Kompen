@@ -7,14 +7,14 @@ import '../dosen.dart';
 import 'editPekerjaan.dart'; // Import EditPekerjaanPage
 import 'tambahPekerjaan.dart'; // Import TambahPekerjaanPage
 
-class PekerjaanPage extends StatefulWidget {
-  const PekerjaanPage({super.key});
+class PekerjaanDosenPage extends StatefulWidget {
+  const PekerjaanDosenPage({super.key});
 
   @override
-  _PekerjaanPageState createState() => _PekerjaanPageState();
+  _PekerjaanDosenPageState createState() => _PekerjaanDosenPageState();
 }
 
-class _PekerjaanPageState extends State<PekerjaanPage> {
+class _PekerjaanDosenPageState extends State<PekerjaanDosenPage> {
   int _selectedIndex = 1;
 
   void _onItemTapped(int index) {

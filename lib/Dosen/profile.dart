@@ -31,7 +31,7 @@ class _ProfilePageState extends State<ProfilePage> {
     if (index == 1) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => PekerjaanPage()),
+        MaterialPageRoute(builder: (context) => PekerjaanDosenPage()),
       );
     } else if (index == 2) {
       Navigator.pushReplacement(

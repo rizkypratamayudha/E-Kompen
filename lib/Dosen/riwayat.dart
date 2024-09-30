@@ -27,7 +27,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
     } else if (index == 1) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => PekerjaanPage()),
+        MaterialPageRoute(builder: (context) => PekerjaanDosenPage()),
       );
     } else if (index == 3) {
       Navigator.pushReplacement(

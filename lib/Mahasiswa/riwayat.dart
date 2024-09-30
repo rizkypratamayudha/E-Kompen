@@ -56,7 +56,9 @@ Widget build(BuildContext context) {
         backgroundColor: Colors.white, // Warna putih untuk background app bar
         title: Padding(
           padding: const EdgeInsets.only(left: 10.0),
-          child: Text('Riwayat'),
+          child: Text('Riwayat',
+          style: GoogleFonts.poppins(fontSize: 18),
+          ),
         ),
       ),
       backgroundColor: Colors.white, // Menambahkan warna putih untuk background body

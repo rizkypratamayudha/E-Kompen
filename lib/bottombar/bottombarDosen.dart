@@ -28,7 +28,7 @@ class BottomNavBarDosen extends StatelessWidget {
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.assignment_turned_in_outlined),
-          label: 'penerimaan',
+          label: 'Penerimaan',
           backgroundColor: Colors.white, // Warna background untuk item History
         ),
         BottomNavigationBarItem(

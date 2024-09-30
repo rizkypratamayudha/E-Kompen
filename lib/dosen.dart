@@ -24,7 +24,7 @@ class _DosenDashboardState extends State<DosenDashboard> {
     if (index == 1) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const PekerjaanPage()), // Update the page if needed
+        MaterialPageRoute(builder: (context) => const PekerjaanDosenPage()), // Update the page if needed
       );
     } else if (index == 2) {
       Navigator.push(

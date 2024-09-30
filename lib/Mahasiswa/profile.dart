@@ -189,6 +189,7 @@ class _ProfilePageState extends State<ProfilePage> {
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
       ),
+      backgroundColor: Colors.white,
     );
   }
 

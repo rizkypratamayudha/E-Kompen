@@ -175,6 +175,7 @@ class _MahasiswaDashboardState extends State<MahasiswaDashboard> {
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
       ),
+      backgroundColor: Colors.white,
     );
   }
 

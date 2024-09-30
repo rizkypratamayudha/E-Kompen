@@ -70,6 +70,7 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
       ),
+      backgroundColor: Colors.white,
     );
   }
 
