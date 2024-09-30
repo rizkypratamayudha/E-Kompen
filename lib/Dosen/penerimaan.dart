@@ -5,12 +5,12 @@ import 'profile.dart';
 import 'pekerjaan.dart';
 import '../mahasiswa.dart';
 
-class RiwayatPage extends StatefulWidget {
+class PenerimaanDosenPage extends StatefulWidget {
   @override
-  _RiwayatPageState createState() => _RiwayatPageState();
+  _PenerimaanDosenPageState createState() => _PenerimaanDosenPageState();
 }
 
-class _RiwayatPageState extends State<RiwayatPage> {
+class _PenerimaanDosenPageState extends State<PenerimaanDosenPage> {
   int _selectedIndex = 2; // Sesuaikan dengan tab yang sedang aktif
 
   void _onItemTapped(int index) {
