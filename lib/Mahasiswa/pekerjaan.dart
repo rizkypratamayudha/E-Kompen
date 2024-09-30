@@ -56,7 +56,7 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
             children: [
               Text(
                 'Pekerjaan',
-                style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.normal),
+                style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.normal),
               ),
               const SizedBox(height: 40),
               _buildPekerjaan('Pembuatan Web', '2/5'),

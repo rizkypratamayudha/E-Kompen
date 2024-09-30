@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../bottombar/bottombarDosen.dart'; // Import BottomNavBar
 import 'profile.dart';
 import 'penerimaanDosen.dart';
+import 'penerimaan.dart';
 import '../dosen.dart';
 import 'editPekerjaan.dart'; // Import EditPekerjaanPage
 import 'tambahPekerjaan.dart'; // Import TambahPekerjaanPage
@@ -51,7 +52,7 @@ class _PekerjaanDosenPageState extends State<PekerjaanDosenPage> {
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(10.0, 50.0, 10.0, 10.0),
+          padding: const EdgeInsets.fromLTRB(20.0, 50.0, 20.0, 5.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -100,7 +101,7 @@ class _PekerjaanDosenPageState extends State<PekerjaanDosenPage> {
         ),
         trailing: IconButton(
           icon: const Icon(
-            Icons.menu_book,
+            Icons.border_color,
             color: Colors.white,
           ),
           onPressed: () {

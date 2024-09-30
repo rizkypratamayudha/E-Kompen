@@ -57,7 +57,7 @@ Widget build(BuildContext context) {
         title: Padding(
           padding: const EdgeInsets.only(left: 10.0),
           child: Text('Riwayat',
-          style: GoogleFonts.poppins(fontSize: 18),
+          style: GoogleFonts.poppins(fontSize: 22),
           ),
         ),
       ),

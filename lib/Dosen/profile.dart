@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../bottombar/bottombar.dart'; 
-import 'riwayat.dart';
+import 'penerimaan.dart';
 import 'pekerjaan.dart';
 import '../mahasiswa.dart';
 import '../widget/popup_logout.dart'; 
@@ -36,7 +36,7 @@ class _ProfilePageState extends State<ProfilePage> {
     } else if (index == 2) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => RiwayatPage()),
+        MaterialPageRoute(builder: (context) => PenerimaanDosenPage()),
       );
     } else if (index == 0) {
       Navigator.pushReplacement(
