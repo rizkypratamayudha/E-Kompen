@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../bottombar/bottombarDosen.dart'; 
 import 'profile.dart';
-import 'penerimaan_dosen.dart';
+import 'penerimaan_dosen1.dart';
 import '../dosen.dart';
 import 'editPekerjaan.dart'; 
 import 'tambahPekerjaan.dart'; 
@@ -31,7 +31,7 @@ class _PekerjaanDosenPageState extends State<PekerjaanDosenPage> {
     } else if (index == 2) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => PenerimaanDosenPage()),
+        MaterialPageRoute(builder: (context) => PenerimaanDosen1()),
       );
     } else if (index == 3) {
       Navigator.pushReplacement(
@@ -78,8 +78,9 @@ class _PekerjaanDosenPageState extends State<PekerjaanDosenPage> {
             MaterialPageRoute(builder: (context) => TambahPekerjaanPage()),
           );
         },
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add, color: Colors.white,),
         backgroundColor: Colors.green,
+        
       ),
       bottomNavigationBar: BottomNavBarDosen(
         selectedIndex: _selectedIndex,

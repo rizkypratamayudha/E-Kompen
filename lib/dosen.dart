@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'Dosen/pekerjaan.dart'; 
 import 'Dosen/profile.dart'; 
-import 'Dosen/penerimaan_dosen.dart'; 
+import 'Dosen/penerimaan_dosen1.dart'; 
 import 'bottombar/bottombarDosen.dart';
 
 class DosenDashboard extends StatefulWidget {
@@ -29,7 +29,7 @@ class _DosenDashboardState extends State<DosenDashboard> {
     } else if (index == 2) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) =>  PenerimaanDosenPage()), // Update the page if needed
+        MaterialPageRoute(builder: (context) =>  PenerimaanDosen1()), // Update the page if needed
       );
     } else if (index == 3) {
       Navigator.push(
