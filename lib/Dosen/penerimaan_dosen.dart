@@ -23,20 +23,20 @@ class _PenerimaanDosenPageState extends State<PenerimaanDosenPage> {
       _selectedIndex = index;
     });
 
-    if (index == 1) {
+    if (index == 2) {
       return;
-    } else if (index == 2) {
-      Navigator.pushReplacement(
+    } else if (index == 1) {
+      Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => PekerjaanDosenPage()),
       );
     } else if (index == 3) {
-      Navigator.pushReplacement(
+      Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => ProfilePage()),
       );
     } else if (index == 0) {
-      Navigator.pushReplacement(
+      Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const DosenDashboard()),
       );
@@ -46,6 +46,7 @@ class _PenerimaanDosenPageState extends State<PenerimaanDosenPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: Text(
@@ -85,7 +86,7 @@ class _PenerimaanDosenPageState extends State<PenerimaanDosenPage> {
                   isSelected: _selectedIndex == 1,
                   onTap: () {
                     setState(() {
-                      _selectedIndex = 1;
+                      _selectedIndex = 0;
                     });
                     _pageController.animateToPage(
                       1,

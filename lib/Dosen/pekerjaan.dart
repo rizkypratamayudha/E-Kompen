@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../bottombar/bottombarDosen.dart'; // Import BottomNavBar
+import '../bottombar/bottombarDosen.dart'; 
 import 'profile.dart';
-import 'penerimaanDosen.dart';
-import 'penerimaan.dart';
+import 'penerimaan_dosen.dart';
 import '../dosen.dart';
-import 'editPekerjaan.dart'; // Import EditPekerjaanPage
-import 'tambahPekerjaan.dart'; // Import TambahPekerjaanPage
+import 'editPekerjaan.dart'; 
+import 'tambahPekerjaan.dart'; 
 
 class PekerjaanDosenPage extends StatefulWidget {
   const PekerjaanDosenPage({super.key});
@@ -50,6 +49,7 @@ class _PekerjaanDosenPageState extends State<PekerjaanDosenPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20.0, 50.0, 20.0, 5.0),

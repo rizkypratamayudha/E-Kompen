@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../bottombar/bottombar.dart'; 
-import 'penerimaan.dart';
+import 'penerimaan_dosen.dart';
 import 'pekerjaan.dart';
 import '../mahasiswa.dart';
 import '../widget/popup_logout.dart'; 

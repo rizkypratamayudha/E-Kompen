@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'Dosen/pekerjaan.dart'; 
 import 'Dosen/profile.dart'; 
-import 'Dosen/penerimaan.dart'; 
+import 'Dosen/penerimaan_dosen.dart'; 
 import 'bottombar/bottombarDosen.dart';
 
 class DosenDashboard extends StatefulWidget {
@@ -24,12 +24,12 @@ class _DosenDashboardState extends State<DosenDashboard> {
     if (index == 1) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const PekerjaanDosenPage()), // Update the page if needed
+        MaterialPageRoute(builder: (context) =>  PekerjaanDosenPage()), // Update the page if needed
       );
     } else if (index == 2) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => PenerimaanDosenPage()), // Update the page if needed
+        MaterialPageRoute(builder: (context) =>  PenerimaanDosenPage()), // Update the page if needed
       );
     } else if (index == 3) {
       Navigator.push(
@@ -147,7 +147,7 @@ class _DosenDashboardState extends State<DosenDashboard> {
             const SizedBox(height: 30),
 
             // Task List Section
-             Container(
+            Container(
               padding: const EdgeInsets.all(20.0),
               decoration: BoxDecoration(
                 color: Colors.black,
@@ -186,6 +186,7 @@ class _DosenDashboardState extends State<DosenDashboard> {
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
       ),
+      backgroundColor: Colors.white,
     );
   }
 
