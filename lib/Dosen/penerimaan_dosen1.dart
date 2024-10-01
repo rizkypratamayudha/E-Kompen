@@ -186,7 +186,7 @@ class _PenerimaanScreenState extends State<PenerimaanScreen>{
                     icon: Icon(
                       Icons.check_circle,
                       color: Colors.green,
-                      size: 40,
+                      size: 50,
                     ),
                     onPressed: () {
                       
@@ -196,7 +196,7 @@ class _PenerimaanScreenState extends State<PenerimaanScreen>{
                     icon: Icon(
                       Icons.cancel,
                       color: Colors.red,
-                      size: 40,
+                      size: 50,
                     ),
                     onPressed: () {
                       
@@ -260,22 +260,23 @@ Widget _buildCardProses(BuildContext context, String nama, String id, String tan
                     icon: Icon(
                       Icons.check_circle,
                       color: Colors.green,
-                      size: 40,
+                      size: 50,
                     ),
                     onPressed: () {
-                      
+                      // Action when check is clicked
                     },
                   ),
-                  IconButton(
-                    icon: Icon(
-                      Icons.cancel,
-                      color: Colors.red,
-                      size: 40,
+                  if (nama != 'Solikhin') // Only show the cancel icon if the name is not 'Solikhin'
+                    IconButton(
+                      icon: Icon(
+                        Icons.cancel,
+                        color: Colors.red,
+                        size: 50,
+                      ),
+                      onPressed: () {
+                        // Action when cancel is clicked
+                      },
                     ),
-                    onPressed: () {
-                      
-                    },
-                  ),
                 ],
               ),
             ],
@@ -285,18 +286,19 @@ Widget _buildCardProses(BuildContext context, String nama, String id, String tan
     ),
   );
 }
+
   Widget _buildPenerimaanList(BuildContext context){
     return ListView(
       children: [
         _buildCard(context,
         'Solikhin',
         '2241760020',
-        'Memasukkan Nilai'
+        '\n\nMemasukkan Nilai'
         ),
         _buildCard(context, 
         'M Rizky Yudha',
         '2241760020',
-        'Membuat Web'
+        '\n\nMembuat Web'
         )
       ],
     );
@@ -306,10 +308,19 @@ Widget _buildCardProses(BuildContext context, String nama, String id, String tan
     return ListView(
       children: [
         _buildCardProses(context,
-        'Contoh Nama','Contoh nim','2024-12-12','Contoh Tugas'),
-        _buildCardProses(context,
-        'Contoh nama2','Contoh nim2','2021-19-10','Contoh tugas2'),
+        'Solikhin',
+        '2241760020',
+        '\n\n2024-12-12',
+        'Memasukkan Nilai'
+        ),
+        _buildCardProses(context, 
+        'M Rizky Yudha',
+        '2241760020',
+        '\n\nBelum Selesai',
+        'Membuat Web'
+        )
       ],
     );
   }
 }
+
