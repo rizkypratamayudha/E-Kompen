@@ -7,6 +7,7 @@ import '../bottombar/bottombarDosen.dart';
 import 'profile.dart';
 import 'pekerjaan.dart';
 import '../dosen.dart';
+import '../widget/popup_tugas_selesai_dosen.dart';
 
 class PenerimaanDosen1 extends StatefulWidget{
   @override
@@ -58,7 +59,7 @@ class _PenerimaanDosen1State extends State<PenerimaanDosen1>{
         appBar: AppBar(
           backgroundColor: Colors.white,
           title: Padding(
-            padding: EdgeInsets.fromLTRB(20.0, 40.0, 20.0, 40.0),
+            padding: EdgeInsets.fromLTRB(20.0, 60.0, 20.0, 40.0),
             child: Text('Penerimaan',
             style: GoogleFonts.poppins(fontSize: 22)),
           ),
@@ -85,7 +86,9 @@ class _PenerimaanScreenState extends State<PenerimaanScreen>{
 
   @override
   Widget build(BuildContext context){
-    return Column(
+    return Padding(
+      padding: EdgeInsets.only(top: 20),
+      child: Column(
       children: [
         Row(
           children: [
@@ -139,11 +142,14 @@ class _PenerimaanScreenState extends State<PenerimaanScreen>{
             ],
           ),
         )
-      ],
+      ]
+      )
     );
+    
   }
+
   Widget _buildCard(BuildContext context, String nama, String id, String tugas) {
-  return Align(
+  return  Align(
     alignment: Alignment.topCenter,
     child: FractionallySizedBox(
       widthFactor: 0.9,
@@ -210,6 +216,8 @@ class _PenerimaanScreenState extends State<PenerimaanScreen>{
       ),
     ),
   );
+  
+  
 }
 
 Widget _buildCardProses(BuildContext context, String nama, String id, String tanggal, String tugas) {
@@ -217,75 +225,86 @@ Widget _buildCardProses(BuildContext context, String nama, String id, String tan
     alignment: Alignment.topCenter,
     child: FractionallySizedBox(
       widthFactor: 0.9,
-      child: Card(
-        elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center, // Vertically center the content
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      nama,
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
+      child: InkWell(
+        onTap: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return const PopupTugasSelesaiDosen();
+            },
+          );
+        },
+        child: Card(
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center, // Vertically center the content
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        nama,
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400,
+                        ),
                       ),
-                    ),
-                    Text(
-                      id,
-                      style: GoogleFonts.poppins(fontSize: 14),
-                    ),
-                    Text(
-                      tanggal,
-                      style: GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w300),
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      tugas,
-                      style: GoogleFonts.poppins(fontSize: 14),
-                    ),
-                  ],
-                ),
-              ),
-              Row(
-                children: [
-                  IconButton(
-                    icon: Icon(
-                      Icons.check_circle,
-                      color: Colors.green,
-                      size: 50,
-                    ),
-                    onPressed: () {
-                      // Action when check is clicked
-                    },
+                      Text(
+                        id,
+                        style: GoogleFonts.poppins(fontSize: 14),
+                      ),
+                      Text(
+                        tanggal,
+                        style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w300),
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        tugas,
+                        style: GoogleFonts.poppins(fontSize: 14),
+                      ),
+                    ],
                   ),
-                  if (nama != 'Solikhin') // Only show the cancel icon if the name is not 'Solikhin'
+                ),
+                Row(
+                  children: [
                     IconButton(
                       icon: Icon(
-                        Icons.cancel,
-                        color: Colors.red,
+                        Icons.check_circle,
+                        color: Colors.green,
                         size: 50,
                       ),
                       onPressed: () {
-                        // Action when cancel is clicked
+                        // Action when check is clicked
                       },
                     ),
-                ],
-              ),
-            ],
+                    if (nama != 'Solikhin') // Only show the cancel icon if the name is not 'Solikhin'
+                      IconButton(
+                        icon: Icon(
+                          Icons.cancel,
+                          color: Colors.red,
+                          size: 50,
+                        ),
+                        onPressed: () {
+                          // Action when cancel is clicked
+                        },
+                      ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
     ),
   );
 }
+
 
   Widget _buildPenerimaanList(BuildContext context){
     return ListView(
