@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../bottombar/bottombarDosen.dart';
-import 'penerimaan_dosen.dart';
+import 'penerimaan_dosen1.dart';
 import 'pekerjaan.dart';
-import 'tambahPekerjaan.dart';
 import '../dosen.dart';
 import '../widget/popup_logout.dart';
 
@@ -29,20 +28,17 @@ class _ProfilePageState extends State<ProfilePage> {
       _selectedIndex = index;
     });
 
-    if (index == 1) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => PekerjaanDosenPage()),
-      );
+    if (index == 3) {
+      return;
     } else if (index == 2) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => PenerimaanDosenPage()),
+        MaterialPageRoute(builder: (context) => PenerimaanDosen1()),
       );
-    } else if (index == 3) {
+    } else if (index == 1) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => TambahPekerjaanPage()),
+        MaterialPageRoute(builder: (context) => PekerjaanDosenPage()),
       );
     } else if (index == 0) {
       Navigator.pushReplacement(
