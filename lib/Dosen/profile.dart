@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../bottombar/bottombar.dart'; 
+import '../bottombar/bottombarDosen.dart';
 import 'penerimaan_dosen.dart';
 import 'pekerjaan.dart';
-import '../mahasiswa.dart';
-import '../widget/popup_logout.dart'; 
+import 'tambahPekerjaan.dart';
+import '../dosen.dart';
+import '../widget/popup_logout.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -38,10 +39,15 @@ class _ProfilePageState extends State<ProfilePage> {
         context,
         MaterialPageRoute(builder: (context) => PenerimaanDosenPage()),
       );
+    } else if (index == 3) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => TambahPekerjaanPage()),
+      );
     } else if (index == 0) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const MahasiswaDashboard()),
+        MaterialPageRoute(builder: (context) => const DosenDashboard()),
       );
     }
   }
@@ -70,14 +76,14 @@ class _ProfilePageState extends State<ProfilePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'M. Isroqi Gelby',
+                          'Taufiq Abdus S.T',
                           style: GoogleFonts.poppins(
                             fontSize: 18,
                             color: Colors.white,
                           ),
                         ),
                         Text(
-                          '2241760020',
+                          '22123131',
                           style: GoogleFonts.poppins(
                             fontSize: 16,
                             color: Colors.white,
@@ -167,8 +173,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       const SizedBox(height: 20),
                       ElevatedButton(
-                        onPressed: () {
-                        },
+                        onPressed: () {},
                         style: ElevatedButton.styleFrom(
                           backgroundColor:
                               const Color.fromARGB(255, 22, 126, 211),
@@ -185,7 +190,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavBar(
+      bottomNavigationBar: BottomNavBarDosen(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
       ),
