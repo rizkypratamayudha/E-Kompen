@@ -55,7 +55,7 @@ Widget build(BuildContext context) {
       appBar: AppBar(
         backgroundColor: Colors.white, // Warna putih untuk background app bar
         title: Padding(
-          padding: const EdgeInsets.only(left: 10.0),
+          padding: const EdgeInsets.fromLTRB(20.0, 60.0, 20.0, 40.0),
           child: Text('Riwayat',
           style: GoogleFonts.poppins(fontSize: 22),
           ),
@@ -91,7 +91,9 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Padding(
+      padding: EdgeInsets.only(top: 20),
+    child:  Column(
       children: [
         Row(
           children: [
@@ -159,6 +161,7 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
           ),
         ),
       ],
+    )
     );
   }
 
