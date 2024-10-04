@@ -150,7 +150,7 @@ class _DosenDashboardState extends State<DosenDashboard> {
             Container(
               padding: const EdgeInsets.all(20.0),
               decoration: BoxDecoration(
-                color: Colors.black,
+                color: Colors.blueAccent,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Column(
