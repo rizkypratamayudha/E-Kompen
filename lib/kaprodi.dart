@@ -1,96 +1,192 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'bottombar/bottombarKaprodi.dart';
 
-
-class KaprodiDashboard extends StatelessWidget {
+class KaprodiDashboard extends StatefulWidget {
   const KaprodiDashboard({super.key});
+
+  @override
+  _KaprodiDashboardState createState() => _KaprodiDashboardState();
+}
+
+class _KaprodiDashboardState extends State<KaprodiDashboard> {
+  int _selectedIndex = 0;
+
+  // Function to handle navigation based on the index from BottomNavigationBar
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Dashboard Kaprodi'),
-        backgroundColor: Colors.black,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            Row(
-              children: const [
-                CircleAvatar(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header Section (This part will stay fixed)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10.0, 50.0, 10.0, 20.0),
+            child: Row(
+              children: [
+                const CircleAvatar(
                   radius: 30,
                   backgroundColor: Colors.grey,
                   child: Icon(Icons.person, size: 40),
                 ),
-                SizedBox(width: 10),
-                Text(
-                  'Hanum Mufida S.T',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                const SizedBox(width: 10),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Halo',
+                      style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      'Hanum Mufida S.T',
+                      style: GoogleFonts.poppins(),
+                    ),
+                  ],
                 ),
               ],
             ),
-            const SizedBox(height: 20),
-            Card(
-              color: Colors.blue[200],
-              child: ListTile(
-                title: const Text('Jumlah Penandatangan : 2'),
-                subtitle: const Text('Status: Terdapat Tanda Tangan'),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Card(
-              elevation: 2,
+          ),
+
+          // Content Section (Scrollable content)
+          Expanded(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 10.0),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ListTile(
-                    title: const Text('Pembuatan Web'),
+                  // Task Summary Section
+                  Container(
+                    padding: const EdgeInsets.all(20.0),
+                    decoration: BoxDecoration(
+                      color: Colors.blueAccent,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Jumlah Penandatanganan: 2',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: 14,
+                          ),
+                        ),
+                          const Padding(
+                        padding: EdgeInsets.only(top: 5, bottom: 5),
+                        child: Divider(
+                          color: Colors.white,
+                          thickness: 2,
+                        ),
+                      ),
+                        const SizedBox(height: 5),
+                        Text(
+                          'Status: Terdapat Tanda Tangan',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  const Divider(),
-                  ListTile(
-                    title: const Text('Memasukkan Nilai'),
+                  const SizedBox(height: 20),
+
+                  // Task List Section
+                  Container(
+                    padding: const EdgeInsets.all(10.0),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      children: [
+                        _buildTaskCard('Pembuatan Web', Colors.blue),
+                        _buildTaskCard('Memasukkan Nilai', Colors.blue),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Table Section
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Table(
+                      columnWidths: const {
+                        0: FlexColumnWidth(1),
+                        1: FlexColumnWidth(1),
+                        2: FlexColumnWidth(1),
+                      },
+                      border: TableBorder.symmetric(
+                        inside: BorderSide(color: Colors.grey, width: 1),
+                      ),
+                      children: [
+                        _buildTableRow('Butuh tanda tangan', '2'),
+                        _buildTableRow('Tanda tangan selesai', '1'),
+                        _buildTableRow('Total tanda tangan', '3'),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 20),
-            Card(
-              child: Column(
-                children: const [
-                  ListTile(
-                    title: Text('Butuh tanda tangan'),
-                    trailing: Text('2'),
-                  ),
-                  ListTile(
-                    title: Text('Tanda Tangan Selesai'),
-                    trailing: Text('1'),
-                  ),
-                  ListTile(
-                    title: Text('Total Tanda Tangan'),
-                    trailing: Text('3'),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.assignment),
-            label: 'Tugas',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
           ),
         ],
       ),
+      // Bottom Navigation Bar
+      bottomNavigationBar: BottomNavBarKaprodi(
+        selectedIndex: _selectedIndex,
+        onItemTapped: _onItemTapped,
+      ),
+    );
+  }
+
+  // Task Card Widget
+  Widget _buildTaskCard(String title, Color color) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 5), // Add margin between cards
+      color: color,
+      child: ListTile(
+        title: Text(
+          title,
+          style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
+        ),
+        // trailing: const Icon(Icons.arrow_forward, color: Colors.white), // Example icon
+      ),
+    );
+  }
+
+  // Table Row Widget
+  TableRow _buildTableRow(String label, String value) {
+    return TableRow(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Text(
+            label,
+            style: GoogleFonts.poppins(fontSize: 14),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Text(
+            value,
+            style: GoogleFonts.poppins(fontSize: 14),
+          ),
+        ),
+      ],
     );
   }
 }
