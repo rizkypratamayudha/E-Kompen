@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'bottombar/bottombarKaprodi.dart';
+import 'Kaprodi/profile.dart';
+import 'Kaprodi/penandatanganan_kaprodi.dart';
 
 class KaprodiDashboard extends StatefulWidget {
   const KaprodiDashboard({super.key});
@@ -12,12 +14,29 @@ class KaprodiDashboard extends StatefulWidget {
 class _KaprodiDashboardState extends State<KaprodiDashboard> {
   int _selectedIndex = 0;
 
-  // Function to handle navigation based on the index from BottomNavigationBar
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+
+void _onItemTapped(int index) {
+  setState(() {
+    _selectedIndex = index;
+  });
+
+  if (index == 0) {
+    return;
+  } else if (index == 1) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => PenandatangananKaprodi()), // Halaman Penerimaan
+    );
+  } else if (index == 2) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => ProfilePage()), // Halaman Profile
+    );
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -81,13 +100,13 @@ class _KaprodiDashboardState extends State<KaprodiDashboard> {
                             fontSize: 14,
                           ),
                         ),
-                          const Padding(
-                        padding: EdgeInsets.only(top: 5, bottom: 5),
-                        child: Divider(
-                          color: Colors.white,
-                          thickness: 2,
+                        const Padding(
+                          padding: EdgeInsets.only(top: 5, bottom: 5),
+                          child: Divider(
+                            color: Colors.white,
+                            thickness: 2,
+                          ),
                         ),
-                      ),
                         const SizedBox(height: 5),
                         Text(
                           'Status: Terdapat Tanda Tangan',
@@ -156,7 +175,8 @@ class _KaprodiDashboardState extends State<KaprodiDashboard> {
   // Task Card Widget
   Widget _buildTaskCard(String title, Color color) {
     return Card(
-      margin: const EdgeInsets.symmetric(vertical: 5), // Add margin between cards
+      margin:
+          const EdgeInsets.symmetric(vertical: 5), // Add margin between cards
       color: color,
       child: ListTile(
         title: Text(
