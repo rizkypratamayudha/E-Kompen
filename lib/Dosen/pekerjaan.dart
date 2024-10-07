@@ -5,7 +5,7 @@ import 'profile.dart';
 import 'penerimaan_dosen1.dart';
 import '../dosen.dart';
 import 'editPekerjaan.dart'; 
-import 'tambahPekerjaan.dart'; 
+import 'tambah_pekerjaan.dart'; 
 
 class PekerjaanDosenPage extends StatefulWidget {
   const PekerjaanDosenPage({super.key});

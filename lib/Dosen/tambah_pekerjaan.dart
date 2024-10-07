@@ -40,7 +40,7 @@ class _TambahPekerjaanPageState extends State<TambahPekerjaanPage> {
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all( 16.0, ),
         child: Form(
           key: _formKey,
           child: Column(
@@ -64,18 +64,7 @@ class _TambahPekerjaanPageState extends State<TambahPekerjaanPage> {
                       constraints: BoxConstraints(maxWidth: 300),
                       child: TextFormField(
                         decoration: InputDecoration(
-                          labelText: 'Jumlah jam',
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 10.0),
-                    ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: 300),
-                      child: TextFormField(
-                        decoration: InputDecoration(
-                          labelText: 'Jumlah anggota',
+                          labelText: 'Jumlah Anggota',
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10)),
                         ),
@@ -87,6 +76,28 @@ class _TambahPekerjaanPageState extends State<TambahPekerjaanPage> {
                       child: TextFormField(
                         decoration: InputDecoration(
                           labelText: 'Persyaratan',
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 10.0),
+                    ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: 300),
+                      child: TextFormField(
+                        decoration: InputDecoration(
+                          labelText: 'Jumlah Progress',
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 10.0),
+                    ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: 300),
+                      child: TextFormField(
+                        decoration: InputDecoration(
+                          labelText: 'Jumlah Jam',
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10)),
                         ),

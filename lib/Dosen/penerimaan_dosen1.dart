@@ -95,7 +95,7 @@ class _PenerimaanScreenState extends State<PenerimaanScreen>{
             Expanded(
               child: TabButton(
                 icon: Icons.assignment,
-                text: 'Penerimaan Tugas',
+                text: 'Pelamaran',
                 isSelected: _selectedIndex == 0,
                 onTap: (){
                   setState(() {
@@ -111,7 +111,7 @@ class _PenerimaanScreenState extends State<PenerimaanScreen>{
             Expanded(
               child: TabButton(
                 icon: Icons.work,
-                text: 'Proses Pengerjaan',
+                text: 'Pengerjaan',
                 isSelected: _selectedIndex == 1,
                 onTap: (){
                   setState(() {
@@ -122,6 +122,22 @@ class _PenerimaanScreenState extends State<PenerimaanScreen>{
                     duration: Duration(milliseconds: 300),
                     curve: Curves.easeInOut
                     );
+                },
+              ),
+            ),
+            Expanded(
+              child: TabButton(
+                icon: Icons.done,
+                text: 'Selesai',
+                isSelected: _selectedIndex == 2,
+                onTap: (){
+                  setState(() {
+                    _selectedIndex = 0;
+                  });
+                  _pageController.animateToPage(
+                    2, duration: Duration(milliseconds: 300),
+                    curve: Curves.easeInOut
+                  );
                 },
               ),
             )
@@ -139,6 +155,7 @@ class _PenerimaanScreenState extends State<PenerimaanScreen>{
             children: [
               _buildPenerimaanList(context),
               _buildProsesList(context),
+              _buildSelesaiList(context),
             ],
           ),
         )
@@ -226,14 +243,12 @@ Widget _buildCardProses(BuildContext context, String nama, String id, String tan
     child: FractionallySizedBox(
       widthFactor: 0.9,
       child: InkWell(
-        onTap: () {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return const PopupTugasSelesaiDosen();
-            },
-          );
-        },
+        //onTap: () {
+          //Navigator.push(
+            //context,
+            //MaterialPageRoute(builder: (context)=>ProgresDosen())
+          //);
+        //},
         child: Card(
           elevation: 2,
           shape: RoundedRectangleBorder(
@@ -283,7 +298,6 @@ Widget _buildCardProses(BuildContext context, String nama, String id, String tan
                         // Action when check is clicked
                       },
                     ),
-                    if (nama != 'Solikhin') // Only show the cancel icon if the name is not 'Solikhin'
                       IconButton(
                         icon: Icon(
                           Icons.cancel,
@@ -305,6 +319,65 @@ Widget _buildCardProses(BuildContext context, String nama, String id, String tan
   );
 }
 
+Widget _buildSelesai(BuildContext context, String nama, String id, String tanggal, String tugas) {
+  return Align(
+    alignment: Alignment.topCenter,
+    child: FractionallySizedBox(
+      widthFactor: 0.9,
+      child: InkWell(
+        onTap: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return const PopupTugasSelesaiDosen();
+            },
+          );
+        },
+        child: Card(
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center, // Vertically center the content
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        nama,
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                      Text(
+                        id,
+                        style: GoogleFonts.poppins(fontSize: 14),
+                      ),
+                      Text(
+                        tanggal,
+                        style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w300),
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        tugas,
+                        style: GoogleFonts.poppins(fontSize: 14),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
 
   Widget _buildPenerimaanList(BuildContext context){
     return ListView(
@@ -329,13 +402,26 @@ Widget _buildCardProses(BuildContext context, String nama, String id, String tan
         _buildCardProses(context,
         'Solikhin',
         '2241760020',
-        '\n\n2024-12-12',
+        '\n\n1/4',
         'Memasukkan Nilai'
         ),
         _buildCardProses(context, 
         'M Rizky Yudha',
         '2241760020',
         '\n\nBelum Selesai',
+        'Membuat Web'
+        )
+      ],
+    );
+  }
+
+  Widget _buildSelesaiList(BuildContext context){
+    return ListView(
+      children: [
+        _buildSelesai(context,
+        'Solikhin',
+        '2241760020',
+        '\n\n2024-12-12',
         'Membuat Web'
         )
       ],
