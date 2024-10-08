@@ -215,7 +215,7 @@ class _EditPekerjaanPageState extends State<EditPekerjaanPage> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              minimumSize: Size(120, 40),
+                              minimumSize: Size(100, 40),
                             ),
                             child: Text(
                               'Hapus',
@@ -234,7 +234,7 @@ class _EditPekerjaanPageState extends State<EditPekerjaanPage> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              minimumSize: Size(120, 40)
+                              minimumSize: Size(100, 40)
                             ),
                             child: Text('Simpan',
                             style: GoogleFonts.poppins(color: Colors.white),
