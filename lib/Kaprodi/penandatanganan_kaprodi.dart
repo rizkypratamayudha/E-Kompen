@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import '../bottombar/bottombarKaprodi.dart';
 import '../kaprodi.dart';
 import 'profile.dart';
+import '../Dosen/progress_dosen.dart';
+import '../widget/popup_tugas_selesai_dosen.dart';
 
 class PenandatangananKaprodi extends StatefulWidget {
   @override
@@ -13,26 +15,25 @@ class PenandatangananKaprodi extends StatefulWidget {
 class _PenandatangananKaprodiState extends State<PenandatangananKaprodi> {
   int _selectedIndex = 1;
 
- void _onItemTapped(int index) {
-  setState(() {
-    _selectedIndex = index;
-  });
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
 
-  if (index == 1) {
-    return; // Tetap di halaman Penandatanganan
-  } else if (index == 0) {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => KaprodiDashboard()),
-    );
-  } else if (index == 2) {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => ProfilePage()),
-    );
+    if (index == 1) {
+      return; // Tetap di halaman Penandatanganan
+    } else if (index == 0) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => KaprodiDashboard()),
+      );
+    } else if (index == 2) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => ProfilePage()),
+      );
+    }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +52,8 @@ class _PenandatangananKaprodiState extends State<PenandatangananKaprodi> {
           ),
         ),
         backgroundColor: Colors.white,
-        body: PenerimaanScreen(),
+        body:
+            PenandatangananScreen(), // Menyambungkan ke class PenandatangananScreen
         bottomNavigationBar: BottomNavBarKaprodi(
           selectedIndex: _selectedIndex,
           onItemTapped: _onItemTapped,
@@ -61,12 +63,12 @@ class _PenandatangananKaprodiState extends State<PenandatangananKaprodi> {
   }
 }
 
-class PenerimaanScreen extends StatefulWidget {
+class PenandatangananScreen extends StatefulWidget {
   @override
-  _PenerimaanScreenState createState() => _PenerimaanScreenState();
+  _PenandatangananScreenState createState() => _PenandatangananScreenState();
 }
 
-class _PenerimaanScreenState extends State<PenerimaanScreen> {
+class _PenandatangananScreenState extends State<PenandatangananScreen> {
   PageController _pageController = PageController(initialPage: 0);
   int _selectedTab = 0;
 
@@ -74,6 +76,7 @@ class _PenerimaanScreenState extends State<PenerimaanScreen> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        // Tombol Tab untuk navigasi
         Container(
           padding: EdgeInsets.all(8.0),
           child: Row(
@@ -89,16 +92,28 @@ class _PenerimaanScreenState extends State<PenerimaanScreen> {
                   child: Container(
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: _selectedTab == 0 ? Colors.blue : Colors.transparent,
+                      color:
+                          _selectedTab == 0 ? Colors.blue : Colors.transparent,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     padding: EdgeInsets.symmetric(vertical: 10),
-                    child: Text(
-                      'Tanda Tangan',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: _selectedTab == 0 ? Colors.white : Colors.black,
-                      ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.assignment,
+                            color: _selectedTab == 0
+                                ? Colors.white
+                                : Colors.black),
+                        SizedBox(width: 8),
+                        Text(
+                          'Tanda Tangan',
+                          style: TextStyle(
+                            fontSize: 15,
+                            color:
+                                _selectedTab == 0 ? Colors.white : Colors.black,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -115,16 +130,28 @@ class _PenerimaanScreenState extends State<PenerimaanScreen> {
                   child: Container(
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: _selectedTab == 1 ? Colors.blue : Colors.transparent,
+                      color:
+                          _selectedTab == 1 ? Colors.blue : Colors.transparent,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     padding: EdgeInsets.symmetric(vertical: 10),
-                    child: Text(
-                      'Selesai',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: _selectedTab == 1 ? Colors.white : Colors.black,
-                      ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.done,
+                            color: _selectedTab == 1
+                                ? Colors.white
+                                : Colors.black),
+                        SizedBox(width: 8),
+                        Text(
+                          'Selesai',
+                          style: TextStyle(
+                            fontSize: 15,
+                            color:
+                                _selectedTab == 1 ? Colors.white : Colors.black,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -133,6 +160,7 @@ class _PenerimaanScreenState extends State<PenerimaanScreen> {
           ),
         ),
         Expanded(
+          // Konten berdasarkan PageView untuk Tanda Tangan dan Selesai
           child: PageView(
             controller: _pageController,
             onPageChanged: (index) {
@@ -150,73 +178,153 @@ class _PenerimaanScreenState extends State<PenerimaanScreen> {
     );
   }
 
+  // Fungsi untuk membuat daftar Tanda Tangan
   Widget _buildTandaTanganList(BuildContext context) {
     return ListView(
       children: [
-        _buildCardWithCheck(
-            context, 'Solikhin', '2241760020', 'Memasukkan Nilai'),
-      ],
-    );
-  }
-
-  Widget _buildSelesaiList(BuildContext context) {
-    return ListView(
-      children: [
-        _buildCardWithoutCheck(
-          context,
-          'Solikhin',
-          '2241760020',
-          '2024-10-06',
-          'Membuat Web',
+        _buildTandaTanganCard(context,
+        'Solikhin',
+        '2241760020',
+        '\n\n1/4',
+        'Memasukkan Nilai'
+        ),
+        _buildTandaTanganCard(context, 
+        'M Rizky Yudha',
+        '2241760020',
+        '\n\nBelum Selesai',
+        'Membuat Web'
         ),
       ],
     );
   }
 
-  Widget _buildCardWithCheck(
-      BuildContext context, String nama, String id, String tugas) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: ListTile(
-          contentPadding: EdgeInsets.all(16),
-          title: Text(
-            nama,
-            style:
-                GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600),
+  Widget _buildTandaTanganCard(BuildContext context, String nama, String id, String tanggal, String tugas) {
+    return Align(
+      alignment: Alignment.topCenter,
+      child: FractionallySizedBox(
+        widthFactor: 0.9,
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => ProgressDosenPage()));
+          },
+          child: Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          nama,
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        Text(
+                          id,
+                          style: GoogleFonts.poppins(fontSize: 14),
+                        ),
+                        Text(
+                          tanggal,
+                          style: GoogleFonts.poppins(
+                              fontSize: 14, fontWeight: FontWeight.w300),
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          tugas,
+                          style: GoogleFonts.poppins(fontSize: 14),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          Icons.check_circle,
+                          color: Colors.green,
+                          size: 45,
+                        ),
+                        onPressed: () {
+                          // Action when check is clicked
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ),
-          subtitle: Text(tugas),
-          trailing: Icon(Icons.check_circle, color: Colors.green, size: 32),
         ),
       ),
     );
   }
 
-  Widget _buildCardWithoutCheck(BuildContext context, String nama, String id,
-      String tanggal, String tugas) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: ListTile(
-          contentPadding: EdgeInsets.all(16),
-          title: Text(
-            nama,
-            style:
-                GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600),
-          ),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(tanggal),
-              SizedBox(height: 8),
-              Text(tugas),
-            ],
+  // Fungsi untuk membuat daftar yang sudah Selesai
+  Widget _buildSelesaiList(BuildContext context) {
+    return ListView(
+      children: [
+        _buildSelesai(context, 'Solikhin', '2241760020', '2024-12-12', 'Membuat Web'),
+      ],
+    );
+  }
+
+  Widget _buildSelesai(BuildContext context, String nama, String id, String tanggal, String tugas) {
+    return Align(
+      alignment: Alignment.topCenter,
+      child: FractionallySizedBox(
+        widthFactor: 0.9,
+        child: InkWell(
+          child: Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          nama,
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        Text(
+                          id,
+                          style: GoogleFonts.poppins(fontSize: 14),
+                        ),
+                        Text(
+                          tanggal,
+                          style: GoogleFonts.poppins(
+                              fontSize: 14, fontWeight: FontWeight.w300),
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          tugas,
+                          style: GoogleFonts.poppins(fontSize: 14),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ),
