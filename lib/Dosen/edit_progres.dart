@@ -180,7 +180,7 @@ Widget build(BuildContext context) {
     body: Stack(
       children: [
         SingleChildScrollView(
-          padding: EdgeInsets.only(left: 16, right: 16, bottom: 80), // Tambahkan padding bawah agar tidak tertutup
+          padding: EdgeInsets.only(left: 16, right: 16, bottom: 90), // Tambahkan padding bawah agar tidak tertutup
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

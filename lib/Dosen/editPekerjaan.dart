@@ -200,7 +200,7 @@ class _EditPekerjaanPageState extends State<EditPekerjaanPage> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 40.0),
+                    SizedBox(height: 30.0),
                     ConstrainedBox(
                       constraints: BoxConstraints(maxWidth: 300),
                       child: Row(
@@ -222,7 +222,7 @@ class _EditPekerjaanPageState extends State<EditPekerjaanPage> {
                               style: GoogleFonts.poppins(color: Colors.white),
                             ),
                           ),
-                          SizedBox(width: 70),
+                          SizedBox(width: 10),
                           ElevatedButton(
                             onPressed: (){
                               Navigator.push(

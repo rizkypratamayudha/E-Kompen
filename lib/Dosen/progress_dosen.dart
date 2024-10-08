@@ -153,6 +153,7 @@ class _ProgressDosenPageState extends State<ProgressDosenPage> {
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
       ),
+      backgroundColor: Colors.white,
     );
   }
 
