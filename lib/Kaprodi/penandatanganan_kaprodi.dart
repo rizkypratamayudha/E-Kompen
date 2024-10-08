@@ -89,7 +89,7 @@ class _PenerimaanScreenState extends State<PenerimaanScreen> {
                   child: Container(
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: _selectedTab == 0 ? Colors.blue : Colors.grey[200],
+                      color: _selectedTab == 0 ? Colors.blue : Colors.transparent,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     padding: EdgeInsets.symmetric(vertical: 10),
@@ -115,7 +115,7 @@ class _PenerimaanScreenState extends State<PenerimaanScreen> {
                   child: Container(
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: _selectedTab == 1 ? Colors.blue : Colors.grey[200],
+                      color: _selectedTab == 1 ? Colors.blue : Colors.transparent,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     padding: EdgeInsets.symmetric(vertical: 10),

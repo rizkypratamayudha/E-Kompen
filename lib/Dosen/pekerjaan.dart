@@ -63,9 +63,9 @@ class _PekerjaanDosenPageState extends State<PekerjaanDosenPage> {
                 ),
               ),
               const SizedBox(height: 20),
-              _buildPekerjaan('Pembuatan Web'),
-              const SizedBox(height: 10),
-              _buildPekerjaan('Memasukkan Nilai'),
+              _buildPekerjaan('Pembuatan Web','2/5'),
+              const SizedBox(height: 5),
+              _buildPekerjaan('Memasukkan Nilai','0/2'),
             ],
           ),
         ),
@@ -89,33 +89,58 @@ class _PekerjaanDosenPageState extends State<PekerjaanDosenPage> {
     );
   }
 
-  Widget _buildPekerjaan(String title) {
-    return Card(
-      color: Colors.blue,
-      child: ListTile(
-        title: Text(
-          title,
-          style: GoogleFonts.poppins(
-            fontSize: 14,
-            color: Colors.white,
-          ),
-        ),
-        trailing: IconButton(
-          icon: const Icon(
-            Icons.border_color,
-            color: Colors.white,
-          ),
-          onPressed: () {
-            // Navigasi ke halaman EditPekerjaanPage
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => EditPekerjaanPage(),
+  Widget _buildPekerjaan(String title, String anggota) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Expanded(
+        child: Card(
+          color: Colors.blue,
+          child: ListTile(
+            title: Text(
+              title,
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: Colors.white,
               ),
-            );
-          },
+            ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.person,
+                  color: Colors.white,
+                ),
+                Text(
+                  anggota,
+                  style: GoogleFonts.poppins(fontSize: 14, color: Colors.white),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
-    );
-  }
+      Container(
+        decoration: BoxDecoration(
+          color: Colors.blue, 
+          shape: BoxShape.rectangle, 
+          borderRadius: BorderRadius.circular(10)
+        ),
+        padding: EdgeInsets.all(4), // Padding agar ikon tidak terlalu kecil
+        child: IconButton(
+          onPressed: () {
+            Navigator.push(
+              context, MaterialPageRoute(builder: (context)=>EditPekerjaanPage())
+            );
+          },
+          icon: Icon(
+            Icons.menu,
+            color: Colors.white, // Warna ikon
+          ),
+        ),
+      )
+    ],
+  );
+}
+
 }

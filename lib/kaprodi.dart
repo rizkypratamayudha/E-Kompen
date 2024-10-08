@@ -169,6 +169,7 @@ void _onItemTapped(int index) {
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
       ),
+      backgroundColor: Colors.white,
     );
   }
 

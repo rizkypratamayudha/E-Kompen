@@ -27,6 +27,11 @@ class PopUpPekerjaan extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Text(
+              'Jenis Tugas : Teknis',
+              style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w400),
+            ),
+            const SizedBox(height: 10),
+            Text(
               'Jumlah Jam : 100 Jam',
               style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w400),
             ),

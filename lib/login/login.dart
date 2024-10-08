@@ -98,7 +98,7 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(height: 10),
             DropdownButtonFormField<String>(
               value: _role,
-              items: ['Mahasiswa', 'Dosen', 'Kaprodi']
+              items: ['Mahasiswa', 'Dosen/Tendik', 'Kaprodi']
                   .map((role) => DropdownMenuItem(
                         value: role,
                         child: Text(role, style: GoogleFonts.poppins(fontSize: 14),),
@@ -145,7 +145,7 @@ class _LoginPageState extends State<LoginPage> {
             context,
             MaterialPageRoute(builder: (context) => const MahasiswaDashboard()),
           );
-        } else if (_role == 'Dosen') {
+        } else if (_role == 'Dosen/Tendik') {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const DosenDashboard()),

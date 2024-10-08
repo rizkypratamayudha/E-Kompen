@@ -1,3 +1,4 @@
+import 'package:firstapp/Mahasiswa/progress_mahasiswa.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../bottombar/bottombar.dart'; // Import BottomNavBar
@@ -49,7 +50,9 @@ class _PengumpulanBuktiPageState extends State<PengumpulanBuktiPage> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            // Add your back button functionality here
+            Navigator.push(
+              context, MaterialPageRoute(builder: (context)=>ProgressMahasiswaPage())
+            );
           },
         ),
         title: Text(

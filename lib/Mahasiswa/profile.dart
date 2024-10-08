@@ -98,7 +98,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
               const SizedBox(height: 40),
-              GestureDetector(
+              InkWell(
                 onTap: () {
                   setState(() {
                     _isPasswordSectionVisible = !_isPasswordSectionVisible;
@@ -181,6 +181,38 @@ class _ProfilePageState extends State<ProfilePage> {
                     ],
                   ),
                 ),
+                SizedBox(height: 10,),
+                InkWell(
+                  onTap: (){
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //     builder: (context) => RiwayatPage()
+                    //   )
+                    
+                    // );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 20,horizontal: 15),
+                    margin: const EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.edit_document,
+                        ),
+                        SizedBox(width: 25,),
+                        Text(
+                          'Upload Kompetensi',
+                            style: GoogleFonts.poppins(),
+                        )
+                      ],
+                    ),
+                  ),
+                )
             ],
           ),
         ),

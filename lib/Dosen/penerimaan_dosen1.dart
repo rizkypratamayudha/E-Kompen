@@ -8,6 +8,7 @@ import 'profile.dart';
 import 'pekerjaan.dart';
 import '../dosen.dart';
 import '../widget/popup_tugas_selesai_dosen.dart';
+import 'progress_dosen.dart';
 
 class PenerimaanDosen1 extends StatefulWidget{
   @override
@@ -243,12 +244,12 @@ Widget _buildCardProses(BuildContext context, String nama, String id, String tan
     child: FractionallySizedBox(
       widthFactor: 0.9,
       child: InkWell(
-        //onTap: () {
-          //Navigator.push(
-            //context,
-            //MaterialPageRoute(builder: (context)=>ProgresDosen())
-          //);
-        //},
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context)=>ProgressDosenPage())
+          );
+        },
         child: Card(
           elevation: 2,
           shape: RoundedRectangleBorder(
@@ -325,14 +326,14 @@ Widget _buildSelesai(BuildContext context, String nama, String id, String tangga
     child: FractionallySizedBox(
       widthFactor: 0.9,
       child: InkWell(
-        onTap: () {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return const PopupTugasSelesaiDosen();
-            },
-          );
-        },
+        // onTap: () {
+        //   showDialog(
+        //     context: context,
+        //     builder: (BuildContext context) {
+        //       return const PopupTugasSelesaiDosen();
+        //     },
+        //   );
+        // },
         child: Card(
           elevation: 2,
           shape: RoundedRectangleBorder(
