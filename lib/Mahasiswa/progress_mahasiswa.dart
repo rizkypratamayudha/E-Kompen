@@ -54,8 +54,9 @@ class _ProgressMahasiswaPageState extends State<ProgressMahasiswaPage> {
           },
         ),
         title: Text(
-          'Progress 1',
+          'Proses Pengerjaan',
           style: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold,
             color: Colors.black,
           ),
         ),
@@ -63,72 +64,62 @@ class _ProgressMahasiswaPageState extends State<ProgressMahasiswaPage> {
         elevation: 0,
         foregroundColor: Colors.black,
       ),
-
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            CustomProgressWidget(),
+            const SizedBox(height: 16),
+            // Black border wrapping all progress cards with scrolling
             Expanded( // Tambahkan Expanded di sini agar scroll bekerja
               child: SingleChildScrollView(
                 child: Container(
                   decoration: BoxDecoration(
-                    
+                    border: Border.all(color: Colors.black, width: 2), // Black border around all boxes
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  padding: const EdgeInsets.all(16), // Padding inside the border
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(8), // Padding inside the border
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      buildInfoRow('Jenis Tugas:', 'Teknis'),
-                      buildInfoRow('Tugas:', 'Pembuatan Mobile'),
-                      buildInfoRow('Tugas Progress:', 'Pembuatan dashboard dan fitur riwayat Mahasiswa'),
-                      buildInfoRow('Jumlah Jam:', '20 jam'),
-                      buildInfoRow('Batas Pengerjaan:', '2024-10-30'),
-                      const SizedBox(height: 16),
-                      // Foto Bukti
-                      Text(
-                        'Foto bukti :',
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Container(
-                        height: 150,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: Colors.grey[200],
-                        ),
-                        child: Icon(
-                          Icons.image,
-                          size: 50,
-                          color: Colors.grey[400],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      // Tombol Tambah/Edit
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size.fromHeight(50), // Button size
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          backgroundColor: Colors.blue,
-                        ),
-                        onPressed: () {
-                          // Handle button press
+                      const SizedBox(height: 10),
+                      // Wrap Progress 1 with GestureDetector to navigate
+                      GestureDetector(
+                        onTap: () {
+                          // Navigate to PengumpulanBuktiPage when Progress 1 is clicked
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => PengumpulanBuktiPage()),
+                          );
                         },
-                        child: Text(
-                          '+ Tambah / Edit',
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
+                        child: buildCombinedProgressCard(
+                          'Progress 1',
+                          'Pembuatan Dashboard dan Fitur Riwayat Mahasiswa',
+                          '20',
+                          Colors.green,
                         ),
                       ),
+                      buildCombinedProgressCard(
+                        'Progress 2',
+                        'Pembuatan Pekerjaan dan Profil Mahasiswa',
+                        '20',
+                        Colors.lightBlue.shade400,
+                      ),
+                      buildCombinedProgressCard(
+                        'Progress 3',
+                        'Pembuatan Dashboard Pemberian Pekerjaan Dosen',
+                        '20',
+                        Colors.lightBlue.shade400,
+                      ),
+                      buildCombinedProgressCard(
+                        'Progress 4',
+                        'Pembuatan profil dan penerimaan pekerjaan dan upload TTD',
+                        '40',
+                        Colors.lightBlue.shade400,
+                      ),
+                      // Tambahkan card-card lainnya di sini
                     ],
                   ),
                 ),
@@ -141,34 +132,149 @@ class _ProgressMahasiswaPageState extends State<ProgressMahasiswaPage> {
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
       ),
-      backgroundColor: Colors.white,
     );
   }
 
-  Widget buildInfoRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: GoogleFonts.poppins(
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
+  Widget buildCombinedProgressCard(String title, String description, String hours, Color rightBoxColor) {
+    final double boxWidth = MediaQuery.of(context).size.width * 0.80; // 90% width of screen
+
+    return Center(
+      child: Container(
+        width: boxWidth,
+        margin: const EdgeInsets.only(bottom: 10),
+        child: IntrinsicHeight( // Gunakan IntrinsicHeight agar kedua container menyesuaikan tingginya
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch, // Memastikan kedua container sama tinggi
+            children: [
+              // Left box (80% width)
+              Expanded( // Membungkus container kiri dengan Expanded
+                flex: 4, // Flex untuk mengatur proporsi
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade700,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(10),
+                      bottomLeft: Radius.circular(10),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.download, // Change this to the desired icon
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded( // Gunakan Expanded di sekitar kolom teks
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              title,
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 1, // Membatasi judul hanya 1 baris
+                              overflow: TextOverflow.ellipsis, // Tambahkan overflow ellipsis
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              description,
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontSize: 10,
+                              ),
+                              maxLines: 5, // Membatasi deskripsi maksimal 5 baris
+                              overflow: TextOverflow.ellipsis, // Tambahkan overflow ellipsis
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              // Right box (20% width)
+              Expanded( // Menggunakan Expanded di container kanan juga
+                flex: 1, // Flex untuk mengatur proporsi
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: rightBoxColor,
+                    borderRadius: const BorderRadius.only(
+                      topRight: Radius.circular(10),
+                      bottomRight: Radius.circular(10),
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      '$hours Jam',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// Your custom progress widget
+class CustomProgressWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final double boxWidth = MediaQuery.of(context).size.width * 0.85;
+
+    return Center(
+      child: Container(
+        width: boxWidth, // Set the container width to 75%
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.blue.shade700,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.hourglass_empty, // Simple built-in icon
+              color: Colors.white,
+              size: 40,
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: GoogleFonts.poppins(
-              fontSize: 14,
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Jumlah Progress: 4',
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontSize: 18,
+                    ),
+                  ),
+                  Divider(color: Colors.white), // The separator line
+                  Text(
+                    'Pekerjaan: Pembuatan Mobile',
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const Divider(
-            color: Colors.black,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

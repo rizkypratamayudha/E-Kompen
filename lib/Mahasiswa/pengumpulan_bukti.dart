@@ -1,86 +1,173 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../bottombar/bottombar.dart'; // Import BottomNavBar
+import 'profile.dart';
+import 'pekerjaan.dart';
+import '../mahasiswa.dart';
 
-class PengumpulanBuktiPage extends StatelessWidget {
+class PengumpulanBuktiPage extends StatefulWidget {
+  @override
+  _PengumpulanBuktiPageState createState() => _PengumpulanBuktiPageState();
+}
+
+class _PengumpulanBuktiPageState extends State<PengumpulanBuktiPage> {
+  int _selectedIndex = 2; // Sesuaikan dengan tab yang sedang aktif
+
+  void _onItemTapped(int index) {
+    if (index == _selectedIndex) {
+      return;
+    }
+
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    if (index == 2) {
+      return;
+    } else if (index == 1) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => PekerjaanPage()),
+      );
+    } else if (index == 3) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => ProfilePage()),
+      );
+    } else if (index == 0) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const MahasiswaDashboard()),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Progress 1',
-          style: GoogleFonts.poppins(fontSize: 20, color: Colors.black),
-        ),
-        backgroundColor: Colors.white, // Warna AppBar putih
-        elevation: 0, // Menghilangkan bayangan AppBar
         leading: IconButton(
-          icon: Icon(Icons.arrow_back,
-              color: Colors.black), // Tombol back dengan ikon hitam
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context);
+            // Add your back button functionality here
           },
         ),
+        title: Text(
+          'Progress 1',
+          style: GoogleFonts.poppins(
+            color: Colors.black,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        foregroundColor: Colors.black,
       ),
-      body: Container(
-        color: Colors.white, // Warna background body putih
+
+      body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Tugas : Memasukkan Nilai',
-              style: GoogleFonts.poppins(fontSize: 16, color: Colors.black),
-            ),
-            SizedBox(height: 10),
-            Text(
-              'Batas pengerjaan : 2024-10-30',
-              style: GoogleFonts.poppins(fontSize: 16, color: Colors.black),
-            ),
-            SizedBox(height: 10),
-            Text(
-              'Jumlah jam : 100 jam',
-              style: GoogleFonts.poppins(fontSize: 16, color: Colors.black),
-            ),
-            SizedBox(height: 20),
-            Text(
-              'Foto bukti :',
-              style: GoogleFonts.poppins(fontSize: 16, color: Colors.black),
-            ),
-            SizedBox(height: 10),
-            Container(
-              height: 200,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.grey[100], // Warna latar belakang abu muda
-                borderRadius:
-                    BorderRadius.circular(10), // Menambahkan border radius
-              ),
-              child: Center(
-                child: Icon(Icons.image, size: 50, color: Colors.grey),
-              ),
-            ),
-            SizedBox(height: 200),
-            SizedBox(
-              width: double.infinity, // Lebar tombol memenuhi layar
-              child: ElevatedButton(
-                onPressed: () {
-                  // Tambahkan logika untuk mengunggah bukti atau mengambil foto
-                },
-                child: Text(
-                  '+ Tambah / buat',
-                  style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue, // Warna tombol biru
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                  textStyle: GoogleFonts.poppins(fontSize: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10), // Border radius 10
+            Expanded( // Tambahkan Expanded di sini agar scroll bekerja
+              child: SingleChildScrollView(
+                child: Container(
+                  decoration: BoxDecoration(
+                    
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  padding: const EdgeInsets.all(16), // Padding inside the border
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildInfoRow('Jenis Tugas:', 'Teknis'),
+                      buildInfoRow('Tugas:', 'Pembuatan Mobile'),
+                      buildInfoRow('Tugas Progress:', 'Pembuatan dashboard dan fitur riwayat Mahasiswa'),
+                      buildInfoRow('Jumlah Jam:', '20 jam'),
+                      buildInfoRow('Batas Pengerjaan:', '2024-10-30'),
+                      const SizedBox(height: 16),
+                      // Foto Bukti
+                      Text(
+                        'Foto bukti :',
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        height: 150,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.grey[200],
+                        ),
+                        child: Icon(
+                          Icons.image,
+                          size: 50,
+                          color: Colors.grey[400],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      // Tombol Tambah/Edit
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size.fromHeight(50), // Button size
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          backgroundColor: Colors.blue,
+                        ),
+                        onPressed: () {
+                          // Handle button press
+                        },
+                        child: Text(
+                          '+ Tambah / Edit',
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
           ],
         ),
+      ),
+      bottomNavigationBar: BottomNavBar(
+        selectedIndex: _selectedIndex,
+        onItemTapped: _onItemTapped,
+      ),
+      backgroundColor: Colors.white,
+    );
+  }
+
+  Widget buildInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+            ),
+          ),
+          const Divider(
+            color: Colors.black,
+          ),
+        ],
       ),
     );
   }
