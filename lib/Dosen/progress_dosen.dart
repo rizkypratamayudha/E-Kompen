@@ -3,7 +3,7 @@ import 'package:firstapp/Mahasiswa/riwayat.dart';
 import 'package:firstapp/dosen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../bottombar/bottombar.dart'; 
+import '../bottombar/bottombarDosen.dart';
 import 'profile.dart';
 import 'pekerjaan.dart';
 import 'pengumpulan_bukti.dart'; // Import PengumpulanBuktiPage
@@ -149,7 +149,7 @@ class _ProgressDosenPageState extends State<ProgressDosenPage> {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavBar(
+      bottomNavigationBar: BottomNavBarDosen(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
       ),

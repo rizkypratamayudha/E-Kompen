@@ -4,7 +4,7 @@ import 'package:firstapp/Mahasiswa/progress_mahasiswa.dart';
 import 'package:firstapp/dosen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../bottombar/bottombar.dart'; // Import BottomNavBar
+import '../bottombar/bottombarDosen.dart';
 import 'profile.dart';
 import 'pekerjaan.dart';
 
@@ -141,7 +141,7 @@ class _PengumpulanBuktiDosenPageState extends State<PengumpulanBuktiDosenPage> {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavBar(
+      bottomNavigationBar: BottomNavBarDosen(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
       ),
