@@ -4,8 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import '../bottombar/bottombarKaprodi.dart';
 import '../kaprodi.dart';
 import 'profile.dart';
-import '../Dosen/progress_dosen.dart';
-import '../widget/popup_tugas_selesai_dosen.dart';
 
 class PenandatangananKaprodi extends StatefulWidget {
   @override
@@ -178,107 +176,112 @@ class _PenandatangananScreenState extends State<PenandatangananScreen> {
     );
   }
 
-  // Fungsi untuk membuat daftar Tanda Tangan
+ // Fungsi untuk membuat daftar Tanda Tangan
   Widget _buildTandaTanganList(BuildContext context) {
-    return ListView(
-      children: [
-        _buildTandaTanganCard(context,
-        'Solikhin',
-        '2241760020',
-        '\n\n1/4',
-        'Memasukkan Nilai'
-        ),
-        _buildTandaTanganCard(context, 
-        'M Rizky Yudha',
-        '2241760020',
-        '\n\nBelum Selesai',
-        'Membuat Web'
-        ),
-      ],
-    );
-  }
+  return ListView(
+    children: [
+      _buildTandaTanganCard(
+          context, 'Solikhin', '2241760020', '2024-09-15', 'Memasukkan Nilai'),
+      _buildTandaTanganCard(
+          context, 'M Rizky Yudha', '2241760020', '2024-09-15', 'Membuat Web'),
+    ],
+  );
+}
 
-  Widget _buildTandaTanganCard(BuildContext context, String nama, String id, String tanggal, String tugas) {
-    return Align(
-      alignment: Alignment.topCenter,
-      child: FractionallySizedBox(
-        widthFactor: 0.9,
-        child: InkWell(
-          onTap: () {
-            Navigator.push(
-                context, MaterialPageRoute(builder: (context) => ProgressDosenPage()));
-          },
-          child: Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          nama,
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                        Text(
-                          id,
-                          style: GoogleFonts.poppins(fontSize: 14),
-                        ),
-                        Text(
-                          tanggal,
-                          style: GoogleFonts.poppins(
-                              fontSize: 14, fontWeight: FontWeight.w300),
-                        ),
-                        SizedBox(height: 10),
-                        Text(
-                          tugas,
-                          style: GoogleFonts.poppins(fontSize: 14),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Row(
+Widget _buildTandaTanganCard(BuildContext context, String nama, String id,
+    String tanggal, String tugas) {
+  return Align(
+    alignment: Alignment.topCenter,
+    child: FractionallySizedBox(
+      widthFactor: 0.9,
+      child: InkWell(
+        onTap: () {
+          // Untuk sementara, tampilkan pesan atau tidak lakukan apa-apa
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Halaman belum tersedia")),
+          );
+        },
+        child: Card(
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      IconButton(
-                        icon: Icon(
-                          Icons.check_circle,
-                          color: Colors.green,
-                          size: 45,
-                        ),
-                        onPressed: () {
-                          // Action when check is clicked
-                        },
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            nama,
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                          Text(
+                            tanggal,
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w300,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Text(
+                        id,
+                        style: GoogleFonts.poppins(fontSize: 14),
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        tugas,
+                        style: GoogleFonts.poppins(fontSize: 14),
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+                Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(
+                        Icons.check_circle,
+                        color: Colors.green,
+                        size: 45,
+                      ),
+                      onPressed: () {
+                        // Action when check is clicked
+                      },
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
 
   // Fungsi untuk membuat daftar yang sudah Selesai
   Widget _buildSelesaiList(BuildContext context) {
     return ListView(
       children: [
-        _buildSelesai(context, 'Solikhin', '2241760020', '2024-12-12', 'Membuat Web'),
+        _buildSelesai(
+            context, 'Solikhin', '2241760020', '2024-12-12', 'Membuat Web'),
       ],
     );
   }
 
-  Widget _buildSelesai(BuildContext context, String nama, String id, String tanggal, String tugas) {
+  Widget _buildSelesai(BuildContext context, String nama, String id,
+      String tanggal, String tugas) {
     return Align(
       alignment: Alignment.topCenter,
       child: FractionallySizedBox(
@@ -298,26 +301,41 @@ class _PenandatangananScreenState extends State<PenandatangananScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          nama,
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w400,
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              nama,
+                              style: GoogleFonts.poppins(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                            Text(
+                              tanggal,
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w300,
+                              ),
+                            ),
+                          ],
                         ),
-                        Text(
-                          id,
-                          style: GoogleFonts.poppins(fontSize: 14),
-                        ),
-                        Text(
-                          tanggal,
-                          style: GoogleFonts.poppins(
-                              fontSize: 14, fontWeight: FontWeight.w300),
-                        ),
-                        SizedBox(height: 10),
-                        Text(
-                          tugas,
-                          style: GoogleFonts.poppins(fontSize: 14),
+                        SizedBox(height: 5),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              id,
+                              style: GoogleFonts.poppins(fontSize: 14),
+                            ),
+                            Text(
+                              tugas,
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w300,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
