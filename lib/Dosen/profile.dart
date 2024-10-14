@@ -7,6 +7,8 @@ import '../dosen.dart';
 import '../widget/popup_logout.dart';
 
 class ProfilePage extends StatefulWidget {
+  const ProfilePage({super.key});
+
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }

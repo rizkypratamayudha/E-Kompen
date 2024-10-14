@@ -9,6 +9,8 @@ import 'profile.dart';
 import 'pekerjaan.dart';
 
 class PengumpulanBuktiDosenPage extends StatefulWidget {
+  const PengumpulanBuktiDosenPage({super.key});
+
   @override
   _PengumpulanBuktiDosenPageState createState() => _PengumpulanBuktiDosenPageState();
 }

@@ -11,6 +11,8 @@ import '../widget/popup_tugas_selesai_dosen.dart';
 import 'progress_dosen.dart';
 
 class PenerimaanDosen1 extends StatefulWidget{
+  const PenerimaanDosen1({super.key});
+
   @override
   _PenerimaanDosen1State createState() => _PenerimaanDosen1State();
 }
@@ -77,12 +79,14 @@ class _PenerimaanDosen1State extends State<PenerimaanDosen1>{
 }
 
 class PenerimaanScreen extends StatefulWidget{
+  const PenerimaanScreen({super.key});
+
   @override
   _PenerimaanScreenState createState() => _PenerimaanScreenState();
 }
 
 class _PenerimaanScreenState extends State<PenerimaanScreen>{
-  PageController _pageController = PageController(initialPage: 0);
+  final PageController _pageController = PageController(initialPage: 0);
   int _selectedIndex = 0;
 
   @override

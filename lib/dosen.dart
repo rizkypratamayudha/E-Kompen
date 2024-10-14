@@ -22,17 +22,17 @@ class _DosenDashboardState extends State<DosenDashboard> {
     });
 
     if (index == 1) {
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) =>  PekerjaanDosenPage()), // Update the page if needed
       );
     } else if (index == 2) {
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) =>  PenerimaanDosen1()), // Update the page if needed
       );
     } else if (index == 3) {
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => ProfilePage()), // Update the page if needed
       );

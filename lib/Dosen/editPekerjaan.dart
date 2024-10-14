@@ -8,13 +8,15 @@ import '../dosen.dart';
 import '../bottombar/bottombarDosen.dart';
 
 class EditPekerjaanPage extends StatefulWidget {
+  const EditPekerjaanPage({super.key});
+
   @override
   _EditPekerjaanPageState createState() => _EditPekerjaanPageState();
 }
 
 class _EditPekerjaanPageState extends State<EditPekerjaanPage> {
   final _formKey = GlobalKey<FormState>();
-  TextEditingController _dateController = TextEditingController();
+  final TextEditingController _dateController = TextEditingController();
   int _selectedIndex = 1;
 
   void _onItemTapped(int index) {
@@ -197,6 +199,17 @@ class _EditPekerjaanPageState extends State<EditPekerjaanPage> {
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10)),
                           ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 10,),
+                    ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: 300),
+                      child: TextFormField(
+                        decoration: InputDecoration(
+                          labelText: 'Tag / List',
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10)),
                         ),
                       ),
                     ),

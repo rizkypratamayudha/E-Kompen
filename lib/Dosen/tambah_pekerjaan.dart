@@ -7,14 +7,23 @@ import '../dosen.dart';
 import '../bottombar/bottombarDosen.dart';
 
 class TambahPekerjaanPage extends StatefulWidget {
+  const TambahPekerjaanPage({super.key});
+
   @override
   _TambahPekerjaanPageState createState() => _TambahPekerjaanPageState();
 }
 
 class _TambahPekerjaanPageState extends State<TambahPekerjaanPage> {
   final _formKey = GlobalKey<FormState>();
-  TextEditingController _dateController = TextEditingController();
+  final TextEditingController _dateController = TextEditingController();
   int _selectedIndex = 1;
+  String? _nama;
+  String? _jenisTugas;
+  String? _jumlahAnggota;
+  String? _persyaratan;
+  String? _jumlahProgress;
+  String? _deskripsi;
+  String? _tagList;
 
   void _onItemTapped(int index) {
     if (index == _selectedIndex) {
@@ -69,9 +78,7 @@ class _TambahPekerjaanPageState extends State<TambahPekerjaanPage> {
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(
-          16.0,
-        ),
+        padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
@@ -99,21 +106,36 @@ class _TambahPekerjaanPageState extends State<TambahPekerjaanPage> {
                           );
                         }).toList(),
                         onChanged: (String? newValue) {
-                          
+                          setState(() {
+                            _jenisTugas = newValue; // Menyimpan nilai
+                          });
+                        },
+                        validator: (value) {
+                          if (value == null) {
+                            return 'Mohon pilih jenis tugas';
+                          }
+                          return null;
                         },
                       ),
                     ),
-                    SizedBox(
-                      height: 10,
-                    ),
+                    SizedBox(height: 10),
                     ConstrainedBox(
                       constraints: BoxConstraints(maxWidth: 300),
                       child: TextFormField(
                         decoration: InputDecoration(
-                          labelText: 'Nama Pekerjaan ',
+                          labelText: 'Nama Pekerjaan',
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10)),
                         ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Mohon masukkan nama pekerjaan';
+                          }
+                          return null;
+                        },
+                        onChanged: (value) {
+                          _nama = value;
+                        },
                       ),
                     ),
                     SizedBox(height: 10.0),
@@ -125,6 +147,15 @@ class _TambahPekerjaanPageState extends State<TambahPekerjaanPage> {
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10)),
                         ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Mohon masukkan jumlah anggota';
+                          }
+                          return null;
+                        },
+                        onChanged: (value) {
+                          _jumlahAnggota = value;
+                        },
                       ),
                     ),
                     SizedBox(height: 10.0),
@@ -136,6 +167,15 @@ class _TambahPekerjaanPageState extends State<TambahPekerjaanPage> {
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10)),
                         ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Mohon masukkan persyaratan';
+                          }
+                          return null;
+                        },
+                        onChanged: (value) {
+                          _persyaratan = value;
+                        },
                       ),
                     ),
                     SizedBox(height: 10.0),
@@ -147,34 +187,17 @@ class _TambahPekerjaanPageState extends State<TambahPekerjaanPage> {
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10)),
                         ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Mohon masukkan jumlah progress';
+                          }
+                          return null;
+                        },
+                        onChanged: (value) {
+                          _jumlahProgress = value;
+                        },
                       ),
                     ),
-                    // SizedBox(height: 10.0),
-                    // ConstrainedBox(
-                    //   constraints: BoxConstraints(maxWidth: 300),
-                    //   child: TextFormField(
-                    //     decoration: InputDecoration(
-                    //       labelText: 'Jumlah Jam',
-                    //       border: OutlineInputBorder(
-                    //           borderRadius: BorderRadius.circular(10)),
-                    //     ),
-                    //   ),
-                    // ),
-                    // SizedBox(height: 10.0),
-                    // ConstrainedBox(
-                    //   constraints: BoxConstraints(maxWidth: 300),
-                    //   child: TextFormField(
-                    //     controller: _dateController,
-                    //     readOnly: true,
-                    //     decoration: InputDecoration(
-                    //       labelText: 'Batas pengerjaan',
-                    //       border: OutlineInputBorder(
-                    //           borderRadius: BorderRadius.circular(10)),
-                    //       suffixIcon: Icon(Icons.calendar_today),
-                    //     ),
-                    //     onTap: () => _selectDate(context),
-                    //   ),
-                    // ),
                     SizedBox(height: 10.0),
                     ConstrainedBox(
                       constraints: BoxConstraints(maxWidth: 300),
@@ -189,7 +212,30 @@ class _TambahPekerjaanPageState extends State<TambahPekerjaanPage> {
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10)),
                           ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Mohon masukkan deskripsi tugas';
+                            }
+                            return null;
+                          },
+                          onChanged: (value) {
+                            _deskripsi = value;
+                          },
                         ),
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: 300),
+                      child: TextFormField(
+                        decoration: InputDecoration(
+                          labelText: 'Tag / List',
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                        ),
+                        onChanged: (value) {
+                          _tagList = value;
+                        },
                       ),
                     ),
                     SizedBox(height: 40.0),
@@ -198,30 +244,17 @@ class _TambahPekerjaanPageState extends State<TambahPekerjaanPage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          // ElevatedButton(
-                          //   onPressed: () {
-                          //     // Add save logic here
-                          //   },
-                          //   style: ElevatedButton.styleFrom(
-                          //     backgroundColor: Colors.green[400],
-                          //     shape: RoundedRectangleBorder(
-                          //       borderRadius: BorderRadius.circular(10),
-                          //     ),
-                          //     minimumSize: Size(120, 40),
-                          //   ),
-                          //   child: Text(
-                          //     'Simpan',
-                          //     style: GoogleFonts.poppins(color: Colors.white),
-                          //   ),
-                          // ),
                           SizedBox(width: 70),
                           ElevatedButton(
                             onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          TambahProgresPage()));
+                              if (_formKey.currentState!.validate()) {
+                                // Jika semua validasi berhasil
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            TambahProgresPage()));
+                              }
                             },
                             style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.blue,

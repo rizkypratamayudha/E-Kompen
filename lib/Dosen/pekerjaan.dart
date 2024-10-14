@@ -52,7 +52,7 @@ class _PekerjaanDosenPageState extends State<PekerjaanDosenPage> {
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20.0, 50.0, 20.0, 5.0),
+          padding: const EdgeInsets.fromLTRB(20.0, 50.0, 20.0, 10.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -78,8 +78,8 @@ class _PekerjaanDosenPageState extends State<PekerjaanDosenPage> {
             MaterialPageRoute(builder: (context) => TambahPekerjaanPage()),
           );
         },
-        child: const Icon(Icons.add, color: Colors.white,),
         backgroundColor: Colors.green,
+        child: const Icon(Icons.add, color: Colors.white,),
         
       ),
       bottomNavigationBar: BottomNavBarDosen(

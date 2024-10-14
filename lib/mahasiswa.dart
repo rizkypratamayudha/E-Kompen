@@ -22,17 +22,17 @@ class _MahasiswaDashboardState extends State<MahasiswaDashboard> {
     });
 
     if (index == 1) {
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const PekerjaanPage()),
       );
     } else if (index == 2) {
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => RiwayatPage()),
       );
     } else if (index == 3) {
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => ProfilePage()),
       );
@@ -144,12 +144,12 @@ class _MahasiswaDashboardState extends State<MahasiswaDashboard> {
                 ),
                 ElevatedButton(
                   onPressed: () {},
-                  child: const Icon(Icons.search),
                   style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       backgroundColor: Colors.blue,
                       iconColor: Colors.white,
                       fixedSize: const Size(76, 44)),
+                  child: const Icon(Icons.search),
                 ),
               ],
             ),

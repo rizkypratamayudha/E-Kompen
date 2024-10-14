@@ -7,6 +7,8 @@ import '../mahasiswa.dart';
 import 'progress_mahasiswa.dart';
 
 class RiwayatPage extends StatefulWidget {
+  const RiwayatPage({super.key});
+
   @override
   _RiwayatPageState createState() => _RiwayatPageState();
 }
@@ -76,12 +78,14 @@ class _RiwayatPageState extends State<RiwayatPage> {
 }
 
 class RiwayatScreen extends StatefulWidget {
+  const RiwayatScreen({super.key});
+
   @override
   _RiwayatScreenState createState() => _RiwayatScreenState();
 }
 
 class _RiwayatScreenState extends State<RiwayatScreen> {
-  PageController _pageController = PageController(initialPage: 0);
+  final PageController _pageController = PageController(initialPage: 0);
   int _selectedIndex = 0;
 
   // Contoh data
@@ -276,7 +280,7 @@ class TabButton extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
 
-  const TabButton({
+  const TabButton({super.key, 
     required this.icon, // Parameter ikon harus disertakan
     required this.text,
     required this.isSelected,
@@ -327,7 +331,7 @@ void _showWebPopup(BuildContext context) {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
-        content: Container(
+        content: SizedBox(
           width: double.maxFinite,
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -337,6 +341,12 @@ void _showWebPopup(BuildContext context) {
                   style: GoogleFonts.poppins(fontSize: 14)),
               SizedBox(height: 8),
               Text('Nomor Dosen : 083166441802',
+                  style: GoogleFonts.poppins(fontSize: 14)),
+              SizedBox(height: 8),
+              Text('Jenis Tugas : Teknis',
+                  style: GoogleFonts.poppins(fontSize: 14)),
+              SizedBox(height: 8),
+              Text('Nama Tugas : Pembuatan Web',
                   style: GoogleFonts.poppins(fontSize: 14)),
               SizedBox(height: 8),
               Text('Jumlah Jam : 100 Jam',
@@ -360,9 +370,6 @@ void _showWebPopup(BuildContext context) {
                   onPressed: () {
                     Navigator.pop(context); // Tutup dialog
                   },
-                  child: Text('Request TTD Kaprodi',
-                      style: GoogleFonts.poppins(
-                          fontSize: 14, color: Colors.white)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     padding: EdgeInsets.symmetric(vertical: 12),
@@ -370,6 +377,9 @@ void _showWebPopup(BuildContext context) {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
+                  child: Text('Request TTD Kaprodi',
+                      style: GoogleFonts.poppins(
+                          fontSize: 14, color: Colors.white)),
                 ),
               ),
             ],
@@ -388,7 +398,7 @@ void _showMobilePopup(BuildContext context) {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
-        content: Container(
+        content: SizedBox(
           width: double.maxFinite,
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -398,6 +408,12 @@ void _showMobilePopup(BuildContext context) {
                   style: GoogleFonts.poppins(fontSize: 14)),
               SizedBox(height: 8),
               Text('Nomor Dosen : 083166441802',
+                  style: GoogleFonts.poppins(fontSize: 14)),
+              SizedBox(height: 8),
+              Text('Jenis Tugas : Teknis',
+                  style: GoogleFonts.poppins(fontSize: 14)),
+              SizedBox(height: 8),
+              Text('Nama Tugas : Memasukkan Nilai',
                   style: GoogleFonts.poppins(fontSize: 14)),
               SizedBox(height: 8),
               Text('Jumlah Jam : 10 Jam',
@@ -421,9 +437,6 @@ void _showMobilePopup(BuildContext context) {
                   onPressed: () {
                     Navigator.pop(context); // Tutup dialog
                   },
-                  child: Text('Cetak Bukti Surat',
-                      style: GoogleFonts.poppins(
-                          fontSize: 14, color: Colors.white)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                     padding: EdgeInsets.symmetric(vertical: 12),
@@ -431,6 +444,9 @@ void _showMobilePopup(BuildContext context) {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
+                  child: Text('Cetak Bukti Surat',
+                      style: GoogleFonts.poppins(
+                          fontSize: 14, color: Colors.white)),
                 ),
               ),
             ],

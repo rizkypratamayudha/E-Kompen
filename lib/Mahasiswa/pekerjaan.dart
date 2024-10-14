@@ -1,10 +1,13 @@
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../bottombar/bottombar.dart'; // Import BottomNavBar
+import '../bottombar/bottombar.dart';
 import 'profile.dart';
 import 'riwayat.dart';
 import '../mahasiswa.dart';
-import '../widget/popup_pekerjaan_mhs.dart'; // Import file popup
+import '../widget/popup_pekerjaan_mhs.dart';
+import '../widget/tag.dart';
+import '../widget/tag_kompetensi.dart';
 
 class PekerjaanPage extends StatefulWidget {
   const PekerjaanPage({super.key});
@@ -15,6 +18,25 @@ class PekerjaanPage extends StatefulWidget {
 
 class _PekerjaanPageState extends State<PekerjaanPage> {
   int _selectedIndex = 1;
+
+  Route _createRoute(Widget page) {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => page,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(1.0, 0.0); // Slide dari kanan ke kiri
+        const end = Offset.zero;
+        const curve = Curves.ease;
+
+        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var offsetAnimation = animation.drive(tween);
+
+        return SlideTransition(
+          position: offsetAnimation,
+          child: child,
+        );
+      },
+    );
+  }
 
   void _onItemTapped(int index) {
     if (index == _selectedIndex) {
@@ -56,9 +78,14 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
             children: [
               Text(
                 'Pekerjaan',
-                style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.normal),
+                style: GoogleFonts.poppins(
+                    fontSize: 22, fontWeight: FontWeight.normal),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 20),
+              _buildseacrh(),
+              const SizedBox(
+                height: 20,
+              ),
               _buildPekerjaan('Pembuatan Web', '2/5'),
               _buildPekerjaan('Memasukkan Nilai', '0/2'),
               _buildPekerjaan('Pembelian AC', '2/5'),
@@ -89,7 +116,8 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
         ],
       ),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
         title: Text(
           title,
           style: GoogleFonts.poppins(
@@ -127,4 +155,114 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
       ),
     );
   }
+
+  void _showlist() {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+      ),
+      builder: (context) {
+        return Container(
+          constraints: BoxConstraints(
+            minWidth:
+                MediaQuery.of(context).size.width, // 50% dari tinggi layar
+          ),
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Jenis Tugas',
+                style: GoogleFonts.poppins(),
+              ),
+              const SizedBox(height: 16),
+              Tag(),
+              const SizedBox(height: 16),
+              Text(
+                'List Kompetensi',
+                style: GoogleFonts.poppins(),
+              ),
+              const SizedBox(height:16 ,),
+              TagKompetensi(),
+              const SizedBox(height : 16),
+              Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(builder: (context) => PekerjaanPage())
+                    //   );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)
+                    ),
+                    
+                  ),
+                  child: Text('Simpan', style: GoogleFonts.poppins(color: Colors.white),),
+                )
+              )
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildseacrh() {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Expanded(
+        child: TextFormField(
+          decoration: InputDecoration(
+            prefixIcon: Icon(
+              Icons.search,
+            ),
+            hintText: 'Cari Pekerjaan',
+            hintStyle: GoogleFonts.poppins(
+              fontSize: 14,
+              color: Colors.black38,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none,
+            ),
+            filled: true,
+            fillColor: Colors.transparent,
+          ),
+          style: GoogleFonts.poppins(
+            fontSize: 14,
+            color: Colors.black,
+          ),
+          onChanged: (value) {
+            
+            print('Judul pekerjaan: $value');
+          },
+        ),
+      ),
+      SizedBox(width: 10,),
+      Container(
+        decoration: BoxDecoration(
+          color: Colors.transparent,
+          shape: BoxShape.rectangle,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        padding: const EdgeInsets.all(3),
+        child: IconButton(
+          onPressed: () => _showlist(),
+          icon: const Icon(
+            Icons.filter_list_rounded,
+            color: Colors.black, // Warna ikon
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
+
 }

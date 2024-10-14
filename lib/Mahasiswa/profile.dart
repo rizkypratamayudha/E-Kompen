@@ -1,3 +1,4 @@
+import 'package:firstapp/Mahasiswa/upload_kompetensi.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../bottombar/bottombar.dart'; 
@@ -7,6 +8,8 @@ import '../mahasiswa.dart';
 import '../widget/popup_logout.dart'; 
 
 class ProfilePage extends StatefulWidget {
+  const ProfilePage({super.key});
+
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
@@ -184,13 +187,12 @@ class _ProfilePageState extends State<ProfilePage> {
                 SizedBox(height: 10,),
                 InkWell(
                   onTap: (){
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //     builder: (context) => RiwayatPage()
-                    //   )
-                    
-                    // );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => UploadKompetensi()
+                      )
+                    );
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 20,horizontal: 15),

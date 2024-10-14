@@ -8,6 +8,8 @@ import '../mahasiswa.dart';
 import 'pengumpulan_bukti.dart'; // Import PengumpulanBuktiPage
 
 class ProgressMahasiswaPage extends StatefulWidget {
+  const ProgressMahasiswaPage({super.key});
+
   @override
   _ProgressMahasiswaPageState createState() => _ProgressMahasiswaPageState();
 }
@@ -262,6 +264,8 @@ class _ProgressMahasiswaPageState extends State<ProgressMahasiswaPage> {
 
 // Your custom progress widget
 class CustomProgressWidget extends StatelessWidget {
+  const CustomProgressWidget({super.key});
+
   @override
   Widget build(BuildContext context) {
     final double boxWidth = MediaQuery.of(context).size.width * 0.85;

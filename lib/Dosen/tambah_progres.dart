@@ -3,13 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class TambahProgresPage extends StatefulWidget {
+  const TambahProgresPage({super.key});
+
   @override
   _TambahProgresPageState createState() => _TambahProgresPageState();
 }
 
 class _TambahProgresPageState extends State<TambahProgresPage> {
   final _formKey = GlobalKey<FormState>();
-  TextEditingController _dateController = TextEditingController();
+  final TextEditingController _dateController = TextEditingController();
   int _progressCount = 4;
 
   Future<void> _selectDate(BuildContext context) async {
@@ -164,7 +166,6 @@ class _TambahProgresPageState extends State<TambahProgresPage> {
     );
   }
 
-  @override
   @override
 Widget build(BuildContext context) {
   return Scaffold(

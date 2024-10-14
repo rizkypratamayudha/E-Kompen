@@ -1,12 +1,14 @@
 import 'package:firstapp/Mahasiswa/progress_mahasiswa.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../bottombar/bottombar.dart'; // Import BottomNavBar
+import '../bottombar/bottombar.dart'; 
 import 'profile.dart';
 import 'pekerjaan.dart';
 import '../mahasiswa.dart';
 
 class PengumpulanBuktiPage extends StatefulWidget {
+  const PengumpulanBuktiPage({super.key});
+
   @override
   _PengumpulanBuktiPageState createState() => _PengumpulanBuktiPageState();
 }

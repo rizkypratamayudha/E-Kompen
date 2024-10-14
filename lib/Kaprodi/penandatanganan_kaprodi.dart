@@ -6,6 +6,8 @@ import '../kaprodi.dart';
 import 'profile.dart';
 
 class PenandatangananKaprodi extends StatefulWidget {
+  const PenandatangananKaprodi({super.key});
+
   @override
   _PenandatangananKaprodiState createState() => _PenandatangananKaprodiState();
 }
@@ -62,12 +64,14 @@ class _PenandatangananKaprodiState extends State<PenandatangananKaprodi> {
 }
 
 class PenandatangananScreen extends StatefulWidget {
+  const PenandatangananScreen({super.key});
+
   @override
   _PenandatangananScreenState createState() => _PenandatangananScreenState();
 }
 
 class _PenandatangananScreenState extends State<PenandatangananScreen> {
-  PageController _pageController = PageController(initialPage: 0);
+  final PageController _pageController = PageController(initialPage: 0);
   int _selectedTab = 0;
 
   @override

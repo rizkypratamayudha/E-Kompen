@@ -1,6 +1,5 @@
 // Login Page
 import 'package:flutter/material.dart';
-import '../main.dart';
 import '../mahasiswa.dart';
 import '../dosen.dart';
 import '../kaprodi.dart';
@@ -40,7 +39,7 @@ class _LoginPageState extends State<LoginPage> {
               textAlign: TextAlign.center,
               
             ),
-            const SizedBox(height: 90),
+            const SizedBox(height: 40),
             if (_showErrorMessage)
             Container(
               decoration: BoxDecoration(
@@ -120,12 +119,12 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _login,
-              child: Text('Login',
-              style: GoogleFonts.poppins(color: Colors.white),),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 padding: const EdgeInsets.symmetric(vertical: 15),
               ),
+              child: Text('Login',
+              style: GoogleFonts.poppins(color: Colors.white),),
             ),
           ],
         ),

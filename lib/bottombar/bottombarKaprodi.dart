@@ -6,16 +6,16 @@ class BottomNavBarKaprodi extends StatelessWidget {
 
   // Perbaikan: Nama constructor harus sama dengan nama kelas
   const BottomNavBarKaprodi({
-    Key? key,
+    super.key,
     required this.selectedIndex,
     required this.onItemTapped,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
       type: BottomNavigationBarType
-          .shifting, // Gunakan shifting untuk efek pergerakan ikon
+          .fixed, // Gunakan shifting untuk efek pergerakan ikon
       items: [
         BottomNavigationBarItem(
           icon: Icon(Icons.home),

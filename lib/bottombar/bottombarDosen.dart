@@ -6,15 +6,15 @@ class BottomNavBarDosen extends StatelessWidget {
   final ValueChanged<int> onItemTapped;
 
   const BottomNavBarDosen({
-    Key? key,
+    super.key,
     required this.selectedIndex,
     required this.onItemTapped,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
-      type: BottomNavigationBarType.shifting, // Gunakan shifting untuk efek pergerakan ikon
+      type: BottomNavigationBarType.fixed, // Gunakan shifting untuk efek pergerakan ikon
       items: [
         BottomNavigationBarItem(
           icon: Icon(Icons.home),

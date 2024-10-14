@@ -3,13 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class EditProgresPage extends StatefulWidget {
+  const EditProgresPage({super.key});
+
   @override
   _EditProgresPageState createState() => _EditProgresPageState();
 }
 
 class _EditProgresPageState extends State<EditProgresPage> {
   final _formKey = GlobalKey<FormState>();
-  TextEditingController _dateController = TextEditingController();
+  final TextEditingController _dateController = TextEditingController();
   int _progressCount = 4;
 
   Future<void> _selectDate(BuildContext context) async {
@@ -62,10 +64,10 @@ class _EditProgresPageState extends State<EditProgresPage> {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.push(
-                      context, 
-                      MaterialPageRoute(builder: (context) =>EditPekerjaanPage())
-                    );
+                    // Navigator.push(
+                    //   context, 
+                    //   MaterialPageRoute(builder: (context) =>EditPekerjaanPage())
+                    // );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,

@@ -1,5 +1,4 @@
 import 'package:firstapp/Dosen/penerimaan_dosen1.dart';
-import 'package:firstapp/Mahasiswa/riwayat.dart';
 import 'package:firstapp/dosen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -9,6 +8,8 @@ import 'pekerjaan.dart';
 import 'pengumpulan_bukti.dart'; // Import PengumpulanBuktiPage
 
 class ProgressDosenPage extends StatefulWidget {
+  const ProgressDosenPage({super.key});
+
   @override
   _ProgressDosenPageState createState() => _ProgressDosenPageState();
 }
@@ -264,6 +265,8 @@ class _ProgressDosenPageState extends State<ProgressDosenPage> {
 
 // Your custom progress widget
 class CustomProgressWidget extends StatelessWidget {
+  const CustomProgressWidget({super.key});
+
   @override
   Widget build(BuildContext context) {
     final double boxWidth = MediaQuery.of(context).size.width * 0.85;
