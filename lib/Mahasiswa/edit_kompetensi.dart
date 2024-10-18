@@ -2,14 +2,14 @@ import 'kompetensi.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class UploadKompetensi extends StatefulWidget {
-  const UploadKompetensi({super.key});
+class EditKompetensi extends StatefulWidget {
+  const EditKompetensi({super.key});
 
   @override
-  State<UploadKompetensi> createState() => _UploadKompetensiState();
+  State<EditKompetensi> createState() => _EditKompetensiState();
 }
 
-class _UploadKompetensiState extends State<UploadKompetensi> {
+class _EditKompetensiState extends State<EditKompetensi> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,7 +23,7 @@ class _UploadKompetensiState extends State<UploadKompetensi> {
             );
           },
         ),
-        title: Text('Upload Kompetensi',
+        title: Text('Edit Kompetensi',
         style: GoogleFonts.poppins(color: Colors.black),
         ),
         backgroundColor: Colors.white,
@@ -49,9 +49,9 @@ class _UploadKompetensiState extends State<UploadKompetensi> {
                       buildInfo('Nim', '2241760020'),
                       buildInfo('IPK', '4.00'),
                       buildInfo('Semester', '5'),
-                      buildInfoinput('Kompetensi'),
-                      buildInfoinput('Pengalaman'),
-                      buildInfoinput('Bukti'),
+                      buildInfo('Kompetensi', 'Menguasai Pembuatan Flowchart'),
+                      buildInfo('Pengalaman', 'Pernah membuat use case dan activity diagram untuk mata kuliah APSO'),
+                      buildInfo('Bukti', 'https://app.diagrams.net/#G1N3t5Xuboff26bE-mCJ7-BuNy5TTWj5Rd#%7B%22pageId%22%3A%22zflMTrrlGC0nfNbhAmkl%22%7D'),
                       SizedBox(height: 10,),
                       buildsimpan()
                     ],

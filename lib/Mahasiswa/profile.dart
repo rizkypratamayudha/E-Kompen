@@ -1,4 +1,5 @@
 import 'package:firstapp/Mahasiswa/upload_kompetensi.dart';
+import 'package:firstapp/Mahasiswa/kompetensi.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../bottombar/bottombar.dart'; 
@@ -190,7 +191,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => UploadKompetensi()
+                        builder: (context) => KompetensiMahasiswaPage()
                       )
                     );
                   },
