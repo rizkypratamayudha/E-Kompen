@@ -185,28 +185,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
               const SizedBox(height: 20),
-              // Upload TTD Button
-              GestureDetector(
-                onTap: () {
-                  // Add your upload TTD functionality here
-                },
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
-                  margin: const EdgeInsets.symmetric(horizontal: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.edit_document),
-                      const SizedBox(width: 25),
-                      Text('Upload TTD', style: GoogleFonts.poppins()),
-                    ],
-                  ),
-                ),
-              ),
             ],
           ),
         ),
