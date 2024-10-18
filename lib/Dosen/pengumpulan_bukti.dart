@@ -116,25 +116,7 @@ class _PengumpulanBuktiDosenPageState extends State<PengumpulanBuktiDosenPage> {
                       ),
                       const SizedBox(height: 16),
                       // Tombol Tambah/Edit
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size.fromHeight(50), // Button size
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          backgroundColor: Colors.blue,
-                        ),
-                        onPressed: () {
-                          // Handle button press
-                        },
-                        child: Text(
-                          '+ Tambah / Edit',
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
+                      
                     ],
                   ),
                 ),
