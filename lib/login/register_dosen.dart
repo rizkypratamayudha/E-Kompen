@@ -51,7 +51,7 @@ class _RegisterDosenState extends State<RegisterDosen> {
             TextField(
               style: GoogleFonts.poppins(),
               decoration: InputDecoration(
-                labelte
+                
               ),
             )
           ],
