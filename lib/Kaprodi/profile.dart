@@ -21,25 +21,24 @@ class _ProfilePageState extends State<ProfilePage> {
   int _selectedIndex = 2;
 
   void _onItemTapped(int index) {
-  setState(() {
-    _selectedIndex = index;
-  });
+    setState(() {
+      _selectedIndex = index;
+    });
 
-  if (index == 2) {
-    return; // Tetap di halaman Profile
-  } else if (index == 1) {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => PenandatangananKaprodi()),
-    );
-  } else if (index == 0) {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => KaprodiDashboard()),
-    );
+    if (index == 2) {
+      return; // Tetap di halaman Profile
+    } else if (index == 1) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => PenandatangananKaprodi()),
+      );
+    } else if (index == 0) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => KaprodiDashboard()),
+      );
+    }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -100,8 +99,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   });
                 },
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 20, horizontal: 15),
                   margin: const EdgeInsets.symmetric(horizontal: 10),
                   decoration: BoxDecoration(
                     color: Colors.grey[300],
@@ -176,28 +175,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
               const SizedBox(height: 20),
-              // Upload TTD Button
-              GestureDetector(
-                onTap: () {
-                  // Add your upload TTD functionality here
-                },
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
-                  margin: const EdgeInsets.symmetric(horizontal: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.edit_document),
-                      const SizedBox(width: 25),
-                      Text('Upload TTD', style: GoogleFonts.poppins()),
-                    ],
-                  ),
-                ),
-              ),
             ],
           ),
         ),
