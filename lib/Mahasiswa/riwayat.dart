@@ -66,12 +66,13 @@ class _RiwayatPageState extends State<RiwayatPage> {
           ),
         ),
         backgroundColor:
-            Colors.white, // Menambahkan warna putih untuk background body
+            Colors.white, 
         body: RiwayatScreen(),
         bottomNavigationBar: BottomNavBar(
           selectedIndex: _selectedIndex,
           onItemTapped: _onItemTapped,
         ),
+        
       ),
     );
   }

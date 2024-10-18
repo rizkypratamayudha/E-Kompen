@@ -1,4 +1,5 @@
 // Login Page
+import 'package:firstapp/login/register.dart';
 import 'package:flutter/material.dart';
 import '../mahasiswa.dart';
 import '../dosen.dart';
@@ -116,7 +117,15 @@ class _LoginPageState extends State<LoginPage> {
                 contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 10)
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 10,),
+            GestureDetector(
+              onTap: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterPage()));
+              },
+              child:  Text('Tidak punya akun ? register', style: GoogleFonts.poppins(color: Colors.blue),),
+            ),
+
+            const SizedBox(height: 10),
             ElevatedButton(
               onPressed: _login,
               style: ElevatedButton.styleFrom(

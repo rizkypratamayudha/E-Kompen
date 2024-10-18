@@ -31,7 +31,7 @@ class _WelcomebuttonState extends State<Welcomebutton> {
           ),
         ),
         child: Text(
-          widget.buttonText!, // Menggunakan widget.buttonText karena ini StatefulWidget
+          widget.buttonText!, 
           style: GoogleFonts.poppins(
             fontSize: 20.0,
             fontWeight: FontWeight.normal,

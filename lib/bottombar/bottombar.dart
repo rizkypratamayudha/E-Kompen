@@ -14,6 +14,7 @@ class BottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
+      backgroundColor: Colors.white,
       type: BottomNavigationBarType.fixed, 
       items: [
         BottomNavigationBarItem(
@@ -23,7 +24,7 @@ class BottomNavBar extends StatelessWidget {
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.assignment_add),
-          label: 'Tugas',
+          label: 'Pekerjaan',
           backgroundColor: Colors.white, 
         ),
         BottomNavigationBarItem(

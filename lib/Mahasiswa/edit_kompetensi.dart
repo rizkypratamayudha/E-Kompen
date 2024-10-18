@@ -49,9 +49,9 @@ class _EditKompetensiState extends State<EditKompetensi> {
                       buildInfo('Nim', '2241760020'),
                       buildInfo('IPK', '4.00'),
                       buildInfo('Semester', '5'),
-                      buildInfo('Kompetensi', 'Menguasai Pembuatan Flowchart'),
-                      buildInfo('Pengalaman', 'Pernah membuat use case dan activity diagram untuk mata kuliah APSO'),
-                      buildInfo('Bukti', 'https://app.diagrams.net/#G1N3t5Xuboff26bE-mCJ7-BuNy5TTWj5Rd#%7B%22pageId%22%3A%22zflMTrrlGC0nfNbhAmkl%22%7D'),
+                      buildInfoinput('Kompetensi', ),
+                      buildInfoinput('Pengalaman', ),
+                      buildInfoinput('Bukti', ),
                       SizedBox(height: 10,),
                       buildsimpan()
                     ],

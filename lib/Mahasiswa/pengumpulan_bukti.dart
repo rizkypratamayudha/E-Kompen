@@ -114,24 +114,50 @@ class _PengumpulanBuktiPageState extends State<PengumpulanBuktiPage> {
                       ),
                       const SizedBox(height: 16),
                       // Tombol Tambah/Edit
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size.fromHeight(50), // Button size
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            backgroundColor: Colors.blue,
                           ),
-                          backgroundColor: Colors.blue,
-                        ),
-                        onPressed: () {
-                          // Handle button press
-                        },
-                        child: Text(
-                          '+ Tambah / Edit',
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            color: Colors.white,
+                          onPressed: () {
+                            // Handle button press
+                          },
+                          child: Text(
+                            '+ Tambah',
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
+                        const SizedBox(width: 16,),
+                          ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            backgroundColor: Colors.blue,
+                          ),
+                          onPressed: () {
+                            // Handle button press
+                          },
+                          child: Text(
+                            'Edit',
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+
+                        
+                        ]
+                          
                       ),
                     ],
                   ),

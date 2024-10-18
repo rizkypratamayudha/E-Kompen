@@ -14,6 +14,7 @@ class BottomNavBarKaprodi extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
+      backgroundColor: Colors.white,
       type: BottomNavigationBarType
           .fixed, // Gunakan shifting untuk efek pergerakan ikon
       items: [
