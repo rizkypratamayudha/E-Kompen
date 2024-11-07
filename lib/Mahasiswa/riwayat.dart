@@ -5,6 +5,7 @@ import 'profile.dart';
 import 'pekerjaan.dart';
 import '../mahasiswa.dart';
 import 'progress_mahasiswa.dart';
+import 'cetak_surat.dart';
 
 class RiwayatPage extends StatefulWidget {
   const RiwayatPage({super.key});
@@ -264,7 +265,8 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
               ),
               onTap: () {
                 if (title == 'Memasukkan Nilai') {
-                  _showMobilePopup(context);
+                  Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => CetakSuratPage()));
                 }
               },
             ),
@@ -379,73 +381,6 @@ void _showWebPopup(BuildContext context) {
                     ),
                   ),
                   child: Text('Request TTD Kaprodi',
-                      style: GoogleFonts.poppins(
-                          fontSize: 14, color: Colors.white)),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    },
-  );
-}
-
-void _showMobilePopup(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Nama Dosen : Taufiq S.Tr S.I.B',
-                  style: GoogleFonts.poppins(fontSize: 14)),
-              SizedBox(height: 8),
-              Text('Nomor Dosen : 083166441802',
-                  style: GoogleFonts.poppins(fontSize: 14)),
-              SizedBox(height: 8),
-              Text('Jenis Tugas : Teknis',
-                  style: GoogleFonts.poppins(fontSize: 14)),
-              SizedBox(height: 8),
-              Text('Nama Tugas : Memasukkan Nilai',
-                  style: GoogleFonts.poppins(fontSize: 14)),
-              SizedBox(height: 8),
-              Text('Jumlah Jam : 10 Jam',
-                  style: GoogleFonts.poppins(fontSize: 14)),
-              SizedBox(height: 8),
-              Text('Persyaratan : Paham Excel',
-                  style: GoogleFonts.poppins(fontSize: 14)),
-              SizedBox(height: 16),
-              Container(
-                padding: EdgeInsets.all(8),
-                color: Colors.grey[200],
-                child: Text(
-                  'Deskripsi Pekerjaan :\n\nMembantu Memasukkan Nilai untuk Tengah Semester Tingkat 3 Yang terdiri dari 2 Mahasiswa',
-                  style: GoogleFonts.poppins(fontSize: 12),
-                ),
-              ),
-              SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context); // Tutup dialog
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    padding: EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: Text('Cetak Bukti Surat',
                       style: GoogleFonts.poppins(
                           fontSize: 14, color: Colors.white)),
                 ),
