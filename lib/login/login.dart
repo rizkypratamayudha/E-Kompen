@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:firstapp/config/config.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:firstapp/login/register.dart';
@@ -23,7 +24,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _isPasswordVisible = false;
 
   Future<void> _login() async {
-    final url = Uri.parse('http://192.168.100.63:8000/api/loginAPI');
+    final url = Uri.parse('${config.baseUrl}/loginAPI');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},

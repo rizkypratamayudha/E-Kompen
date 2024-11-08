@@ -1,3 +1,4 @@
+import 'package:firstapp/config/config.dart';
 import 'package:firstapp/widget/popup_register.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -32,7 +33,7 @@ class _RegisterMahasiswaState extends State<RegisterMahasiswa> {
   Future<void> _registerMahasiswa() async {
     if (_formKey.currentState!.validate()) {
       final response = await http.post(
-        Uri.parse('http://192.168.100.63:8000/api/registerWithDetails'),
+        Uri.parse('${config.baseUrl}/registerWithDetails'),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
           'username': widget.username,
