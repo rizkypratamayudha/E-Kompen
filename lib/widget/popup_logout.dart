@@ -1,6 +1,9 @@
+import 'package:firstapp/controller/auth_service.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart'; // Import GoogleFonts
-import '../login/login.dart'; // Sesuaikan dengan path file LoginPage
+import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../login/login.dart';
+
 
 class PopupLogout {
   // Static method untuk menampilkan popup logout
@@ -10,22 +13,21 @@ class PopupLogout {
       builder: (BuildContext context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10), 
+            borderRadius: BorderRadius.circular(10),
           ),
-          contentPadding: EdgeInsets.zero, 
+          contentPadding: EdgeInsets.zero,
           content: SizedBox(
-            width: 320, 
-            height: 126, 
+            width: 320,
+            height: 126,
             child: Stack(
               children: [
                 Positioned(
-                  left: 0, // Mengatur mulai dari sisi kiri
-                  right: 0, // Mengatur sampai sisi kanan
-                  top: 31, // Mengatur posisi vertikal
+                  left: 0,
+                  right: 0,
+                  top: 31,
                   child: Text(
                     'Apakah Anda ingin keluar?',
-                    textAlign:
-                        TextAlign.center, 
+                    textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
                       fontSize: 16,
                       fontWeight: FontWeight.w300,
@@ -35,19 +37,26 @@ class PopupLogout {
                 Positioned(
                   left: 0,
                   right: 0,
-                  top: 78, 
+                  top: 78,
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Rata kanan-kiri
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       TextButton(
-                        onPressed: () {
-                          // Navigasi ke halaman Login jika pilih "Ya"
+                        onPressed: () async {
+                          // Panggil fungsi logout dari AuthService
+                          final authService = AuthService();
+                          await authService.logout();
+
+                          // Bersihkan SharedPreferences jika diperlukan
+                          final prefs = await SharedPreferences.getInstance();
+                          await prefs.clear();
+
+                          // Navigasi ke halaman Login
                           Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => const LoginPage()),
-                            (Route<dynamic> route) =>
-                                false, // Menghapus stack sebelumnya
+                            (Route<dynamic> route) => false,
                           );
                         },
                         child: Text(

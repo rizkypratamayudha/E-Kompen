@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:firstapp/Model/user_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../config/config.dart';
 
 class AuthService {
@@ -29,6 +30,10 @@ class AuthService {
         // Simpan token di storage aman
         await _storage.write(key: 'token', value: responseData['token']);
         
+        final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('nama', responseData['user']['name']);
+      await prefs.setString('username', responseData['user']['username']);
+
         // Buat UserModel dari data yang diterima
         final user = UserModel.fromJson(responseData['user']);
 
