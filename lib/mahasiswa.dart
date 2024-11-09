@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'Mahasiswa/pekerjaan.dart';
 import 'Mahasiswa/profile.dart';
 import 'Mahasiswa/riwayat.dart';
@@ -14,6 +15,21 @@ class MahasiswaDashboard extends StatefulWidget {
 
 class _MahasiswaDashboardState extends State<MahasiswaDashboard> {
   int _selectedIndex = 0;
+  String _nama = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNama();
+  }
+
+  // Fungsi untuk mengambil nama pengguna dari SharedPreferences
+  Future<void> _loadNama() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _nama = prefs.getString('nama') ?? 'User';
+    });
+  }
 
   // Fungsi untuk menangani navigasi berdasarkan index dari BottomNavigationBar
   void _onItemTapped(int index) {
@@ -36,8 +52,6 @@ class _MahasiswaDashboardState extends State<MahasiswaDashboard> {
         context,
         MaterialPageRoute(builder: (context) => ProfilePage()),
       );
-    } else if (index == 0) {
-      return;
     }
   }
 
@@ -68,7 +82,7 @@ class _MahasiswaDashboardState extends State<MahasiswaDashboard> {
                       ),
                     ),
                     Text(
-                      'M. Isroqi Gelby',
+                      _nama,
                       style: GoogleFonts.poppins(),
                     ),
                   ],
@@ -133,7 +147,7 @@ class _MahasiswaDashboardState extends State<MahasiswaDashboard> {
                               ))
                           .toList(),
                       onChanged: (value) {
-                        // Handle semester selection change
+                        // Handle perubahan pilihan semester
                       },
                       decoration: const InputDecoration(
                         labelText: 'Pilih Semester',
@@ -208,7 +222,6 @@ class _MahasiswaDashboardState extends State<MahasiswaDashboard> {
           style: GoogleFonts.poppins(fontSize: 14),
         ),
       ),
-      
     );
   }
 }
