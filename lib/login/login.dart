@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'package:firstapp/Model/user_model.dart';
 import 'package:firstapp/config/config.dart';
+import 'package:firstapp/controller/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:firstapp/login/register.dart';
@@ -22,47 +24,43 @@ class _LoginPageState extends State<LoginPage> {
   bool _showErrorMessage = false;
   String _errorMessage = '';
   bool _isPasswordVisible = false;
+  final AuthService _authService = AuthService();
 
-  Future<void> _login() async {
-    final url = Uri.parse('${config.baseUrl}/loginAPI');
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'username': _usernameController.text,
-        'password': _passwordController.text,
-        'role': _role,
-      }),
+  Future<void> _login() async{
+    final result = await _authService.login(
+      _usernameController.text,
+      _passwordController.text,
+      _role,
     );
 
-    final responseData = json.decode(response.body);
+    if (result['success'] == true) {
+      final user = result['user'] as UserModel;
 
-    setState(() {
-      if (responseData['success'] == true) {
+      setState(() {
         _showErrorMessage = false;
+      });
 
-        // Navigate based on role
-        if (_role == 'Mahasiswa') {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const MahasiswaDashboard()),
-          );
-        } else if (_role == 'Dosen/Tendik') {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const DosenDashboard()),
-          );
-        } else if (_role == 'Kaprodi') {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const KaprodiDashboard()),
-          );
-        }
-      } else {
-        _showErrorMessage = true;
-        _errorMessage = responseData['message'];
+      if (user.role == 'Mahasiswa'){
+        Navigator.push(
+          context, 
+          MaterialPageRoute(builder: (context) => const MahasiswaDashboard())
+        );
       }
-    });
+      else if (user.role == 'Dosen/Tendik'){
+        Navigator.push(context, 
+        MaterialPageRoute(builder: (context) => const DosenDashboard())
+        );
+      }
+      else if (user.role == 'Kaprodi'){
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const KaprodiDashboard()));
+      }
+      else {
+        setState(() {
+          _showErrorMessage = true;
+          _errorMessage = result['message'];
+        });
+      }
+    }
   }
 
   @override
