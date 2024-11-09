@@ -3,6 +3,7 @@ import 'package:firstapp/config/config.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:firstapp/login/register.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../mahasiswa.dart';
 import '../dosen.dart';
 import '../kaprodi.dart';
@@ -37,32 +38,40 @@ class _LoginPageState extends State<LoginPage> {
 
     final responseData = json.decode(response.body);
 
-    setState(() {
-      if (responseData['success'] == true) {
-        _showErrorMessage = false;
+    if (responseData['success'] == true) {
+      // Simpan token, nama, dan username ke SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('token', responseData['token']);
+      await prefs.setString('nama', responseData['user']['name']);
+      await prefs.setString('username', _usernameController.text);
 
-        // Navigate based on role
-        if (_role == 'Mahasiswa') {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const MahasiswaDashboard()),
-          );
-        } else if (_role == 'Dosen/Tendik') {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const DosenDashboard()),
-          );
-        } else if (_role == 'Kaprodi') {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const KaprodiDashboard()),
-          );
-        }
-      } else {
+      // Reset pesan error dan navigasi berdasarkan peran pengguna
+      setState(() {
+        _showErrorMessage = false;
+      });
+
+      if (_role == 'Mahasiswa') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const MahasiswaDashboard()),
+        );
+      } else if (_role == 'Dosen/Tendik') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const DosenDashboard()),
+        );
+      } else if (_role == 'Kaprodi') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const KaprodiDashboard()),
+        );
+      }
+    } else {
+      setState(() {
         _showErrorMessage = true;
         _errorMessage = responseData['message'];
-      }
-    });
+      });
+    }
   }
 
   @override
@@ -91,7 +100,7 @@ class _LoginPageState extends State<LoginPage> {
                 child: Text(
                   _errorMessage,
                   style: GoogleFonts.poppins(
-                    textStyle: TextStyle(color: Colors.white, fontSize: 12),
+                    textStyle: const TextStyle(color: Colors.white, fontSize: 12),
                   ),
                   textAlign: TextAlign.center,
                 ),

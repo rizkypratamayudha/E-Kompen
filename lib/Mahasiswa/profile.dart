@@ -2,6 +2,7 @@ import 'package:firstapp/Mahasiswa/upload_kompetensi.dart';
 import 'package:firstapp/Mahasiswa/kompetensi.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../bottombar/bottombar.dart'; 
 import 'riwayat.dart';
 import 'pekerjaan.dart';
@@ -22,6 +23,22 @@ class _ProfilePageState extends State<ProfilePage> {
   bool _isConfirmPasswordVisible = false;
 
   int _selectedIndex = 3;
+  String _nama = '';
+  String _username = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _nama = prefs.getString('nama') ?? 'User';
+      _username = prefs.getString('username') ?? 'Username';
+    });
+  }
 
   void _onItemTapped(int index) {
     if (index == _selectedIndex) {
@@ -74,14 +91,14 @@ class _ProfilePageState extends State<ProfilePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'M. Isroqi Gelby',
+                          _nama,
                           style: GoogleFonts.poppins(
                             fontSize: 18,
                             color: Colors.white,
                           ),
                         ),
                         Text(
-                          '2241760020',
+                          _username,
                           style: GoogleFonts.poppins(
                             fontSize: 16,
                             color: Colors.white,
@@ -94,7 +111,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       icon: const Icon(Icons.exit_to_app,
                           size: 30, color: Colors.red),
                       onPressed: () {
-                        // Panggil PopupLogout OOP ketika ikon logout ditekan
                         PopupLogout.showLogoutDialog(context);
                       },
                     ),
@@ -185,7 +201,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ],
                   ),
                 ),
-                SizedBox(height: 10,),
+                const SizedBox(height: 10),
                 InkWell(
                   onTap: (){
                     Navigator.push(
@@ -207,7 +223,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         const Icon(
                           Icons.edit_document,
                         ),
-                        SizedBox(width: 25,),
+                        const SizedBox(width: 25),
                         Text(
                           'Upload Kompetensi',
                             style: GoogleFonts.poppins(),
