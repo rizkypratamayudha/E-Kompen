@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../bottombar/bottombarDosen.dart';
 import 'penerimaan_dosen1.dart';
 import 'pekerjaan.dart';
@@ -20,6 +21,23 @@ class _ProfilePageState extends State<ProfilePage> {
   bool _isConfirmPasswordVisible = false;
 
   int _selectedIndex = 3;
+
+  String _nama = '';
+  String _username = '';
+
+  Future<void> _loadUserData() async{
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _nama = prefs.getString('nama')?? 'User';
+      _username = prefs.getString('username')??'Username';
+    });
+  }
+
+  @override
+  void initState(){
+    super.initState();
+  _loadUserData();
+  }
 
   void _onItemTapped(int index) {
     if (index == _selectedIndex) {
@@ -74,14 +92,14 @@ class _ProfilePageState extends State<ProfilePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Taufiq Abdus S.T',
+                          _nama,
                           style: GoogleFonts.poppins(
                             fontSize: 18,
                             color: Colors.white,
                           ),
                         ),
                         Text(
-                          '22123131',
+                          _username,
                           style: GoogleFonts.poppins(
                             fontSize: 16,
                             color: Colors.white,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'Dosen/pekerjaan.dart'; 
 import 'Dosen/profile.dart'; 
 import 'Dosen/penerimaan_dosen1.dart'; 
@@ -14,6 +15,20 @@ class DosenDashboard extends StatefulWidget {
 
 class _DosenDashboardState extends State<DosenDashboard> {
   int _selectedIndex = 0;
+  String _nama = '';
+
+  Future<void> _loadNama() async{
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _nama = prefs.getString('nama') ?? 'User';
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNama();
+  }
 
   // Function to handle navigation based on the index from BottomNavigationBar
   void _onItemTapped(int index) {
@@ -68,7 +83,7 @@ Widget build(BuildContext context) {
                     ),
                   ),
                   Text(
-                    'Taufik Abdus S.T',
+                    _nama,
                     style: GoogleFonts.poppins(),
                   ),
                 ],
