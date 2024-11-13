@@ -1,13 +1,17 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:firstapp/Mahasiswa/upload_kompetensi.dart';
 import 'package:firstapp/Mahasiswa/kompetensi.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../bottombar/bottombar.dart'; 
+import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
+import '../bottombar/bottombar.dart';
 import 'riwayat.dart';
 import 'pekerjaan.dart';
 import '../mahasiswa.dart';
-import '../widget/popup_logout.dart'; 
+import '../widget/popup_logout.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -25,6 +29,12 @@ class _ProfilePageState extends State<ProfilePage> {
   int _selectedIndex = 3;
   String _nama = '';
   String _username = '';
+  String _avatarUrl = '';  // URL avatar
+  final _currentPasswordController = TextEditingController();
+  final _newPasswordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  final ImagePicker _picker = ImagePicker();
+  File? _profileImage;
 
   @override
   void initState() {
@@ -37,6 +47,7 @@ class _ProfilePageState extends State<ProfilePage> {
     setState(() {
       _nama = prefs.getString('nama') ?? 'User';
       _username = prefs.getString('username') ?? 'Username';
+      _avatarUrl = prefs.getString('avatar') ?? '';  // Load avatar URL
     });
   }
 
@@ -67,6 +78,87 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  Future<void> _updatePassword() async {
+    if (_newPasswordController.text != _confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Password baru dan konfirmasi tidak cocok")),
+      );
+      return;
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token') ?? '';
+
+    final response = await http.post(
+      Uri.parse('URL_API/updatePassword'), // Ganti dengan URL API Anda
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'current_password': _currentPasswordController.text,
+        'password': _newPasswordController.text,
+        'password_confirmation': _confirmPasswordController.text,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Password berhasil diperbarui")),
+      );
+      _currentPasswordController.clear();
+      _newPasswordController.clear();
+      _confirmPasswordController.clear();
+      setState(() {
+        _isPasswordSectionVisible = false;
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Gagal memperbarui password")),
+      );
+    }
+  }
+
+  Future<void> _updateProfilePhoto() async {
+    if (_profileImage == null) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token') ?? '';
+
+    final request = http.MultipartRequest(
+      'POST',
+      Uri.parse('URL_API/updatePhoto'), // Ganti dengan URL API Anda
+    );
+
+    request.headers['Authorization'] = 'Bearer $token';
+    request.files.add(await http.MultipartFile.fromPath(
+      'avatar', _profileImage!.path,
+    ));
+
+    final response = await request.send();
+
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Foto profil berhasil diperbarui")),
+      );
+      _loadUserData();  // Reload user data
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Gagal memperbarui foto profil")),
+      );
+    }
+  }
+
+  Future<void> _pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _profileImage = File(pickedFile.path);
+      });
+      _updateProfilePhoto();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -81,10 +173,17 @@ class _ProfilePageState extends State<ProfilePage> {
                 padding: const EdgeInsets.fromLTRB(20.0, 40.0, 20.0, 30.0),
                 child: Row(
                   children: [
-                    const CircleAvatar(
-                      radius: 30,
-                      backgroundColor: Colors.grey,
-                      child: Icon(Icons.person, size: 40),
+                    GestureDetector(
+                      onTap: _pickImage,
+                      child: CircleAvatar(
+                        radius: 30,
+                        backgroundColor: Colors.grey,
+                        backgroundImage: _profileImage != null
+                            ? FileImage(_profileImage!)
+                            : (_avatarUrl.isNotEmpty
+                                ? NetworkImage(_avatarUrl) as ImageProvider
+                                : const AssetImage('assets/default_avatar.png')),
+                      ),
                     ),
                     const SizedBox(width: 10),
                     Column(
@@ -187,8 +286,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       const SizedBox(height: 20),
                       ElevatedButton(
-                        onPressed: () {
-                        },
+                        onPressed: _updatePassword,
                         style: ElevatedButton.styleFrom(
                           backgroundColor:
                               const Color.fromARGB(255, 22, 126, 211),
@@ -201,46 +299,57 @@ class _ProfilePageState extends State<ProfilePage> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 10),
-                InkWell(
-                  onTap: (){
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => KompetensiMahasiswaPage()
-                      )
-                    );
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 20,horizontal: 15),
-                    margin: const EdgeInsets.symmetric(horizontal: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.edit_document,
-                        ),
-                        const SizedBox(width: 25),
-                        Text(
-                          'Upload Kompetensi',
-                            style: GoogleFonts.poppins(),
-                        )
-                      ],
-                    ),
+              const SizedBox(height: 10),
+              InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const UploadKompetensi()),
+                  );
+                },
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+                  margin: const EdgeInsets.symmetric(horizontal: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                )
+                  child: Row(
+                    children: [
+                      const Icon(Icons.file_upload),
+                      const SizedBox(width: 25),
+                      Text('Upload Kompetensi',
+                          style: GoogleFonts.poppins()),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              InkWell(
+                
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+                  margin: const EdgeInsets.symmetric(horizontal: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.person_search),
+                      const SizedBox(width: 25),
+                      Text('Lihat Kompetensi', style: GoogleFonts.poppins()),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavBar(
-        selectedIndex: _selectedIndex,
-        onItemTapped: _onItemTapped,
-      ),
-      backgroundColor: Colors.white,
     );
   }
 
@@ -250,17 +359,21 @@ class _ProfilePageState extends State<ProfilePage> {
     required VoidCallback toggleVisibility,
   }) {
     return TextField(
+      controller: label == 'Password Lama'
+          ? _currentPasswordController
+          : label == 'Password Baru'
+              ? _newPasswordController
+              : _confirmPasswordController,
       obscureText: !isPasswordVisible,
       decoration: InputDecoration(
         labelText: label,
         suffixIcon: IconButton(
           icon: Icon(
-            isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+            isPasswordVisible
+                ? Icons.visibility
+                : Icons.visibility_off,
           ),
           onPressed: toggleVisibility,
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
         ),
       ),
     );
