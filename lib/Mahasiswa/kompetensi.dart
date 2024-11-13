@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../bottombar/bottombar.dart';
 import 'riwayat.dart';
 import 'pekerjaan.dart';
 import '../mahasiswa.dart';
 import 'upload_kompetensi.dart';
 import 'edit_kompetensi.dart';
+import '../controller/kompetensi_service.dart';
+import '../Model/kompetensi_model.dart';
 
 class KompetensiMahasiswaPage extends StatefulWidget {
   const KompetensiMahasiswaPage({super.key});
@@ -17,16 +20,55 @@ class KompetensiMahasiswaPage extends StatefulWidget {
 
 class _KompetensiMahasiswaPageState extends State<KompetensiMahasiswaPage> {
   int _selectedIndex = 3;
+  String nama = "";
+  List<Kompetensi> kompetensiList = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNama();
+    _loadKompetensi();
+  }
+
+  // Fungsi untuk mengambil nama pengguna dari SharedPreferences
+  Future<void> _loadNama() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      nama = prefs.getString('nama') ?? 'User';
+    });
+  }
+
+  Future<void> _loadKompetensi() async {
+    // Replace 1 with the actual userId obtained from shared preferences or login
+    int userId = await _getUserId();
+    KompetensiService kompetensiService = KompetensiService();
+    try {
+      List<Kompetensi> kompetensiData =
+          await kompetensiService.fetchKompetensi(userId);
+      setState(() {
+        kompetensiList = kompetensiData;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<int> _getUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getInt('userId') ?? 0;
+  }
 
   void _onItemTapped(int index) {
     if (index == _selectedIndex) {
       return;
     }
-
     setState(() {
       _selectedIndex = index;
     });
-
     if (index == 3) {
       return;
     } else if (index == 1) {
@@ -70,46 +112,43 @@ class _KompetensiMahasiswaPageState extends State<KompetensiMahasiswaPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const CustomKompetensiWidget(),
-            const SizedBox(height: 16),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.black, width: 2),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      margin: const EdgeInsets.only(bottom: 10),
-                      padding: const EdgeInsets.all(8),
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 10),
-                          buildKompetensiWithEditDelete(
-                            'Kompetensi 1',
-                            'Menguasai Bahasa Pemrograman',
+        child: isLoading
+            ? Center(child: CircularProgressIndicator())
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomKompetensiWidget(
+                    userName: nama,
+                    kompetensiCount: kompetensiList.length,
+                  ),
+                  const SizedBox(height: 16),
+                  kompetensiList.isEmpty
+                      ? Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.black, width: 2),
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                          buildKompetensiWithEditDelete(
-                            'Kompetensi 2',
-                            'Menguasai Excel',
+                          padding: const EdgeInsets.all(16),
+                          child: Text(
+                            "Anda belum memiliki Kompetensi, silakan upload Kompetensi",
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.poppins(fontSize: 14),
                           ),
-                          buildKompetensiWithEditDelete(
-                            'Kompetensi 3',
-                            'Menguasai Word',
+                        )
+                      : Expanded(
+                          child: ListView.builder(
+                            itemCount: kompetensiList.length,
+                            itemBuilder: (context, index) {
+                              return buildKompetensiWithEditDelete(
+                                kompetensiList[index].kompetensiNama,
+                                kompetensiList[index].pengalaman,
+                              );
+                            },
                           ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+                        ),
+                ],
               ),
-            ),
-          ],
-        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -150,9 +189,7 @@ class _KompetensiMahasiswaPageState extends State<KompetensiMahasiswaPage> {
                   color: Colors.blue.shade700,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                constraints: const BoxConstraints(
-                  minHeight: 90, // Ukuran minimal untuk 3 baris
-                ),
+                constraints: const BoxConstraints(minHeight: 90),
                 child: Row(
                   children: [
                     Icon(
@@ -265,9 +302,7 @@ class _KompetensiMahasiswaPageState extends State<KompetensiMahasiswaPage> {
               },
               child: Text(
                 'Tidak',
-                style: GoogleFonts.poppins(
-                  color: Colors.blue,
-                ),
+                style: GoogleFonts.poppins(color: Colors.blue),
               ),
               style: TextButton.styleFrom(
                 backgroundColor: Colors.blue.shade100,
@@ -280,9 +315,7 @@ class _KompetensiMahasiswaPageState extends State<KompetensiMahasiswaPage> {
               },
               child: Text(
                 'Ya',
-                style: GoogleFonts.poppins(
-                  color: Colors.blue,
-                ),
+                style: GoogleFonts.poppins(color: Colors.blue),
               ),
               style: TextButton.styleFrom(
                 backgroundColor: Colors.blue.shade100,
@@ -296,7 +329,14 @@ class _KompetensiMahasiswaPageState extends State<KompetensiMahasiswaPage> {
 }
 
 class CustomKompetensiWidget extends StatelessWidget {
-  const CustomKompetensiWidget({super.key});
+  final String userName;
+  final int kompetensiCount;
+
+  const CustomKompetensiWidget({
+    required this.userName,
+    required this.kompetensiCount,
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -323,15 +363,15 @@ class CustomKompetensiWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'M. Isroqi Gelby Firmansyah',
+                    userName,
                     style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontSize: 14,
                     ),
                   ),
-                  Divider(color: Colors.white),
+                  const Divider(color: Colors.white),
                   Text(
-                    'Kompetensi 3',
+                    'Kompetensi: $kompetensiCount',
                     style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontSize: 12,
