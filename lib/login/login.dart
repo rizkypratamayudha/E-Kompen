@@ -1,11 +1,8 @@
-import 'dart:convert';
+
 import 'package:firstapp/Model/user_model.dart';
-import 'package:firstapp/config/config.dart';
 import 'package:firstapp/controller/auth_service.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:firstapp/login/register.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../mahasiswa.dart';
 import '../dosen.dart';
 import '../kaprodi.dart';

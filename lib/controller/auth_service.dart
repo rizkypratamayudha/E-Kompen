@@ -33,6 +33,7 @@ class AuthService {
         final prefs = await SharedPreferences.getInstance();
       await prefs.setString('nama', responseData['user']['name']);
       await prefs.setString('username', responseData['user']['username']);
+      await prefs.setInt('userId', responseData['user']['id']); // Tambahkan ini untuk menyimpan userId
 
         // Buat UserModel dari data yang diterima
         final user = UserModel.fromJson(responseData['user']);

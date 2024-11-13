@@ -27,6 +27,7 @@ class _RegisterKaprodiState extends State<RegisterKaprodi> {
   final _formKey = GlobalKey<FormState>();
   String? _email;
   String? _nohp;
+  int? _prodiId;
 
   Future<void> _registerKaprodi() async {
     if (_formKey.currentState!.validate()) {
@@ -38,7 +39,7 @@ class _RegisterKaprodiState extends State<RegisterKaprodi> {
           'password': widget.password,
           'nama': widget.nama,
           'level_id': widget.roleId,
-          'prodi_id': null,  // Tidak diperlukan untuk dosen
+          'prodi_id': _prodiId,  
           'angkatan': null,  // Tidak diperlukan untuk dosen
           'email': _email,
           'no_hp': _nohp,
@@ -93,6 +94,35 @@ class _RegisterKaprodiState extends State<RegisterKaprodi> {
                       ),
                     ),
                     SizedBox(height: 10),
+                    ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: 300),
+                      child: DropdownButtonFormField<int>(
+                        decoration: InputDecoration(
+                          labelText: 'Pilih Prodi',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        items: [
+                          DropdownMenuItem(value: 1, child: Text('D4 Sistem Informasi Bisnis')),
+                          DropdownMenuItem(value: 2, child: Text('D4 Teknik Informatika')),
+                          DropdownMenuItem(value: 3, child: Text('D2 PPLS')),
+                        ],
+                        onChanged: (int? newValue) {
+                          setState(() {
+                            _prodiId = newValue;
+                            print("Prodi ID yang dipilih: $_prodiId");
+                          });
+                        },
+                        validator: (value) {
+                          if (value == null) {
+                            return 'Mohon pilih jenis prodi';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    SizedBox(height: 10,),
                     ConstrainedBox(
                       constraints: BoxConstraints(maxWidth: 300),
                       child: TextFormField(
