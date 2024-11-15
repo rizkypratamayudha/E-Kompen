@@ -1,4 +1,5 @@
 import 'package:firstapp/Dosen/tambah_progres.dart';
+import 'package:firstapp/controller/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'penerimaan_dosen1.dart';
@@ -15,6 +16,8 @@ class TambahPekerjaanPage extends StatefulWidget {
 
 class _TambahPekerjaanPageState extends State<TambahPekerjaanPage> {
   final _formKey = GlobalKey<FormState>();
+  final AuthService authService = AuthService();
+
   final TextEditingController _dateController = TextEditingController();
   int _selectedIndex = 1;
   String? _nama;
@@ -23,7 +26,7 @@ class _TambahPekerjaanPageState extends State<TambahPekerjaanPage> {
   String? _persyaratan;
   String? _jumlahProgress;
   String? _deskripsi;
-  String? _tagList;
+
 
   void _onItemTapped(int index) {
     if (index == _selectedIndex) {
@@ -222,20 +225,6 @@ class _TambahPekerjaanPageState extends State<TambahPekerjaanPage> {
                             _deskripsi = value;
                           },
                         ),
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: 300),
-                      child: TextFormField(
-                        decoration: InputDecoration(
-                          labelText: 'Tag / List',
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                        ),
-                        onChanged: (value) {
-                          _tagList = value;
-                        },
                       ),
                     ),
                     SizedBox(height: 40.0),
