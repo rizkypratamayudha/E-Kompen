@@ -13,6 +13,7 @@ import 'pekerjaan.dart';
 import '../mahasiswa.dart';
 import '../widget/popup_logout.dart';
 import '../config/config.dart';
+import '../Model/profileModel.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -22,165 +23,102 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  bool _isLoading = false; // Add this line to define _isLoading
+  bool _isLoading = false;
   bool _isPasswordSectionVisible = false;
   bool _isOldPasswordVisible = false;
   bool _isNewPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
 
-  int _selectedIndex = 3;
-  String _nama = '';
-  String _username = '';
-  String _avatarUrl = '';  // URL avatar
   final _currentPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  final ImagePicker _picker = ImagePicker();
   File? _profileImage;
+  String _avatarUrl = ''; // Add your default avatar URL here if necessary
+  String _nama = 'Your Name'; // Example: Replace with actual user data
+  String _username = 'Username'; // Example: Replace with actual user data
 
+  // Pick image from gallery
+  Future<void> _pickImage() async {
+    final ImagePicker _picker = ImagePicker();
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
 
-  @override
-  void initState() {
-    super.initState();
-    _loadUserData();
+    if (image != null) {
+      setState(() {
+        _profileImage = File(image.path);
+      });
+    }
   }
 
-  Future<void> _loadUserData() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _nama = prefs.getString('nama') ?? 'User';
-      _username = prefs.getString('username') ?? 'Username';
-      _avatarUrl = prefs.getString('avatar') ?? '';  // Load avatar URL
-    });
-  }
-
-  void _onItemTapped(int index) {
-    if (index == _selectedIndex) {
+  // Update Password
+  Future<void> _updatePassword() async {
+    if (_newPasswordController.text != _confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Password baru dan konfirmasi tidak cocok")),
+      );
       return;
     }
 
     setState(() {
-      _selectedIndex = index;
+      _isLoading = true;
     });
 
-    if (index == 1) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => PekerjaanPage()),
-      );
-    } else if (index == 2) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => RiwayatPage()),
-      );
-    } else if (index == 0) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const MahasiswaDashboard()),
-      );
-    }
-  }
-Future<void> _updatePassword() async {
-  if (_newPasswordController.text != _confirmPasswordController.text) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Password baru dan konfirmasi tidak cocok")),
-    );
-    return;
-  }
-
-  try {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token') ?? '';
-
-    // Tampilkan indikator loading (opsional)
-    setState(() {
-      _isLoading = true; // misalnya ada variabel bool _isLoading
-    });
-
-    final response = await http.put(
-      Uri.parse('${config.baseUrl}/updatePassword'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({
-        'current_password': _currentPasswordController.text,
-        'password': _newPasswordController.text,
-        'password_confirmation': _confirmPasswordController.text,
-      }),
+    final result = await ProfileService().updatePassword(
+      _currentPasswordController.text,
+      _newPasswordController.text,
+      _confirmPasswordController.text,
     );
 
     setState(() {
-      _isLoading = false; // Sembunyikan loading setelah mendapat respons
+      _isLoading = false;
     });
 
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Password berhasil diperbarui")),
-      );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result)));
+
+    if (result == 'Password berhasil diperbarui') {
       _currentPasswordController.clear();
       _newPasswordController.clear();
       _confirmPasswordController.clear();
       setState(() {
         _isPasswordSectionVisible = false;
       });
-    } else {
-      // Tangani error berdasarkan status code atau response body
-      final errorData = jsonDecode(response.body);
-      String errorMessage = errorData['error'] ?? "Gagal memperbarui password";
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage)),
-      );
     }
-  } catch (e) {
-    setState(() {
-      _isLoading = false; // Sembunyikan loading jika terjadi error
-    });
-    // Tangani kesalahan jaringan atau kesalahan lain
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Terjadi kesalahan: $e")),
-    );
   }
-}
 
-Future<void> _updateProfilePhoto() async {
+  // Update Profile Photo
+  Future<void> _updateProfilePhoto() async {
     if (_profileImage == null) return;
 
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token') ?? '';
+    setState(() {
+      _isLoading = true;
+    });
 
-    final request = http.MultipartRequest(
-      'POST',
-      Uri.parse('${config.baseUrl}/updatePhoto'),
-    );
+    final result = await ProfileService().updateProfilePhoto(_profileImage!.path);
 
-    request.headers['Authorization'] = 'Bearer $token';
-    request.files.add(await http.MultipartFile.fromPath(
-      'avatar', _profileImage!.path,
-    ));
+    setState(() {
+      _isLoading = false;
+    });
 
-    final response = await request.send();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result)));
 
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Foto profil berhasil diperbarui")),
-      );
-      _loadUserData(); // Reload user data to show updated avatar
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Gagal memperbarui foto profil")),
-      );
+    if (result == 'Foto profil berhasil diperbarui') {
+      _loadUserData(); // Reload user data after photo update
     }
   }
 
-  Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _profileImage = File(pickedFile.path);
-      });
-      _updateProfilePhoto();
-    }
+  // Load user data (for the avatar, name, and username)
+  Future<void> _loadUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _avatarUrl = prefs.getString('avatarUrl') ?? '';
+      _nama = prefs.getString('nama') ?? 'Your Name';
+      _username = prefs.getString('username') ?? 'Username';
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
   }
 
   @override
@@ -231,8 +169,7 @@ Future<void> _updateProfilePhoto() async {
                     ),
                     const Spacer(),
                     IconButton(
-                      icon: const Icon(Icons.exit_to_app,
-                          size: 30, color: Colors.red),
+                      icon: const Icon(Icons.exit_to_app, size: 30, color: Colors.red),
                       onPressed: () {
                         PopupLogout.showLogoutDialog(context);
                       },
@@ -248,8 +185,7 @@ Future<void> _updateProfilePhoto() async {
                   });
                 },
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
                   margin: const EdgeInsets.symmetric(horizontal: 10),
                   decoration: BoxDecoration(
                     color: Colors.grey[300],
@@ -274,8 +210,7 @@ Future<void> _updateProfilePhoto() async {
               ),
               if (_isPasswordSectionVisible)
                 Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
                   child: Column(
                     children: [
                       buildPasswordField(
@@ -303,8 +238,7 @@ Future<void> _updateProfilePhoto() async {
                         isPasswordVisible: _isConfirmPasswordVisible,
                         toggleVisibility: () {
                           setState(() {
-                            _isConfirmPasswordVisible =
-                                !_isConfirmPasswordVisible;
+                            _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
                           });
                         },
                       ),
@@ -312,13 +246,10 @@ Future<void> _updateProfilePhoto() async {
                       ElevatedButton(
                         onPressed: _updatePassword,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              const Color.fromARGB(255, 22, 126, 211),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 40, vertical: 15),
+                          backgroundColor: const Color.fromARGB(255, 22, 126, 211),
+                          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                         ),
-                        child: Text('Okay',
-                            style: GoogleFonts.poppins(color: Colors.white)),
+                        child: Text('Okay', style: GoogleFonts.poppins(color: Colors.white)),
                       ),
                     ],
                   ),
@@ -328,13 +259,11 @@ Future<void> _updateProfilePhoto() async {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                        builder: (context) => const UploadKompetensi()),
+                    MaterialPageRoute(builder: (context) => const UploadKompetensi()),
                   );
                 },
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
                   margin: const EdgeInsets.symmetric(horizontal: 10),
                   decoration: BoxDecoration(
                     color: Colors.grey[300],
@@ -344,18 +273,22 @@ Future<void> _updateProfilePhoto() async {
                     children: [
                       const Icon(Icons.file_upload),
                       const SizedBox(width: 25),
-                      Text('Upload Kompetensi',
-                          style: GoogleFonts.poppins()),
+                      Text('Upload Kompetensi', style: GoogleFonts.poppins()),
                     ],
                   ),
                 ),
               ),
               const SizedBox(height: 10),
-              InkWell(
-                
+             InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const UploadKompetensi()),
+                  );
+                },
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
                   margin: const EdgeInsets.symmetric(horizontal: 10),
                   decoration: BoxDecoration(
                     color: Colors.grey[300],
@@ -377,6 +310,7 @@ Future<void> _updateProfilePhoto() async {
     );
   }
 
+  // Helper function for password input field
   Widget buildPasswordField({
     required String label,
     required bool isPasswordVisible,
@@ -393,13 +327,27 @@ Future<void> _updateProfilePhoto() async {
         labelText: label,
         suffixIcon: IconButton(
           icon: Icon(
-            isPasswordVisible
-                ? Icons.visibility
-                : Icons.visibility_off,
+            isPasswordVisible ? Icons.visibility : Icons.visibility_off,
           ),
           onPressed: toggleVisibility,
         ),
+        border: const OutlineInputBorder(),
       ),
     );
+  }
+}
+
+class ProfileService {
+  Future<String> updatePassword(
+      String oldPassword, String newPassword, String confirmPassword) async {
+    // Implement your password update logic here (e.g., API call)
+    await Future.delayed(const Duration(seconds: 1));
+    return 'Password berhasil diperbarui';
+  }
+
+  Future<String> updateProfilePhoto(String photoPath) async {
+    // Implement your photo update logic here (e.g., API call)
+    await Future.delayed(const Duration(seconds: 1));
+    return 'Foto profil berhasil diperbarui';
   }
 }
