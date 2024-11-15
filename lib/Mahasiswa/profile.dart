@@ -12,6 +12,7 @@ import 'riwayat.dart';
 import 'pekerjaan.dart';
 import '../mahasiswa.dart';
 import '../widget/popup_logout.dart';
+import '../config/config.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -21,6 +22,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  bool _isLoading = false; // Add this line to define _isLoading
   bool _isPasswordSectionVisible = false;
   bool _isOldPasswordVisible = false;
   bool _isNewPasswordVisible = false;
@@ -35,6 +37,7 @@ class _ProfilePageState extends State<ProfilePage> {
   final _confirmPasswordController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
   File? _profileImage;
+
 
   @override
   void initState() {
@@ -77,20 +80,25 @@ class _ProfilePageState extends State<ProfilePage> {
       );
     }
   }
+Future<void> _updatePassword() async {
+  if (_newPasswordController.text != _confirmPasswordController.text) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Password baru dan konfirmasi tidak cocok")),
+    );
+    return;
+  }
 
-  Future<void> _updatePassword() async {
-    if (_newPasswordController.text != _confirmPasswordController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Password baru dan konfirmasi tidak cocok")),
-      );
-      return;
-    }
-
+  try {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token') ?? '';
 
-    final response = await http.post(
-      Uri.parse('URL_API/updatePassword'), // Ganti dengan URL API Anda
+    // Tampilkan indikator loading (opsional)
+    setState(() {
+      _isLoading = true; // misalnya ada variabel bool _isLoading
+    });
+
+    final response = await http.put(
+      Uri.parse('${config.baseUrl}/updatePassword'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -101,6 +109,10 @@ class _ProfilePageState extends State<ProfilePage> {
         'password_confirmation': _confirmPasswordController.text,
       }),
     );
+
+    setState(() {
+      _isLoading = false; // Sembunyikan loading setelah mendapat respons
+    });
 
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -113,13 +125,25 @@ class _ProfilePageState extends State<ProfilePage> {
         _isPasswordSectionVisible = false;
       });
     } else {
+      // Tangani error berdasarkan status code atau response body
+      final errorData = jsonDecode(response.body);
+      String errorMessage = errorData['error'] ?? "Gagal memperbarui password";
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Gagal memperbarui password")),
+        SnackBar(content: Text(errorMessage)),
       );
     }
+  } catch (e) {
+    setState(() {
+      _isLoading = false; // Sembunyikan loading jika terjadi error
+    });
+    // Tangani kesalahan jaringan atau kesalahan lain
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Terjadi kesalahan: $e")),
+    );
   }
+}
 
-  Future<void> _updateProfilePhoto() async {
+Future<void> _updateProfilePhoto() async {
     if (_profileImage == null) return;
 
     final prefs = await SharedPreferences.getInstance();
@@ -127,7 +151,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
     final request = http.MultipartRequest(
       'POST',
-      Uri.parse('URL_API/updatePhoto'), // Ganti dengan URL API Anda
+      Uri.parse('${config.baseUrl}/updatePhoto'),
     );
 
     request.headers['Authorization'] = 'Bearer $token';
@@ -141,7 +165,7 @@ class _ProfilePageState extends State<ProfilePage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Foto profil berhasil diperbarui")),
       );
-      _loadUserData();  // Reload user data
+      _loadUserData(); // Reload user data to show updated avatar
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Gagal memperbarui foto profil")),
@@ -182,7 +206,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ? FileImage(_profileImage!)
                             : (_avatarUrl.isNotEmpty
                                 ? NetworkImage(_avatarUrl) as ImageProvider
-                                : const AssetImage('assets/default_avatar.png')),
+                                : const AssetImage('assets/img/polinema.png')),
                       ),
                     ),
                     const SizedBox(width: 10),
