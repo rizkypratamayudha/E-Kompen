@@ -26,6 +26,7 @@ class RegisterMahasiswa extends StatefulWidget {
 class _RegisterMahasiswaState extends State<RegisterMahasiswa> {
   final _formKey = GlobalKey<FormState>();
   int? _prodiId;
+  int? _periodeId;
   String? _email;
   String? _nohp;
   String? _angkatan;
@@ -44,6 +45,7 @@ class _RegisterMahasiswaState extends State<RegisterMahasiswa> {
           'email': _email,
           'no_hp': _nohp,
           'angkatan': _angkatan,
+          'periode_id': _periodeId,
         }),
       );
 
@@ -182,6 +184,35 @@ class _RegisterMahasiswaState extends State<RegisterMahasiswa> {
                         },
                         onChanged: (value) {
                           _angkatan = value;
+                        },
+                      ),
+                    ),
+                    SizedBox(height: 10,),
+                    ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: 300),
+                      child: DropdownButtonFormField<int>(
+                        decoration: InputDecoration(
+                          labelText: 'Pilih Periode',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        items: [
+                          DropdownMenuItem(value: 1, child: Text('2022/2023 Ganjil')),
+                          DropdownMenuItem(value: 2, child: Text('2022/2023 Genap')),
+                          DropdownMenuItem(value: 3, child: Text('2023/2024 Ganjil')),
+                          DropdownMenuItem(value: 4, child: Text('2023/2024 Genap')),
+                        ],
+                        onChanged: (int? newValue) {
+                          setState(() {
+                            _periodeId = newValue;
+                          });
+                        },
+                        validator: (value) {
+                          if (value == null) {
+                            return 'Mohon pilih Periode';
+                          }
+                          return null;
                         },
                       ),
                     ),

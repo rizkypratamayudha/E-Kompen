@@ -1,4 +1,8 @@
+import 'dart:convert';
+import 'package:firstapp/config/config.dart';
+import 'package:firstapp/controller/Pekerjaan.dart';
 
+import 'package:firstapp/controller/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../bottombar/bottombar.dart';
@@ -8,6 +12,7 @@ import '../mahasiswa.dart';
 import '../widget/popup_pekerjaan_mhs.dart';
 import '../widget/tag.dart';
 import '../widget/tag_kompetensi.dart';
+import 'package:http/http.dart' as http;
 
 class PekerjaanPage extends StatefulWidget {
   const PekerjaanPage({super.key});
@@ -18,16 +23,60 @@ class PekerjaanPage extends StatefulWidget {
 
 class _PekerjaanPageState extends State<PekerjaanPage> {
   int _selectedIndex = 1;
+  bool _isLoading = true;
+  List<Pekerjaan> pekerjaanList = [];
+
+  Future<void> _fetchPekerjaan() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final token = await AuthService().getToken();
+      final response = await http.get(Uri.parse('${config.baseUrl}/pekerjaan'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token', // Attach token here
+      },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        setState(() {
+          pekerjaanList = data.map((json) => Pekerjaan.fromJson(json)).toList();
+          _isLoading = false;
+        });
+        print('Pekerjaan List: $pekerjaanList');
+      } else {
+        print(
+            'Response body: ${response.body}'); // Print response body for debugging
+        throw Exception('Failed to load pekerjaan');
+      }
+    } catch (e) {
+      print("Error: $e");
+      setState(() {
+        pekerjaanList = [];
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchPekerjaan();
+  }
 
   Route _createRoute(Widget page) {
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) => page,
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        const begin = Offset(1.0, 0.0); // Slide dari kanan ke kiri
+        const begin = Offset(1.0, 0.0);
         const end = Offset.zero;
         const curve = Curves.ease;
 
-        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
         var offsetAnimation = animation.drive(tween);
 
         return SlideTransition(
@@ -82,13 +131,26 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
                     fontSize: 22, fontWeight: FontWeight.normal),
               ),
               const SizedBox(height: 20),
-              _buildseacrh(),
-              const SizedBox(
-                height: 20,
-              ),
-              _buildPekerjaan('Pembuatan Web', '2/5'),
-              _buildPekerjaan('Memasukkan Nilai', '0/2'),
-              _buildPekerjaan('Pembelian AC', '2/5'),
+              _buildSearch(),
+              const SizedBox(height: 20),
+              // Kondisi untuk menampilkan loading, data pekerjaan, atau pesan kosong
+              if (_isLoading)
+                Center(child: CircularProgressIndicator())
+              else if (pekerjaanList.isNotEmpty)
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: pekerjaanList.length,
+                  itemBuilder: (context, index) {
+                    Pekerjaan pekerjaan = pekerjaanList[index];
+                    int jumlahAnggota =
+                        pekerjaan.detail_pekerjaan.jumlah_anggota;
+                    return _buildPekerjaan(
+                        pekerjaan.pekerjaan_nama, jumlahAnggota);
+                  },
+                )
+              else
+                Center(child: Text('Tidak ada data pekerjaan')),
             ],
           ),
         ),
@@ -101,7 +163,7 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
     );
   }
 
-  Widget _buildPekerjaan(String title, String anggota) {
+  Widget _buildPekerjaan(String title, int anggota) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 6.0),
       decoration: BoxDecoration(
@@ -135,7 +197,7 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
             ),
             const SizedBox(width: 5),
             Text(
-              anggota,
+              anggota.toString(),
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 color: Colors.white,
@@ -144,11 +206,10 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
           ],
         ),
         onTap: () {
-          // Tampilkan popup ketika item diklik
           showDialog(
             context: context,
             builder: (BuildContext context) {
-              return const PopUpPekerjaan(); // Memanggil popup yang sudah dibuat
+              return const PopUpPekerjaan();
             },
           );
         },
@@ -165,8 +226,7 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
       builder: (context) {
         return Container(
           constraints: BoxConstraints(
-            minWidth:
-                MediaQuery.of(context).size.width, // 50% dari tinggi layar
+            minWidth: MediaQuery.of(context).size.width,
           ),
           padding: const EdgeInsets.all(10),
           child: Column(
@@ -183,28 +243,27 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
                 'List Kompetensi',
                 style: GoogleFonts.poppins(),
               ),
-              const SizedBox(height:16 ,),
+              const SizedBox(height: 16),
               TagKompetensi(),
-              const SizedBox(height : 16),
+              const SizedBox(height: 16),
               Align(
                 alignment: Alignment.centerRight,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(builder: (context) => PekerjaanPage())
-                    //   );
+                    // Navigasi atau aksi lainnya
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    
                   ),
-                  child: Text('Simpan', style: GoogleFonts.poppins(color: Colors.white),),
-                )
-              )
+                  child: Text(
+                    'Simpan',
+                    style: GoogleFonts.poppins(color: Colors.white),
+                  ),
+                ),
+              ),
             ],
           ),
         );
@@ -212,57 +271,52 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
     );
   }
 
-  Widget _buildseacrh() {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      Expanded(
-        child: TextFormField(
-          decoration: InputDecoration(
-            prefixIcon: Icon(
-              Icons.search,
+  Widget _buildSearch() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          child: TextFormField(
+            decoration: InputDecoration(
+              prefixIcon: Icon(Icons.search),
+              hintText: 'Cari Pekerjaan',
+              hintStyle: GoogleFonts.poppins(
+                fontSize: 14,
+                color: Colors.black38,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide.none,
+              ),
+              filled: true,
+              fillColor: Colors.transparent,
             ),
-            hintText: 'Cari Pekerjaan',
-            hintStyle: GoogleFonts.poppins(
+            style: GoogleFonts.poppins(
               fontSize: 14,
-              color: Colors.black38,
+              color: Colors.black,
             ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide.none,
+            onChanged: (value) {
+              print('Judul pekerjaan: $value');
+            },
+          ),
+        ),
+        SizedBox(width: 10),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.transparent,
+            shape: BoxShape.rectangle,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          padding: const EdgeInsets.all(3),
+          child: IconButton(
+            onPressed: () => _showlist(),
+            icon: const Icon(
+              Icons.filter_list_rounded,
+              color: Colors.black,
             ),
-            filled: true,
-            fillColor: Colors.transparent,
-          ),
-          style: GoogleFonts.poppins(
-            fontSize: 14,
-            color: Colors.black,
-          ),
-          onChanged: (value) {
-            
-            print('Judul pekerjaan: $value');
-          },
-        ),
-      ),
-      SizedBox(width: 10,),
-      Container(
-        decoration: BoxDecoration(
-          color: Colors.transparent,
-          shape: BoxShape.rectangle,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        padding: const EdgeInsets.all(3),
-        child: IconButton(
-          onPressed: () => _showlist(),
-          icon: const Icon(
-            Icons.filter_list_rounded,
-            color: Colors.black, // Warna ikon
           ),
         ),
-      ),
-    ],
-  );
-}
-
-
+      ],
+    );
+  }
 }
