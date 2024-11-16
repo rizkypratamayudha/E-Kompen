@@ -12,6 +12,7 @@ import 'riwayat.dart';
 import 'pekerjaan.dart';
 import '../mahasiswa.dart';
 import '../widget/popup_logout.dart';
+import 'kompetensi.dart';
 import '../config/config.dart';
 import '../Model/profileModel.dart';
 
@@ -203,14 +204,9 @@ class _ProfilePageState extends State<ProfilePage> {
               }),
               if (_isPasswordSectionVisible)
                 buildPasswordForm(),
-              const SizedBox(height: 10),
-              buildSection('Upload Kompetensi', Icons.file_upload, () {
+              buildSection('Daftar Kompetensi Mahasiswa', Icons.person_search, () {
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const UploadKompetensi()));
-              }),
-              buildSection('Lihat Kompetensi', Icons.person_search, () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const UploadKompetensi()));
+                    MaterialPageRoute(builder: (context) => const KompetensiMahasiswaPage()));
               }),
             ],
           ),
