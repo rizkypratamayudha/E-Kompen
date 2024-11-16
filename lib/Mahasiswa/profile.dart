@@ -1,3 +1,5 @@
+// ProfilePage.dart
+
 import 'dart:convert';
 import 'dart:io';
 import 'package:firstapp/Mahasiswa/upload_kompetensi.dart';
@@ -15,6 +17,8 @@ import '../widget/popup_logout.dart';
 import 'kompetensi.dart';
 import '../config/config.dart';
 import '../Model/profileModel.dart';
+import '../controller/auth_service.dart'; // Import AuthService
+import '../controller/profile_service.dart'; // Import ProfileService
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -76,6 +80,7 @@ class _ProfilePageState extends State<ProfilePage> {
       setState(() {
         _profileImage = File(image.path);
       });
+      _updateProfilePhoto(); // Call update profile photo immediately after picking image
     }
   }
 
@@ -167,14 +172,27 @@ class _ProfilePageState extends State<ProfilePage> {
                   children: [
                     GestureDetector(
                       onTap: _pickImage,
-                      child: CircleAvatar(
-                        radius: 30,
-                        backgroundColor: Colors.grey,
-                        backgroundImage: _profileImage != null
-                            ? FileImage(_profileImage!)
-                            : (_avatarUrl.isNotEmpty
-                                ? NetworkImage(_avatarUrl) as ImageProvider
-                                : const AssetImage('assets/img/polinema.png')),
+                      child: Stack(
+                        children: [
+                          CircleAvatar(
+                            radius: 30,
+                            backgroundColor: Colors.grey,
+                            backgroundImage: _profileImage != null
+                                ? FileImage(_profileImage!)
+                                : (_avatarUrl.isNotEmpty
+                                    ? NetworkImage(_avatarUrl) as ImageProvider
+                                    : const AssetImage('assets/img/polinema.png')),
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: Icon(
+                              Icons.camera_alt,
+                              size: 18,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -246,9 +264,11 @@ class _ProfilePageState extends State<ProfilePage> {
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
       child: Column(
         children: [
-          buildPasswordField('Password Lama', _currentPasswordController),
-          buildPasswordField('Password Baru', _newPasswordController),
-          buildPasswordField('Verifikasi Password Baru', _confirmPasswordController),
+          buildPasswordField('Password Lama', _currentPasswordController, _isOldPasswordVisible),
+          const SizedBox(height: 20),  // Added spacing between fields
+          buildPasswordField('Password Baru', _newPasswordController, _isNewPasswordVisible),
+          const SizedBox(height: 20),  // Added spacing between fields
+          buildPasswordField('Verifikasi Password Baru', _confirmPasswordController, _isConfirmPasswordVisible),
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed: _updatePassword,
@@ -261,26 +281,30 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget buildPasswordField(String label, TextEditingController controller) {
+  Widget buildPasswordField(String label, TextEditingController controller, bool isPasswordVisible) {
     return TextField(
       controller: controller,
-      obscureText: true,
+      obscureText: !isPasswordVisible,
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),
+        suffixIcon: IconButton(
+          icon: Icon(
+            isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+          ),
+          onPressed: () {
+            setState(() {
+              if (label == 'Password Lama') {
+                _isOldPasswordVisible = !_isOldPasswordVisible;
+              } else if (label == 'Password Baru') {
+                _isNewPasswordVisible = !_isNewPasswordVisible;
+              } else if (label == 'Verifikasi Password Baru') {
+                _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+              }
+            });
+          },
+        ),
       ),
     );
-  }
-}
-
-class ProfileService {
-  Future<String> updatePassword(String oldPassword, String newPassword, String confirmPassword) async {
-    await Future.delayed(const Duration(seconds: 1));
-    return 'Password berhasil diperbarui';
-  }
-
-  Future<String> updateProfilePhoto(String photoPath) async {
-    await Future.delayed(const Duration(seconds: 1));
-    return 'Foto profil berhasil diperbarui';
   }
 }
