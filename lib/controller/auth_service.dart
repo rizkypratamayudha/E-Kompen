@@ -11,7 +11,8 @@ class AuthService {
   final _storage = FlutterSecureStorage();
 
   // Fungsi login
-  Future<Map<String, dynamic>> login(String username, String password, String role) async {
+  Future<Map<String, dynamic>> login(
+      String username, String password, String role) async {
     final url = Uri.parse('${config.baseUrl}/loginAPI');
     final response = await http.post(
       url,
@@ -29,11 +30,12 @@ class AuthService {
       if (responseData['success'] == true) {
         // Simpan token di storage aman
         await _storage.write(key: 'token', value: responseData['token']);
-        
+
         final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('nama', responseData['user']['name']);
-      await prefs.setString('username', responseData['user']['username']);
-      await prefs.setInt('userId', responseData['user']['id']); // Tambahkan ini untuk menyimpan userId
+        await prefs.setString('nama', responseData['user']['name']);
+        await prefs.setString('username', responseData['user']['username']);
+        await prefs.setInt('userId',
+            responseData['user']['id']); // Tambahkan ini untuk menyimpan userId
 
         // Buat UserModel dari data yang diterima
         final user = UserModel.fromJson(responseData['user']);
@@ -47,12 +49,10 @@ class AuthService {
     }
   }
 
-  
   Future<String?> getToken() async {
     return await _storage.read(key: 'token');
   }
 
-  
   Future<void> logout() async {
     await _storage.delete(key: 'token');
   }

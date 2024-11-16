@@ -4,6 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../controller/kompetensi_service.dart';
 import '../Model/kompetensi_model.dart';
 import 'kompetensi.dart';
+import '../widget/popup_kompetensi_create.dart';
+
 
 class UploadKompetensi extends StatefulWidget {
   const UploadKompetensi({super.key});
@@ -15,8 +17,9 @@ class UploadKompetensi extends StatefulWidget {
 class _UploadKompetensiState extends State<UploadKompetensi> {
   String nama = '';
   String nim = '';
-  String semester = ''; // Untuk menampilkan nama semester seperti "Semester 5"
-  int semesterId = 0;   // Untuk menyimpan semester_id
+  String periode =
+      ''; // Untuk menampilkan nama periode seperti "2024/2025 Ganjil"
+  int periodeId = 0; // Untuk menyimpan periode_id
   final TextEditingController kompetensiController = TextEditingController();
   final TextEditingController pengalamanController = TextEditingController();
   final TextEditingController buktiController = TextEditingController();
@@ -28,25 +31,34 @@ class _UploadKompetensiState extends State<UploadKompetensi> {
   }
 
   Future<void> _loadUserData() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      nama = prefs.getString('nama') ?? 'User';
-      nim = prefs.getString('username') ?? 'Username';
-    });
+  final prefs = await SharedPreferences.getInstance();
+  setState(() {
+    nama = prefs.getString('nama') ?? 'User';
+    nim = prefs.getString('username') ?? 'Username';
+  });
 
-    // Ambil data userId dari SharedPreferences
-    int userId = prefs.getInt('userId') ?? 0;
-    if (userId != 0) {
-      KompetensiService kompetensiService = KompetensiService();
+  int userId = prefs.getInt('userId') ?? 0;
+  if (userId != 0) {
+    KompetensiService kompetensiService = KompetensiService();
 
-      // Ambil semester_id dan semester berdasarkan userId
-      var semesterData = await kompetensiService.fetchSemesterByUserId(userId);
+    try {
+      // Ambil periode_id dan periode berdasarkan userId
+      var periodeData = await kompetensiService.fetchPeriodeByUserId(userId);
+
+      // Pastikan periodeData tidak null dan memiliki data yang diperlukan
       setState(() {
-        semesterId = semesterData['semester_id']; // Menyimpan semester_id untuk disimpan di database
-        semester = semesterData['semester']; // Menampilkan nama semester seperti "Semester 5"
+        periodeId = periodeData['periode_id'] ?? 0; // Menyimpan periode_id
+        periode = periodeData['periode'] ?? 'Periode Tidak Ditemukan'; // Mengatasi null pada periode
+      });
+    } catch (e) {
+      print("Error fetching periode data: $e");
+      setState(() {
+        periode = 'Periode Tidak Ditemukan';
       });
     }
   }
+}
+
 
   Future<void> _saveKompetensi() async {
     final prefs = await SharedPreferences.getInstance();
@@ -54,7 +66,7 @@ class _UploadKompetensiState extends State<UploadKompetensi> {
 
     Kompetensi kompetensi = Kompetensi(
       userId: userId,
-      semesterId: semesterId, // Kirim semesterId ke database
+      periodeNama: periode, // tambahkan nilai untuk periodeNama
       kompetensiNama: kompetensiController.text,
       pengalaman: pengalamanController.text,
       bukti: buktiController.text,
@@ -70,28 +82,13 @@ class _UploadKompetensiState extends State<UploadKompetensi> {
   }
 
   void showSuccessDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Berhasil'),
-          content: Text('Data kompetensi anda berhasil tersimpan'),
-          actions: [
-            TextButton(
-              child: Text('Okay'),
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => KompetensiMahasiswaPage()),
-                );
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return const PopupKompetensiCreate();
+    },
+  );
+}
 
   void showErrorDialog() {
     showDialog(
@@ -123,7 +120,8 @@ class _UploadKompetensiState extends State<UploadKompetensi> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => KompetensiMahasiswaPage()),
+              MaterialPageRoute(
+                  builder: (context) => KompetensiMahasiswaPage()),
             );
           },
         ),
@@ -151,7 +149,7 @@ class _UploadKompetensiState extends State<UploadKompetensi> {
                   children: [
                     buildInfo('Nama', nama),
                     buildInfo('NIM', nim),
-                    buildInfo('Semester', semester), // Tampilkan nama semester (misal: "Semester 5")
+                    buildInfo('Periode', periode), // Tampilkan nama periode
                     buildInfoInput('Kompetensi', kompetensiController),
                     buildInfoInput('Pengalaman', pengalamanController),
                     buildInfoInput('Bukti', buktiController),
@@ -218,7 +216,8 @@ class _UploadKompetensiState extends State<UploadKompetensi> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8.0),
               ),
-              contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+              contentPadding:
+                  EdgeInsets.symmetric(vertical: 10, horizontal: 12),
             ),
           ),
         ],

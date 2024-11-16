@@ -1,7 +1,7 @@
 class Kompetensi {
   final int? kompetensiId;
   final int userId;
-  final int semesterId;
+  final String periodeNama; // Untuk pengambilan data saja, tidak dikirim
   final String kompetensiNama;
   final String pengalaman;
   final String? bukti;
@@ -11,7 +11,7 @@ class Kompetensi {
   Kompetensi({
     this.kompetensiId,
     required this.userId,
-    required this.semesterId,
+    required this.periodeNama,
     required this.kompetensiNama,
     required this.pengalaman,
     this.bukti,
@@ -23,7 +23,7 @@ class Kompetensi {
     return Kompetensi(
       kompetensiId: json['kompetensi_id'],
       userId: json['user_id'],
-      semesterId: json['semester_id'],
+      periodeNama: json['periode'] ?? '', // Mengambil periodeNama dari JSON, default ke string kosong jika null
       kompetensiNama: json['kompetensi_nama'],
       pengalaman: json['pengalaman'],
       bukti: json['bukti'],
@@ -35,7 +35,6 @@ class Kompetensi {
   Map<String, dynamic> toJson() {
     return {
       'user_id': userId,
-      'semester_id': semesterId,
       'kompetensi_nama': kompetensiNama,
       'pengalaman': pengalaman,
       'bukti': bukti,

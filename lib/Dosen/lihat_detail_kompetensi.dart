@@ -105,7 +105,7 @@ class _LihatDetailKompetensiState extends State<LihatDetailKompetensi> {
           },
         ),
         title: Text(
-          'Kompetensi',
+          'Kompetensi 1',
           style: GoogleFonts.poppins(
             color: Colors.black,
           ),
@@ -127,11 +127,9 @@ class _LihatDetailKompetensiState extends State<LihatDetailKompetensi> {
                 const SizedBox(height: 8),
                 buildBoxLihatDetailKompetensi("NIM", "2241760041"),
                 const SizedBox(height: 8),
-                buildBoxLihatDetailKompetensi("Semester", "5"),
+                buildBoxLihatDetailKompetensi("Periode", "2024/2025 Genap"),
                 const SizedBox(height: 8),
-                buildBoxLihatDetailKompetensi("IPK", "4.00"),
-                const SizedBox(height: 8),
-                const Divider(color: Colors.black, thickness: 2),
+                const Divider(color: Colors.black, thickness: 3),
                 const SizedBox(height: 8),
                 buildBoxLihatDetailKompetensi(
                     "Kompetensi", "Menguasai Pembuatan Flowchart"),

@@ -6,16 +6,21 @@ import '../config/config.dart';
 class KompetensiService {
   final String baseUrl = config.baseUrl;
 
+  // Fungsi untuk mengambil kompetensi berdasarkan user_id
   Future<List<Kompetensi>> fetchKompetensi(int userId) async {
     final response = await http.get(Uri.parse('$baseUrl/kompetensi/$userId'));
     if (response.statusCode == 200) {
-      List<dynamic> data = json.decode(response.body);
-      return data.map((json) => Kompetensi.fromJson(json)).toList();
+      Map<String, dynamic> data = json.decode(response.body);
+      List<dynamic> kompetensiData =
+          data['kompetensi']; // Akses data kompetensi
+
+      return kompetensiData.map((json) => Kompetensi.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load kompetensi');
     }
   }
 
+  // Fungsi untuk menambahkan data kompetensi baru
   Future<bool> addKompetensi(Kompetensi kompetensi) async {
     final response = await http.post(
       Uri.parse('$baseUrl/kompetensi'),
@@ -30,21 +35,64 @@ class KompetensiService {
       return false;
     }
   }
-  
-  // Ambil semester_id dan semester berdasarkan user_id
-  Future<Map<String, dynamic>> fetchSemesterByUserId(int userId) async {
+
+  Future<Map<String, dynamic>> fetchPeriodeByUserId(int userId) async {
     final response =
-        await http.get(Uri.parse('$baseUrl/semester/user/$userId'));
+        await http.get(Uri.parse('$baseUrl/kompetensi/periode/$userId'));
 
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
       return {
-        'semester_id': data['semester_id'],
-        'semester':
-            data['semester'] // Ambil nama semester (misal: "Semester 5")
+        'periode_id': data['periode_id'],
+        'periode': data['periode_nama'], // Ambil nama periode dari JSON
       };
     } else {
-      throw Exception('Failed to load semester data');
+      throw Exception('Failed to load periode data');
+    }
+  }
+
+  Future<bool> updateKompetensi(int id, Kompetensi kompetensi) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl/kompetensi/update/$id'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode(kompetensi.toJson()),
+    );
+    return response.statusCode == 200;
+  }
+
+  Future<bool> deleteKompetensi(int id) async {
+    final response = await http.delete(
+      Uri.parse('$baseUrl/kompetensi/delete/$id'),
+    );
+    return response.statusCode == 200;
+  }
+
+  Future<Kompetensi?> fetchKompetensiDetail(int kompetensiId) async {
+    final String apiUrl = '${config.baseUrl}/kompetensi/show/$kompetensiId';
+
+    try {
+      final response = await http.get(
+        Uri.parse(apiUrl),
+        headers: {
+          'Content-Type': 'application/json'
+        }, // Pastikan header sesuai API
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+
+        if (responseData['success'] == true) {
+          return Kompetensi.fromJson(responseData['data']);
+        } else {
+          throw Exception(
+              responseData['message'] ?? 'Failed to fetch Kompetensi detail');
+        }
+      } else {
+        throw Exception(
+            'Failed to fetch Kompetensi detail with status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      rethrow;
     }
   }
 }

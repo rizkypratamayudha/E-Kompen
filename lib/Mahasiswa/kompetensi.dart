@@ -7,8 +7,10 @@ import 'pekerjaan.dart';
 import '../mahasiswa.dart';
 import 'upload_kompetensi.dart';
 import 'edit_kompetensi.dart';
+import 'detail_kompetensi.dart';
 import '../controller/kompetensi_service.dart';
 import '../Model/kompetensi_model.dart';
+import '../widget/popup_kompetensi_delete.dart';
 
 class KompetensiMahasiswaPage extends StatefulWidget {
   const KompetensiMahasiswaPage({super.key});
@@ -40,12 +42,15 @@ class _KompetensiMahasiswaPageState extends State<KompetensiMahasiswaPage> {
   }
 
   Future<void> _loadKompetensi() async {
-    // Replace 1 with the actual userId obtained from shared preferences or login
     int userId = await _getUserId();
     KompetensiService kompetensiService = KompetensiService();
     try {
       List<Kompetensi> kompetensiData =
           await kompetensiService.fetchKompetensi(userId);
+
+      // Sort competencies by `kompetensi_id` in ascending order
+      kompetensiData.sort((a, b) => a.kompetensiId!.compareTo(b.kompetensiId!));
+
       setState(() {
         kompetensiList = kompetensiData;
         isLoading = false;
@@ -136,15 +141,31 @@ class _KompetensiMahasiswaPageState extends State<KompetensiMahasiswaPage> {
                             style: GoogleFonts.poppins(fontSize: 14),
                           ),
                         )
-                      : Expanded(
-                          child: ListView.builder(
-                            itemCount: kompetensiList.length,
-                            itemBuilder: (context, index) {
-                              return buildKompetensiWithEditDelete(
-                                kompetensiList[index].kompetensiNama,
-                                kompetensiList[index].pengalaman,
-                              );
-                            },
+                      : Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.black, width: 2),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          padding: const EdgeInsets.all(16),
+                          child: SizedBox(
+                            height: MediaQuery.of(context).size.height *
+                                0.5, // Tinggi scrollable
+                            child: Scrollbar(
+                              thumbVisibility:
+                                  true, // Tambahkan scrollbar untuk navigasi
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                physics:
+                                    const BouncingScrollPhysics(), // Efek scroll lebih halus
+                                itemCount: kompetensiList.length,
+                                itemBuilder: (context, index) {
+                                  return buildKompetensiWithEditDelete(
+                                    kompetensiList[index],
+                                  );
+                                },
+                              ),
+                            ),
                           ),
                         ),
                 ],
@@ -171,8 +192,11 @@ class _KompetensiMahasiswaPageState extends State<KompetensiMahasiswaPage> {
     );
   }
 
-  Widget buildKompetensiWithEditDelete(String title, String description) {
+  Widget buildKompetensiWithEditDelete(Kompetensi kompetensi) {
     final double boxWidth = MediaQuery.of(context).size.width * 0.80;
+
+    // Find the "index" or renumbered position based on sorted order
+    int kompetensiIndex = kompetensiList.indexOf(kompetensi) + 1;
 
     return Center(
       child: Container(
@@ -183,49 +207,86 @@ class _KompetensiMahasiswaPageState extends State<KompetensiMahasiswaPage> {
           children: [
             Expanded(
               flex: 17,
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade700,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                constraints: const BoxConstraints(minHeight: 90),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.military_tech,
-                      color: Colors.white,
+              child: Stack(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.shade700,
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            title,
-                            style: GoogleFonts.poppins(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                    constraints: const BoxConstraints(
+                      minHeight: 110,
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.military_tech,
+                          color: Colors.white,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Kompetensi $kompetensiIndex",
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                kompetensi.kompetensiNama ?? '',
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                ),
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 8),
-                          Text(
-                            description,
-                            style: GoogleFonts.poppins(
-                              color: Colors.white,
-                              fontSize: 12,
-                            ),
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Posisi absolut untuk tombol Detail di pojok kanan atas
+                  // Inside Kompetensi.dart
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DetailKompetensiMahasiswa(
+                                kompetensiId: kompetensi.kompetensiId!),
                           ),
-                        ],
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF84F2F9),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: Text(
+                          "Detail",
+                          style: GoogleFonts.poppins(
+                            color: Colors.black,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(width: 10),
@@ -238,11 +299,13 @@ class _KompetensiMahasiswaPageState extends State<KompetensiMahasiswaPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => EditKompetensi(),
+                          builder: (context) =>
+                              EditKompetensi(kompetensi: kompetensi),
                         ),
                       );
                     },
                     child: Container(
+                      height: 50,
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: const Color.fromARGB(255, 221, 204, 56),
@@ -257,12 +320,13 @@ class _KompetensiMahasiswaPageState extends State<KompetensiMahasiswaPage> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 10),
                   InkWell(
                     onTap: () {
-                      showDeleteConfirmationDialog(context);
+                      showDeleteConfirmationDialog(context, kompetensi);
                     },
                     child: Container(
+                      height: 50,
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: Colors.red,
@@ -286,42 +350,35 @@ class _KompetensiMahasiswaPageState extends State<KompetensiMahasiswaPage> {
     );
   }
 
-  void showDeleteConfirmationDialog(BuildContext context) {
+  void showDeleteConfirmationDialog(
+      BuildContext context, Kompetensi kompetensi) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            "Apakah Anda ingin menghapus kompetensi",
-            style: GoogleFonts.poppins(fontSize: 16),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text(
-                'Tidak',
-                style: GoogleFonts.poppins(color: Colors.blue),
-              ),
-              style: TextButton.styleFrom(
-                backgroundColor: Colors.blue.shade100,
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                // Add logic to delete the competency
-              },
-              child: Text(
-                'Ya',
-                style: GoogleFonts.poppins(color: Colors.blue),
-              ),
-              style: TextButton.styleFrom(
-                backgroundColor: Colors.blue.shade100,
-              ),
-            ),
-          ],
+        return PopupKompetensiDelete(
+          onDeleteConfirmed: () async {
+            bool success = await KompetensiService()
+                .deleteKompetensi(kompetensi.kompetensiId!);
+            if (success) {
+              setState(() {
+                kompetensiList.remove(kompetensi);
+                // Re-sort and re-number the competencies after deletion
+                kompetensiList
+                    .sort((a, b) => a.kompetensiId!.compareTo(b.kompetensiId!));
+              });
+
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return PopupKompetensiDeletedSuccess();
+                },
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Gagal menghapus data Kompetensi')),
+              );
+            }
+          },
         );
       },
     );
@@ -332,11 +389,8 @@ class CustomKompetensiWidget extends StatelessWidget {
   final String userName;
   final int kompetensiCount;
 
-  const CustomKompetensiWidget({
-    required this.userName,
-    required this.kompetensiCount,
-    super.key
-  });
+  const CustomKompetensiWidget(
+      {required this.userName, required this.kompetensiCount, super.key});
 
   @override
   Widget build(BuildContext context) {
