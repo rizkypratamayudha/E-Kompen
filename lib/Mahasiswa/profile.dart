@@ -1,6 +1,3 @@
-// ProfilePage.dart
-
-import 'dart:convert';
 import 'dart:io';
 import 'package:firstapp/Mahasiswa/upload_kompetensi.dart';
 import 'package:firstapp/Mahasiswa/kompetensi.dart';
@@ -14,10 +11,7 @@ import 'riwayat.dart';
 import 'pekerjaan.dart';
 import '../mahasiswa.dart';
 import '../widget/popup_logout.dart';
-import 'kompetensi.dart';
 import '../config/config.dart';
-import '../Model/profileModel.dart';
-import '../controller/auth_service.dart'; // Import AuthService
 import '../controller/profile_service.dart'; // Import ProfileService
 
 class ProfilePage extends StatefulWidget {
@@ -54,33 +48,35 @@ class _ProfilePageState extends State<ProfilePage> {
     switch (index) {
       case 0:
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => const MahasiswaDashboard()));
+            context,
+            MaterialPageRoute(
+                builder: (context) => const MahasiswaDashboard()));
         break;
       case 1:
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => const PekerjaanPage()));
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => const PekerjaanPage()));
         break;
       case 2:
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => const RiwayatPage()));
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => const RiwayatPage()));
         break;
       case 3:
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => const ProfilePage()));
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => const ProfilePage()));
         break;
     }
   }
 
-  // Pick image from gallery
+  // Fungsi untuk memilih gambar dari galeri
   Future<void> _pickImage() async {
-    final ImagePicker _picker = ImagePicker();
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image != null) {
       setState(() {
         _profileImage = File(image.path);
       });
-      _updateProfilePhoto(); // Call update profile photo immediately after picking image
+      await _updatePhoto(); // Memperbarui foto profil
     }
   }
 
@@ -88,7 +84,8 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _updatePassword() async {
     if (_newPasswordController.text != _confirmPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Password baru dan konfirmasi tidak cocok")),
+        const SnackBar(
+            content: Text("Password baru dan konfirmasi tidak cocok")),
       );
       return;
     }
@@ -119,15 +116,15 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  // Update Profile Photo
-  Future<void> _updateProfilePhoto() async {
+   // Fungsi untuk memperbarui foto profil
+  Future<void> _updatePhoto() async {
     if (_profileImage == null) return;
 
     setState(() {
       _isLoading = true;
     });
 
-    final result = await ProfileService().updateProfilePhoto(_profileImage!.path);
+    final result = await ProfileService().updatePhoto(_profileImage!.path);
 
     setState(() {
       _isLoading = false;
@@ -136,11 +133,11 @@ class _ProfilePageState extends State<ProfilePage> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result)));
 
     if (result == 'Foto profil berhasil diperbarui') {
-      _loadUserData();
+      await _loadUserData(); // Perbarui data pengguna
     }
   }
 
-  // Load user data
+  // Fungsi untuk memuat data pengguna dari SharedPreferences
   Future<void> _loadUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -177,11 +174,12 @@ class _ProfilePageState extends State<ProfilePage> {
                           CircleAvatar(
                             radius: 30,
                             backgroundColor: Colors.grey,
-                            backgroundImage: _profileImage != null
+                               backgroundImage: _profileImage != null
                                 ? FileImage(_profileImage!)
                                 : (_avatarUrl.isNotEmpty
-                                    ? NetworkImage(_avatarUrl) as ImageProvider
-                                    : const AssetImage('assets/img/polinema.png')),
+                                    ? NetworkImage(_avatarUrl)
+                                    : const AssetImage(
+                                        'assets/img/polinema.png') as ImageProvider),
                           ),
                           Positioned(
                             bottom: 0,
@@ -199,14 +197,18 @@ class _ProfilePageState extends State<ProfilePage> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(_nama, style: GoogleFonts.poppins(fontSize: 18, color: Colors.white)),
+                        Text(_nama,
+                            style: GoogleFonts.poppins(
+                                fontSize: 18, color: Colors.white)),
                         Text(_username,
-                            style: GoogleFonts.poppins(fontSize: 16, color: Colors.white)),
+                            style: GoogleFonts.poppins(
+                                fontSize: 16, color: Colors.white)),
                       ],
                     ),
                     const Spacer(),
                     IconButton(
-                      icon: const Icon(Icons.exit_to_app, size: 30, color: Colors.red),
+                      icon: const Icon(Icons.exit_to_app,
+                          size: 30, color: Colors.red),
                       onPressed: () {
                         PopupLogout.showLogoutDialog(context);
                       },
@@ -220,11 +222,13 @@ class _ProfilePageState extends State<ProfilePage> {
                   _isPasswordSectionVisible = !_isPasswordSectionVisible;
                 });
               }),
-              if (_isPasswordSectionVisible)
-                buildPasswordForm(),
-              buildSection('Daftar Kompetensi Mahasiswa', Icons.person_search, () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const KompetensiMahasiswaPage()));
+              if (_isPasswordSectionVisible) buildPasswordForm(),
+              buildSection('Daftar Kompetensi Mahasiswa', Icons.person_search,
+                  () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const KompetensiMahasiswaPage()));
               }),
             ],
           ),
@@ -264,24 +268,29 @@ class _ProfilePageState extends State<ProfilePage> {
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
       child: Column(
         children: [
-          buildPasswordField('Password Lama', _currentPasswordController, _isOldPasswordVisible),
-          const SizedBox(height: 20),  // Added spacing between fields
-          buildPasswordField('Password Baru', _newPasswordController, _isNewPasswordVisible),
-          const SizedBox(height: 20),  // Added spacing between fields
-          buildPasswordField('Verifikasi Password Baru', _confirmPasswordController, _isConfirmPasswordVisible),
+          buildPasswordField('Password Lama', _currentPasswordController,
+              _isOldPasswordVisible),
+          const SizedBox(height: 20), // Added spacing between fields
+          buildPasswordField(
+              'Password Baru', _newPasswordController, _isNewPasswordVisible),
+          const SizedBox(height: 20), // Added spacing between fields
+          buildPasswordField('Verifikasi Password Baru',
+              _confirmPasswordController, _isConfirmPasswordVisible),
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed: _updatePassword,
             style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(255, 22, 126, 211)),
-            child: Text('Okay', style: GoogleFonts.poppins(color: Colors.white)),
+            child:
+                Text('Okay', style: GoogleFonts.poppins(color: Colors.white)),
           ),
         ],
       ),
     );
   }
 
-  Widget buildPasswordField(String label, TextEditingController controller, bool isPasswordVisible) {
+  Widget buildPasswordField(
+      String label, TextEditingController controller, bool isPasswordVisible) {
     return TextField(
       controller: controller,
       obscureText: !isPasswordVisible,
