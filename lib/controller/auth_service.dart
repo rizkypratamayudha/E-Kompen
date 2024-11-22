@@ -11,9 +11,10 @@ class AuthService {
   final _storage = FlutterSecureStorage();
 
   // Fungsi login
-  Future<Map<String, dynamic>> login(
-      String username, String password, String role) async {
-    final url = Uri.parse('${config.baseUrl}/loginAPI');
+Future<Map<String, dynamic>> login(
+    String username, String password, String role) async {
+  final url = Uri.parse('${config.baseUrl}/loginAPI');
+  try {
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -24,30 +25,43 @@ class AuthService {
       }),
     );
 
-    if (response.statusCode == 200) {
-      final responseData = json.decode(response.body);
+    // Log respons server untuk debugging
+    print('Status Code: ${response.statusCode}');
+    print('Response Body: ${response.body}');
 
+    final responseData = json.decode(response.body);
+
+    if (response.statusCode == 200) {
       if (responseData['success'] == true) {
-        // Simpan token di storage aman
+        // Simpan token
         await _storage.write(key: 'token', value: responseData['token']);
 
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('nama', responseData['user']['name']);
         await prefs.setString('username', responseData['user']['username']);
-        await prefs.setInt('userId',
-            responseData['user']['id']); // Tambahkan ini untuk menyimpan userId
+        await prefs.setInt('userId', responseData['user']['id']);
 
-        // Buat UserModel dari data yang diterima
         final user = UserModel.fromJson(responseData['user']);
-
         return {'success': true, 'user': user};
       } else {
         return {'success': false, 'message': responseData['message']};
       }
     } else {
-      throw Exception('Gagal terhubung ke server');
+      // Tangani status kode selain 200
+      return {
+        'success': false,
+        'message': responseData['message'] ??
+            'Terjadi kesalahan, silakan coba lagi'
+      };
     }
+  } catch (error) {
+    print('Error: $error');
+    return {
+      'success': false,
+      'message': 'Tidak dapat terhubung ke server. Periksa koneksi Anda.'
+    };
   }
+}
 
   Future<String?> getToken() async {
     return await _storage.read(key: 'token');

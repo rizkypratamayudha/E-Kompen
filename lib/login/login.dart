@@ -1,4 +1,3 @@
-
 import 'package:firstapp/Model/user_model.dart';
 import 'package:firstapp/controller/auth_service.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +23,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _isPasswordVisible = false;
   final AuthService _authService = AuthService();
 
-  Future<void> _login() async{
+  Future<void> _login() async {
     final result = await _authService.login(
       _usernameController.text,
       _passwordController.text,
@@ -38,26 +37,27 @@ class _LoginPageState extends State<LoginPage> {
         _showErrorMessage = false;
       });
 
-      if (user.role == 'Mahasiswa'){
+      if (user.role == 'Mahasiswa') {
         Navigator.push(
-          context, 
-          MaterialPageRoute(builder: (context) => const MahasiswaDashboard())
+          context,
+          MaterialPageRoute(builder: (context) => const MahasiswaDashboard()),
+        );
+      } else if (user.role == 'Dosen/Tendik') {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const DosenDashboard()),
+        );
+      } else if (user.role == 'Kaprodi') {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const KaprodiDashboard()),
         );
       }
-      else if (user.role == 'Dosen/Tendik'){
-        Navigator.push(context, 
-        MaterialPageRoute(builder: (context) => const DosenDashboard())
-        );
-      }
-      else if (user.role == 'Kaprodi'){
-        Navigator.push(context, MaterialPageRoute(builder: (context) => const KaprodiDashboard()));
-      }
-      else {
-        setState(() {
-          _showErrorMessage = true;
-          _errorMessage = result['message'];
-        });
-      }
+    } else {
+      setState(() {
+        _showErrorMessage = true;
+        _errorMessage = result['message'];
+      });
     }
   }
 
@@ -146,7 +146,9 @@ class _LoginPageState extends State<LoginPage> {
             GestureDetector(
               onTap: () {
                 Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => RegisterPage()));
+                  context,
+                  MaterialPageRoute(builder: (context) => const RegisterPage()),
+                );
               },
               child: Text(
                 'Tidak punya akun ? register',

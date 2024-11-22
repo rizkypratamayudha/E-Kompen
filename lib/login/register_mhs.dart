@@ -198,10 +198,10 @@ class _RegisterMahasiswaState extends State<RegisterMahasiswa> {
                           ),
                         ),
                         items: [
-                          DropdownMenuItem(value: 1, child: Text('2022/2023 Ganjil')),
-                          DropdownMenuItem(value: 2, child: Text('2022/2023 Genap')),
-                          DropdownMenuItem(value: 3, child: Text('2023/2024 Ganjil')),
-                          DropdownMenuItem(value: 4, child: Text('2023/2024 Genap')),
+                          DropdownMenuItem(value: 20221, child: Text('2022/2023 Ganjil')),
+                          DropdownMenuItem(value: 20222, child: Text('2022/2023 Genap')),
+                          DropdownMenuItem(value: 20241, child: Text('2023/2024 Ganjil')),
+                          DropdownMenuItem(value: 20242, child: Text('2023/2024 Genap')),
                         ],
                         onChanged: (int? newValue) {
                           setState(() {
