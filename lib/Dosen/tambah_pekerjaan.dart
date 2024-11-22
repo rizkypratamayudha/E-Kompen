@@ -13,7 +13,6 @@ class TambahPekerjaanPage extends StatefulWidget {
 class _TambahPekerjaanPageState extends State<TambahPekerjaanPage> {
   final _formKey = GlobalKey<FormState>();
 
-  // Tambahkan pengambilan userId
   Future<int> _getUserId() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getInt('userId') ?? 0;
@@ -26,14 +25,16 @@ class _TambahPekerjaanPageState extends State<TambahPekerjaanPage> {
   int? _jumlahProgress;
   String? _deskripsi;
   String? _status = "open";
-  List<String?> _persyaratan = []; // Gunakan nullable untuk dropdown
+  List<TextEditingController> _persyaratanControllers = [];
 
-  // Daftar opsi dropdown untuk persyaratan
-  final List<String> persyaratanOptions = [
-    "Persyaratan A",
-    "Persyaratan B",
-    "Persyaratan C"
-  ];
+  @override
+  void dispose() {
+    // Membersihkan semua controller saat widget dihancurkan
+    for (var controller in _persyaratanControllers) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -105,38 +106,31 @@ class _TambahPekerjaanPageState extends State<TambahPekerjaanPage> {
                   int? jumlah = int.tryParse(value);
                   if (jumlah != null) {
                     setState(() {
-                      _persyaratan = List.filled(jumlah, null);
+                      _persyaratanControllers = List.generate(
+                        jumlah,
+                        (index) => TextEditingController(),
+                      );
                     });
                   }
                 },
                 validator: (value) =>
                     value!.isEmpty ? 'Mohon masukkan jumlah persyaratan' : null,
               ),
-              ..._persyaratan.asMap().entries.map((entry) {
+              ..._persyaratanControllers.asMap().entries.map((entry) {
                 int index = entry.key;
+                TextEditingController controller = entry.value;
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 5),
-                  child: DropdownButtonFormField<String>(
+                  child: TextFormField(
+                    controller: controller,
                     decoration: InputDecoration(
                       labelText: 'Persyaratan ${index + 1}',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    items: persyaratanOptions
-                        .map((String value) => DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            ))
-                        .toList(),
-                    onChanged: (String? value) {
-                      setState(() {
-                        _persyaratan[index] = value;
-                      });
-                    },
-                    validator: (value) => value == null
-                        ? 'Mohon pilih persyaratan ${index + 1}'
-                        : null,
+                    validator: (value) =>
+                        value!.isEmpty ? 'Mohon masukkan persyaratan ${index + 1}' : null,
                   ),
                 );
               }).toList(),
@@ -174,12 +168,15 @@ class _TambahPekerjaanPageState extends State<TambahPekerjaanPage> {
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         final userId = await _getUserId();
+                        final persyaratanList = _persyaratanControllers
+                            .map((controller) => controller.text)
+                            .toList();
                         final pekerjaanData = {
                           'userId': userId,
                           'jenisTugas': _jenisTugas!,
                           'nama': _nama!,
                           'jumlahAnggota': _jumlahAnggota!,
-                          'persyaratan': _persyaratan,
+                          'persyaratan': persyaratanList,
                           'jumlahProgress': _jumlahProgress!,
                           'deskripsi': _deskripsi!,
                           'status': _status!,
