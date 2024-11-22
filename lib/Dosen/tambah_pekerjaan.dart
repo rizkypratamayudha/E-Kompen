@@ -1,11 +1,7 @@
 import 'package:firstapp/Dosen/tambah_progres.dart';
-import 'package:firstapp/controller/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'penerimaan_dosen1.dart';
-import 'profile.dart';
-import '../dosen.dart';
-import '../bottombar/bottombarDosen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class TambahPekerjaanPage extends StatefulWidget {
   const TambahPekerjaanPage({super.key});
@@ -16,60 +12,28 @@ class TambahPekerjaanPage extends StatefulWidget {
 
 class _TambahPekerjaanPageState extends State<TambahPekerjaanPage> {
   final _formKey = GlobalKey<FormState>();
-  final AuthService authService = AuthService();
+
+  // Tambahkan pengambilan userId
+  Future<int> _getUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt('userId') ?? 0;
+  }
 
   final TextEditingController _dateController = TextEditingController();
-  int _selectedIndex = 1;
   String? _nama;
   String? _jenisTugas;
-  String? _jumlahAnggota;
-  String? _persyaratan;
-  String? _jumlahProgress;
+  int? _jumlahAnggota;
+  int? _jumlahProgress;
   String? _deskripsi;
+  String? _status = "open";
+  List<String?> _persyaratan = []; // Gunakan nullable untuk dropdown
 
-
-  void _onItemTapped(int index) {
-    if (index == _selectedIndex) {
-      return;
-    }
-
-    setState(() {
-      _selectedIndex = index;
-    });
-
-    if (index == 1) {
-      return;
-    } else if (index == 2) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => PenerimaanDosen1()),
-      );
-    } else if (index == 3) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => ProfilePage()),
-      );
-    } else if (index == 0) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const DosenDashboard()),
-      );
-    }
-  }
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
-    if (picked != null) {
-      setState(() {
-        _dateController.text = picked.toIso8601String().split('T')[0];
-      });
-    }
-  }
+  // Daftar opsi dropdown untuk persyaratan
+  final List<String> persyaratanOptions = [
+    "Persyaratan A",
+    "Persyaratan B",
+    "Persyaratan C"
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -85,192 +49,174 @@ class _TambahPekerjaanPageState extends State<TambahPekerjaanPage> {
         child: Form(
           key: _formKey,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Center(
-                child: Column(
-                  children: [
-                    ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: 300),
-                      child: DropdownButtonFormField<String>(
-                        decoration: InputDecoration(
-                          labelText: 'Jenis Tugas',
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                        ),
-                        items: <String>[
-                          'Penelitian',
-                          'Pengabdian',
-                          'Teknis'
-                        ].map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            _jenisTugas = newValue; // Menyimpan nilai
-                          });
-                        },
-                        validator: (value) {
-                          if (value == null) {
-                            return 'Mohon pilih jenis tugas';
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: 300),
-                      child: TextFormField(
-                        decoration: InputDecoration(
-                          labelText: 'Nama Pekerjaan',
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Mohon masukkan nama pekerjaan';
-                          }
-                          return null;
-                        },
-                        onChanged: (value) {
-                          _nama = value;
-                        },
-                      ),
-                    ),
-                    SizedBox(height: 10.0),
-                    ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: 300),
-                      child: TextFormField(
-                        decoration: InputDecoration(
-                          labelText: 'Jumlah Anggota',
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Mohon masukkan jumlah anggota';
-                          }
-                          return null;
-                        },
-                        onChanged: (value) {
-                          _jumlahAnggota = value;
-                        },
-                      ),
-                    ),
-                    SizedBox(height: 10.0),
-                    ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: 300),
-                      child: TextFormField(
-                        decoration: InputDecoration(
-                          labelText: 'Persyaratan',
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Mohon masukkan persyaratan';
-                          }
-                          return null;
-                        },
-                        onChanged: (value) {
-                          _persyaratan = value;
-                        },
-                      ),
-                    ),
-                    SizedBox(height: 10.0),
-                    ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: 300),
-                      child: TextFormField(
-                        decoration: InputDecoration(
-                          labelText: 'Jumlah Progress',
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Mohon masukkan jumlah progress';
-                          }
-                          return null;
-                        },
-                        onChanged: (value) {
-                          _jumlahProgress = value;
-                        },
-                      ),
-                    ),
-                    SizedBox(height: 10.0),
-                    ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: 300),
-                      child: SizedBox(
-                        height: 150.0,
-                        child: TextFormField(
-                          maxLines: null,
-                          expands: true,
-                          textAlignVertical: TextAlignVertical.top,
-                          decoration: InputDecoration(
-                            labelText: 'Deskripsi tugas...',
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10)),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Mohon masukkan deskripsi tugas';
-                            }
-                            return null;
-                          },
-                          onChanged: (value) {
-                            _deskripsi = value;
-                          },
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 40.0),
-                    ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: 300),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          SizedBox(width: 70),
-                          ElevatedButton(
-                            onPressed: () {
-                              if (_formKey.currentState!.validate()) {
-                                // Jika semua validasi berhasil
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            TambahProgresPage()));
-                              }
-                            },
-                            style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                minimumSize: Size(120, 40)),
-                            child: Text(
-                              'Next',
-                              style: GoogleFonts.poppins(color: Colors.white),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  ],
+              DropdownButtonFormField<String>(
+                decoration: InputDecoration(
+                  labelText: 'Jenis Tugas',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
+                items: ['Penelitian', 'Pengabdian', 'Teknis']
+                    .map((String value) => DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        ))
+                    .toList(),
+                onChanged: (String? newValue) => _jenisTugas = newValue,
+                validator: (value) =>
+                    value == null ? 'Mohon pilih jenis tugas' : null,
               ),
+              SizedBox(height: 10),
+              TextFormField(
+                decoration: InputDecoration(
+                  labelText: 'Nama Pekerjaan',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                onChanged: (value) => _nama = value,
+                validator: (value) =>
+                    value!.isEmpty ? 'Mohon masukkan nama pekerjaan' : null,
+              ),
+              SizedBox(height: 10),
+              TextFormField(
+                decoration: InputDecoration(
+                  labelText: 'Jumlah Anggota',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                keyboardType: TextInputType.number,
+                onChanged: (value) => _jumlahAnggota = int.tryParse(value),
+                validator: (value) =>
+                    value!.isEmpty ? 'Mohon masukkan jumlah anggota' : null,
+              ),
+              SizedBox(height: 10),
+              TextFormField(
+                decoration: InputDecoration(
+                  labelText: 'Jumlah Persyaratan',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                keyboardType: TextInputType.number,
+                onChanged: (value) {
+                  int? jumlah = int.tryParse(value);
+                  if (jumlah != null) {
+                    setState(() {
+                      _persyaratan = List.filled(jumlah, null);
+                    });
+                  }
+                },
+                validator: (value) =>
+                    value!.isEmpty ? 'Mohon masukkan jumlah persyaratan' : null,
+              ),
+              ..._persyaratan.asMap().entries.map((entry) {
+                int index = entry.key;
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 5),
+                  child: DropdownButtonFormField<String>(
+                    decoration: InputDecoration(
+                      labelText: 'Persyaratan ${index + 1}',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    items: persyaratanOptions
+                        .map((String value) => DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            ))
+                        .toList(),
+                    onChanged: (String? value) {
+                      setState(() {
+                        _persyaratan[index] = value;
+                      });
+                    },
+                    validator: (value) => value == null
+                        ? 'Mohon pilih persyaratan ${index + 1}'
+                        : null,
+                  ),
+                );
+              }).toList(),
+              SizedBox(height: 10),
+              TextFormField(
+                decoration: InputDecoration(
+                  labelText: 'Jumlah Progress',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                keyboardType: TextInputType.number,
+                onChanged: (value) => _jumlahProgress = int.tryParse(value),
+                validator: (value) =>
+                    value!.isEmpty ? 'Mohon masukkan jumlah progress' : null,
+              ),
+              SizedBox(height: 10),
+              TextFormField(
+                decoration: InputDecoration(
+                  labelText: 'Deskripsi Tugas',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                maxLines: 3,
+                onChanged: (value) => _deskripsi = value,
+                validator: (value) =>
+                    value!.isEmpty ? 'Mohon masukkan deskripsi' : null,
+              ),
+              SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  ElevatedButton(
+                    onPressed: () async {
+                      if (_formKey.currentState!.validate()) {
+                        final userId = await _getUserId();
+                        final pekerjaanData = {
+                          'userId': userId,
+                          'jenisTugas': _jenisTugas!,
+                          'nama': _nama!,
+                          'jumlahAnggota': _jumlahAnggota!,
+                          'persyaratan': _persyaratan,
+                          'jumlahProgress': _jumlahProgress!,
+                          'deskripsi': _deskripsi!,
+                          'status': _status!,
+                          'jumlah_jam_kompen': 0,
+                          'akumulasi_deadline': "Tidak Ditentukan",
+                        };
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                TambahProgresPage(pekerjaanData: pekerjaanData),
+                          ),
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      minimumSize: const Size(130, 50),
+                    ),
+                    child: Text(
+                      "Next",
+                      style: GoogleFonts.poppins(
+                        color: Colors.white, // Warna teks putih
+                        fontSize: 14, // Ukuran font 14
+                      ),
+                    ),
+                  ),
+                ],
+              )
             ],
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavBarDosen(
-        selectedIndex: _selectedIndex,
-        onItemTapped: _onItemTapped,
-      ),
-      backgroundColor: Colors.white,
     );
   }
 }
