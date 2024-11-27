@@ -6,7 +6,7 @@ class Pekerjaan {
   final int jumlah_jam_kompen;
   final String? status;
   final DetailPekerjaan detail_pekerjaan;
-  final Progres progres;
+  final List <Progres> progres;
 
   Pekerjaan({
     required this.pekerjaan_id,
@@ -23,12 +23,14 @@ class Pekerjaan {
     return Pekerjaan(
       pekerjaan_id: json['pekerjaan_id'] ?? 0,
       user_id: json['user_id'] ?? 0,
-      jenis_pekerjaan: json['jenis_pekerjaan'] ?? 0,
-      pekerjaan_nama: json['pekerjaan_nama'] ?? 0,
+      jenis_pekerjaan: json['jenis_pekerjaan'] ?? '',
+      pekerjaan_nama: json['pekerjaan_nama'] ?? '',
       jumlah_jam_kompen: json['jumlah_jam_kompen'] ?? 0,
       status: json['status'],
       detail_pekerjaan: DetailPekerjaan.fromJson(json['detail_pekerjaan']),
-      progres: Progres.fromJson(json['progres'])
+      progres: (json['progres'] as List<dynamic>)
+          .map((item) => Progres.fromJson(item))
+          .toList(), // Konversi list JSON menjadi List<Progres>
     );
   }
 }
@@ -37,14 +39,12 @@ class DetailPekerjaan {
   final int detail_pekerjaan_id;
   final int pekerjaan_id;
   final int jumlah_anggota;
-  final String persyaratan;
   final String deskripsi_tugas;
 
   DetailPekerjaan({
     required this.detail_pekerjaan_id,
     required this.pekerjaan_id,
     required this.jumlah_anggota,
-    required this.persyaratan,
     required this.deskripsi_tugas,
   });
 
@@ -53,8 +53,7 @@ class DetailPekerjaan {
       detail_pekerjaan_id: json['detail_pekerjaan_id'] ?? 0,
       pekerjaan_id: json['pekerjaan_id'] ?? 0,
       jumlah_anggota: json['jumlah_anggota'] ?? 0,
-      persyaratan: json['persyaratan'] ?? 0,
-      deskripsi_tugas: json['deskripsi_tugas'] ?? 0,
+      deskripsi_tugas: json['deskripsi_tugas'] ?? '',
     );
   }
 }
@@ -80,7 +79,7 @@ class Progres{
     return Progres(
       progres_id: json['progres_id'] ?? 0,
       pekerjaan_id: json['pekerjaan_id'] ?? 0,
-      judul_progres: json['judul_progres'] ?? 0,
+      judul_progres: json['judul_progres'] ?? '',
       jam_kompen: json['jam_kompen'] ?? 0,
       hari: json['hari'] ?? 0,
       status: json['status']
