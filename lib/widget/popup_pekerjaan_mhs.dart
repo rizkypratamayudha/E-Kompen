@@ -1,8 +1,42 @@
+import 'package:firstapp/controller/Pekerjaan.dart';
+import 'package:firstapp/controller/apply.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class PopUpPekerjaan extends StatelessWidget {
-  const PopUpPekerjaan({super.key});
+  final Pekerjaan pekerjaan;
+
+  const PopUpPekerjaan({Key? key, required this.pekerjaan}) : super(key: key);
+
+  Future<void> _applyPekerjaan(BuildContext context) async {
+    final applyService = Apply();
+    final response = await applyService.applyPekerjaan(pekerjaan.pekerjaan_id);
+
+    // Tampilkan hasil respons
+    if (response['success']) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            response['message'],
+            style: GoogleFonts.poppins(fontSize: 14),
+          ),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            response['message'],
+            style: GoogleFonts.poppins(fontSize: 14),
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+
+    Navigator.of(context).pop(); // Tutup popup setelah proses selesai
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,33 +51,57 @@ class PopUpPekerjaan extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Nama Dosen : Taufiq S.Tr S.I.B',
-              style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w500),
+              'Nama Dosen : ${pekerjaan.user.nama}',
+              style: GoogleFonts.poppins(
+                  fontSize: 16, fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 10),
             Text(
-              'Nomor Dosen : 083166441802',
-              style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w400),
+              'Nomor Dosen : ${pekerjaan.user.detail_dosen.no_hp}',
+              style: GoogleFonts.poppins(
+                  fontSize: 14, fontWeight: FontWeight.w400),
             ),
             const SizedBox(height: 10),
             Text(
-              'Jenis Tugas : Teknis',
-              style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w400),
+              'Jenis Pekerjaan : ${pekerjaan.jenis_pekerjaan}',
+              style: GoogleFonts.poppins(
+                  fontSize: 14, fontWeight: FontWeight.w400),
             ),
             const SizedBox(height: 10),
             Text(
-              'Jumlah Jam : 100 Jam',
-              style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w400),
+              'Nama Pekerjaan : ${pekerjaan.pekerjaan_nama}',
+              style: GoogleFonts.poppins(
+                  fontSize: 14, fontWeight: FontWeight.w400),
             ),
             const SizedBox(height: 10),
             Text(
-              'Persyaratan : Bisa Coding',
-              style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w400),
+              'Jumlah Progres : ${pekerjaan.progres.length}',
+              style: GoogleFonts.poppins(
+                  fontSize: 14, fontWeight: FontWeight.w400),
             ),
             const SizedBox(height: 10),
             Text(
-              'Batas Pengerjaan : 2024-10-30',
-              style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w400),
+              'Nilai Total Jam Kompen : ${pekerjaan.jumlah_jam_kompen}',
+              style: GoogleFonts.poppins(
+                  fontSize: 14, fontWeight: FontWeight.w400),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Jumlah Anggota : ${pekerjaan.detail_pekerjaan.jumlah_anggota}',
+              style: GoogleFonts.poppins(
+                  fontSize: 14, fontWeight: FontWeight.w400),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Persyaratan : ${pekerjaan.detail_pekerjaan.persyaratan.map((p) => p.persyaratan_nama).join(', ')}',
+              style: GoogleFonts.poppins(
+                  fontSize: 14, fontWeight: FontWeight.w400),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Kompetensi : ${pekerjaan.detail_pekerjaan.kompetensi_dosen.map((p) => p.kompetensi_admin.kompetensi_nama).join(', ')}',
+              style: GoogleFonts.poppins(
+                  fontSize: 14, fontWeight: FontWeight.w400),
             ),
             const SizedBox(height: 20),
             Container(
@@ -53,17 +111,16 @@ class PopUpPekerjaan extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
-                'Membantu web sederhana untuk pelaporan jumlah komputer yang tidak layak pakai. Berkolaborasi dengan 5 mahasiswa.',
-                style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w300),
+                '${pekerjaan.detail_pekerjaan.deskripsi_tugas}.',
+                style: GoogleFonts.poppins(
+                    fontSize: 14, fontWeight: FontWeight.w300),
               ),
             ),
             const SizedBox(height: 20),
             Align(
               alignment: Alignment.centerRight,
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop(); // Tutup popup
-                },
+                onPressed: () => _applyPekerjaan(context),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   shape: RoundedRectangleBorder(
@@ -72,7 +129,10 @@ class PopUpPekerjaan extends StatelessWidget {
                 ),
                 child: Text(
                   'Apply',
-                  style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w500, color: Colors.white),
+                  style: GoogleFonts.poppins(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white),
                 ),
               ),
             ),

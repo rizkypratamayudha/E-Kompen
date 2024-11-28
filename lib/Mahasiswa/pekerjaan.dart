@@ -33,11 +33,12 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
 
     try {
       final token = await AuthService().getToken();
-      final response = await http.get(Uri.parse('${config.baseUrl}/pekerjaan'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token', // Attach token here
-      },
+      final response = await http.get(
+        Uri.parse('${config.baseUrl}/pekerjaan'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token', 
+        },
       );
 
       if (response.statusCode == 200) {
@@ -146,7 +147,7 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
                     int jumlahAnggota =
                         pekerjaan.detail_pekerjaan.jumlah_anggota;
                     return _buildPekerjaan(
-                        pekerjaan.pekerjaan_nama, jumlahAnggota);
+                        pekerjaan.pekerjaan_nama, jumlahAnggota, pekerjaan);
                   },
                 )
               else
@@ -163,7 +164,7 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
     );
   }
 
-  Widget _buildPekerjaan(String title, int anggota) {
+  Widget _buildPekerjaan(String title, int anggota, Pekerjaan pekerjaan) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 6.0),
       decoration: BoxDecoration(
@@ -209,7 +210,7 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
           showDialog(
             context: context,
             builder: (BuildContext context) {
-              return const PopUpPekerjaan();
+              return PopUpPekerjaan(pekerjaan: pekerjaan);
             },
           );
         },
