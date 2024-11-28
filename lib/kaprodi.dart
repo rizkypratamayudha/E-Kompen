@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'bottombar/bottombarKaprodi.dart';
 import 'Kaprodi/profile.dart';
 import 'Kaprodi/penandatanganan_kaprodi.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class KaprodiDashboard extends StatefulWidget {
   const KaprodiDashboard({super.key});
@@ -13,30 +14,47 @@ class KaprodiDashboard extends StatefulWidget {
 
 class _KaprodiDashboardState extends State<KaprodiDashboard> {
   int _selectedIndex = 0;
+  String _nama = 'User';
+  String _avatarUrl = '';
 
-
-void _onItemTapped(int index) {
-  setState(() {
-    _selectedIndex = index;
-  });
-
-  if (index == 0) {
-    return;
-  } else if (index == 1) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => PenandatangananKaprodi()), // Halaman Penerimaan
-    );
-  } else if (index == 2) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => ProfilePage()), // Halaman Profile
-    );
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData(); // Muat data pengguna saat inisialisasi
   }
-}
 
+  // Fungsi untuk mengambil nama dan avatar dari SharedPreferences
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _nama = prefs.getString('nama') ?? 'User';
+      _avatarUrl = prefs.getString('avatarUrl') ?? '';
+    });
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    if (index == 0) {
+      return;
+    } else if (index == 1) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const PenandatangananKaprodi(),
+        ),
+      );
+    } else if (index == 2) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const ProfilePage(),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,15 +62,18 @@ void _onItemTapped(int index) {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Section (This part will stay fixed)
+          // Header Section
           Padding(
             padding: const EdgeInsets.fromLTRB(10.0, 50.0, 10.0, 20.0),
             child: Row(
               children: [
-                const CircleAvatar(
+                CircleAvatar(
                   radius: 30,
                   backgroundColor: Colors.grey,
-                  child: Icon(Icons.person, size: 40),
+                  backgroundImage: _avatarUrl.isNotEmpty
+                      ? NetworkImage(_avatarUrl)
+                      : const AssetImage('assets/img/polinema.png')
+                          as ImageProvider,
                 ),
                 const SizedBox(width: 10),
                 Column(
@@ -66,7 +87,7 @@ void _onItemTapped(int index) {
                       ),
                     ),
                     Text(
-                      'Hanum Mufida S.T',
+                      _nama,
                       style: GoogleFonts.poppins(),
                     ),
                   ],
@@ -75,7 +96,7 @@ void _onItemTapped(int index) {
             ),
           ),
 
-          // Content Section (Scrollable content)
+          // Content Section
           Expanded(
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
@@ -164,7 +185,6 @@ void _onItemTapped(int index) {
           ),
         ],
       ),
-      // Bottom Navigation Bar
       bottomNavigationBar: BottomNavBarKaprodi(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
@@ -184,7 +204,6 @@ void _onItemTapped(int index) {
           title,
           style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
         ),
-        // trailing: const Icon(Icons.arrow_forward, color: Colors.white), // Example icon
       ),
     );
   }
