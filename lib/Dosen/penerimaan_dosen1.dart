@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:firstapp/Mahasiswa/riwayat.dart';
+import 'package:firstapp/controller/getPelamaran.dart';
+import 'package:firstapp/controller/pending_pekerjaan.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../bottombar/bottombarDosen.dart';
@@ -19,6 +21,19 @@ class PenerimaanDosen1 extends StatefulWidget {
 }
 
 class _PenerimaanDosen1State extends State<PenerimaanDosen1> {
+  final PelamaranService pelamaranService = PelamaranService();
+
+  Future<List<PendingPekerjaan>> fetchPelamaran() async {
+    final response = await pelamaranService.getPelamaran();
+    if (response['success']) {
+      return (response['data'] as List)
+          .map((item) => PendingPekerjaan.fromJson(item))
+          .toList();
+    } else {
+      throw Exception('Gagal memuat pelamaran: ${response['message']}');
+    }
+  }
+
   int _selectedIndex = 2;
 
   void _onItemTapped(int index) {
@@ -155,16 +170,24 @@ class _PenerimaanScreenState extends State<PenerimaanScreen> {
         ]));
   }
 
-  Widget _buildCard(
-      BuildContext context, String nama, String id, String tugas) {
+  Widget _buildCard(BuildContext context, String nama, String id, String tugas) {
     return Align(
       alignment: Alignment.topCenter,
       child: FractionallySizedBox(
         widthFactor: 0.9,
         child: InkWell(
           onTap: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => LihatKompetensi()));
+            // Pass the data to the next screen
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => LihatKompetensi(
+                  nama: nama, // Pass dynamic data
+                  id: id,
+                  tugas: tugas,
+                ),
+              ),
+            );
           },
           child: Card(
             elevation: 2,
@@ -376,11 +399,37 @@ class _PenerimaanScreenState extends State<PenerimaanScreen> {
   }
 
   Widget _buildPenerimaanList(BuildContext context) {
-    return ListView(
-      children: [
-        _buildCard(context, 'Solikhin', '2241760020', '\n\nMemasukkan Nilai'),
-        _buildCard(context, 'M Rizky Yudha', '2241760020', '\n\nMembuat Web')
-      ],
+    return FutureBuilder<Map<String, dynamic>>(
+      future: PelamaranService().getPelamaran(), // Ambil data pelamaran
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          // Menunggu data
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          // Jika ada error
+          return Center(child: Text('Terjadi kesalahan: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data?['success'] == false) {
+          // Jika data kosong atau gagal
+          return Center(child: Text('Tidak ada data pelamaran.'));
+        } else {
+          // Data berhasil didapatkan
+          var pelamaranList = snapshot.data?['data'] ?? [];
+
+          return ListView.builder(
+            itemCount: pelamaranList.length,
+            itemBuilder: (context, index) {
+              var pelamaran = pelamaranList[index] as PendingPekerjaan;
+              return _buildCard(
+                context,
+                pelamaran.user.nama, // Ambil nama dari user
+                pelamaran.user.username, // Ambil userId
+                pelamaran.pekerjaan.pekerjaanNama, // Ambil pekerjaanId
+                
+              );
+            },
+          );
+        }
+      },
     );
   }
 

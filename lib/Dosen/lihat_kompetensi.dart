@@ -1,4 +1,5 @@
 import 'package:firstapp/Dosen/penerimaan_dosen1.dart';
+import 'package:firstapp/controller/pending_pekerjaan.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../bottombar/bottombarDosen.dart';
@@ -7,18 +8,26 @@ import 'pekerjaan.dart';
 import '../dosen.dart';
 import 'lihat_detail_kompetensi.dart';
 
-class LihatKompetensi extends StatefulWidget{
-  const LihatKompetensi({super.key});
+class LihatKompetensi extends StatefulWidget {
+  final String nama;
+  final String id;
+  final String tugas;
+
+  LihatKompetensi({
+    required this.nama,
+    required this.id,
+    required this.tugas,
+  });
 
   @override
   _LihatKompetensiState createState() => _LihatKompetensiState();
 }
 
-class _LihatKompetensiState extends State<LihatKompetensi>{
+class _LihatKompetensiState extends State<LihatKompetensi> {
   int _selectedIndex = 2;
 
-  void _onItemTapped(int index){
-    if (index == _selectedIndex){
+  void _onItemTapped(int index) {
+    if (index == _selectedIndex) {
       return;
     }
 
@@ -26,23 +35,17 @@ class _LihatKompetensiState extends State<LihatKompetensi>{
       _selectedIndex = index;
     });
 
-    if(index == 2){
+    if (index == 2) {
       return;
-    }
-    else if (index == 1){
+    } else if (index == 1) {
       Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => PekerjaanDosenPage())
-      );
-    }
-    else if (index == 3){
+          context, MaterialPageRoute(builder: (context) => PekerjaanDosenPage()));
+    } else if (index == 3) {
       Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context)=> ProfilePage())
-      );
-    }
-    else if (index == 0){
+          context, MaterialPageRoute(builder: (context) => ProfilePage()));
+    } else if (index == 0) {
       Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context)=> DosenDashboard())
-      );
+          context, MaterialPageRoute(builder: (context) => DosenDashboard()));
     }
   }
 
@@ -72,7 +75,11 @@ class _LihatKompetensiState extends State<LihatKompetensi>{
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const CustomLihatKompetensiWidget(),
+            CustomLihatKompetensiWidget(
+              nama: widget.nama, // Pass the nama here
+              id: widget.id, // Pass the id here
+              tugas: widget.tugas, // Pass the tugas here
+            ),
             const SizedBox(height: 16),
             Expanded(
               child: SingleChildScrollView(
@@ -110,7 +117,6 @@ class _LihatKompetensiState extends State<LihatKompetensi>{
           ],
         ),
       ),
-      
       bottomNavigationBar: BottomNavBarDosen(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
@@ -130,70 +136,77 @@ class _LihatKompetensiState extends State<LihatKompetensi>{
             Navigator.push(context,
                 MaterialPageRoute(builder: (context) => LihatDetailKompetensi()));
           },
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 17,
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade700,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                constraints: const BoxConstraints(
-                  minHeight: 90, // Ukuran minimal untuk 3 baris
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.military_tech,
-                      color: Colors.white,
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            title,
-                            style: GoogleFonts.poppins(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            description,
-                            style: GoogleFonts.poppins(
-                              color: Colors.white,
-                              fontSize: 12,
-                            ),
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 17,
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade700,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  constraints: const BoxConstraints(
+                    minHeight: 90, // Ukuran minimal untuk 3 baris
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.military_tech,
+                        color: Colors.white,
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              title,
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              description,
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontSize: 12,
+                              ),
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            
-          ],
+            ],
+          ),
         ),
-      ),
       ),
     );
   }
-
 }
 
 class CustomLihatKompetensiWidget extends StatelessWidget {
-  const CustomLihatKompetensiWidget({super.key});
+  final String nama;
+  final String id;
+  final String tugas;
+
+  const CustomLihatKompetensiWidget({
+    Key? key,
+    required this.nama,
+    required this.id,
+    required this.tugas,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -220,7 +233,7 @@ class CustomLihatKompetensiWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'M. Isroqi Gelby Firmansyah',
+                    nama, // Display the name here
                     style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontSize: 14,
@@ -228,7 +241,7 @@ class CustomLihatKompetensiWidget extends StatelessWidget {
                   ),
                   Divider(color: Colors.white),
                   Text(
-                    'Kompetensi 3',
+                    id, // Display the task here
                     style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontSize: 12,
