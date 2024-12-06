@@ -1,4 +1,4 @@
-import 'dart:convert'; 
+import 'dart:convert';
 import 'package:firstapp/controller/pending_pekerjaan.dart';
 import 'package:http/http.dart' as http;
 import '../config/config.dart';
@@ -8,7 +8,8 @@ class PelamaranService {
   final AuthService authService = AuthService();
 
   Future<Map<String, dynamic>> getPelamaran() async {
-    final userId = await authService.getUserId();  // Ambil user_id dari AuthService
+    final userId =
+        await authService.getUserId(); // Ambil user_id dari AuthService
     if (userId == null) {
       return {
         'success': false,
@@ -16,7 +17,7 @@ class PelamaranService {
       };
     }
 
-    final token = await authService.getToken();  // Ambil token yang disimpan
+    final token = await authService.getToken(); // Ambil token yang disimpan
     if (token == null) {
       return {
         'success': false,
@@ -24,8 +25,9 @@ class PelamaranService {
       };
     }
 
-    final url = Uri.parse('${config.baseUrl}/dosen/$userId/pelamaran');  // Gunakan userId di URL
-    
+    final url = Uri.parse(
+        '${config.baseUrl}/dosen/$userId/pelamaran'); // Gunakan userId di URL
+
     try {
       final response = await http.get(
         url,
@@ -65,6 +67,32 @@ class PelamaranService {
         'success': false,
         'message': 'Tidak dapat terhubung ke server. Periksa koneksi Anda.',
       };
+    }
+  }
+
+  Future<Map<String, dynamic>> approvePekerjaan(
+      String pekerjaanId, String userId) async {
+    try {
+      final response = await http.post(
+        Uri.parse('${config.baseUrl}/pekerjaan/approve-pekerjaan'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          'pekerjaan_id': pekerjaanId,
+          'user_id': userId,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(
+            response.body); // Mengasumsikan respons API dalam format JSON
+      } else {
+        print(
+            'Error: ${response.body}'); // Log respons body untuk analisis lebih lanjut
+        throw Exception('Gagal menyetujui pekerjaan');
+      }
+    } catch (e) {
+      print('Error: $e'); // Log kesalahan
+      throw Exception('Gagal menyetujui pekerjaan: $e');
     }
   }
 }

@@ -1,4 +1,5 @@
 import 'package:firstapp/Dosen/penerimaan_dosen1.dart';
+import 'package:firstapp/controller/Pekerjaan.dart';
 import 'package:firstapp/controller/pending_pekerjaan.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -12,11 +13,13 @@ class LihatKompetensi extends StatefulWidget {
   final String nama;
   final String id;
   final String tugas;
+  // final List<Kompetensi> kompetensiList;
 
   LihatKompetensi({
     required this.nama,
     required this.id,
     required this.tugas,
+    // required this.kompetensiList
   });
 
   @override
@@ -38,8 +41,8 @@ class _LihatKompetensiState extends State<LihatKompetensi> {
     if (index == 2) {
       return;
     } else if (index == 1) {
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => PekerjaanDosenPage()));
+      Navigator.pushReplacement(context,
+          MaterialPageRoute(builder: (context) => PekerjaanDosenPage()));
     } else if (index == 3) {
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (context) => ProfilePage()));
@@ -79,6 +82,7 @@ class _LihatKompetensiState extends State<LihatKompetensi> {
               nama: widget.nama, // Pass the nama here
               id: widget.id, // Pass the id here
               tugas: widget.tugas, // Pass the tugas here
+              kompetensiList: [],
             ),
             const SizedBox(height: 16),
             Expanded(
@@ -133,8 +137,14 @@ class _LihatKompetensiState extends State<LihatKompetensi> {
         margin: const EdgeInsets.only(bottom: 10),
         child: InkWell(
           onTap: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => LihatDetailKompetensi()));
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => LihatDetailKompetensi(
+                          nama: widget.nama,
+                          id: widget.id,
+                          tugas: widget.tugas,
+                        )));
           },
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -200,12 +210,14 @@ class CustomLihatKompetensiWidget extends StatelessWidget {
   final String nama;
   final String id;
   final String tugas;
+  final List<KompetensiDosen> kompetensiList;
 
   const CustomLihatKompetensiWidget({
     Key? key,
     required this.nama,
     required this.id,
     required this.tugas,
+    required this.kompetensiList
   }) : super(key: key);
 
   @override
