@@ -151,7 +151,7 @@ class _PekerjaanDosenPageState extends State<PekerjaanDosenPage> {
                         pekerjaan.pekerjaanNama, // Parameter 1: Nama pekerjaan
                         anggota, // Parameter 2: Anggota
                         totalAnggota, // Parameter 3: Total anggota
-                        index, // Parameter 4: Nomor urut pekerjaan
+                        index, 
                       );
                     }).toList(),
                   ],

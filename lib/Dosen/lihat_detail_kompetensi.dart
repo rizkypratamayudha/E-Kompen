@@ -7,7 +7,16 @@ import '../dosen.dart';
 import 'lihat_kompetensi.dart';
 
 class LihatDetailKompetensi extends StatefulWidget {
-  const LihatDetailKompetensi({super.key});
+  final String nama;
+  final String id;
+  final String tugas;
+
+  const LihatDetailKompetensi({
+    Key? key,
+    required this.nama,
+    required this.id,
+    required this.tugas,
+  }) : super(key: key);
 
   @override
   _LihatDetailKompetensiState createState() => _LihatDetailKompetensiState();
@@ -101,7 +110,12 @@ class _LihatDetailKompetensiState extends State<LihatDetailKompetensi> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.push(context,
-                MaterialPageRoute(builder: (context) => LihatKompetensi()));
+                MaterialPageRoute(builder: (context) => LihatKompetensi(
+                  nama: widget.nama, // Pass dynamic data
+                  id: widget.id,
+                  tugas: widget.tugas,
+                  // kompetensiList: [],
+                )));
           },
         ),
         title: Text(
@@ -123,9 +137,9 @@ class _LihatDetailKompetensiState extends State<LihatDetailKompetensi> {
               mainAxisSize: MainAxisSize.min, // Kolom berukuran minimum
               children: [
                 buildBoxLihatDetailKompetensi(
-                    "Nama", "M. Isroqi Gelby Firmansyah"),
+                    "Nama", widget.nama),
                 const SizedBox(height: 8),
-                buildBoxLihatDetailKompetensi("NIM", "2241760041"),
+                buildBoxLihatDetailKompetensi("NIM", widget.id),
                 const SizedBox(height: 8),
                 buildBoxLihatDetailKompetensi("Periode", "2024/2025 Genap"),
                 const SizedBox(height: 8),
