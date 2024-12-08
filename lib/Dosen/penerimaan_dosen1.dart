@@ -218,7 +218,7 @@ class _PenerimaanScreenState extends State<PenerimaanScreen> {
               Expanded(
                 child: TabButton(
                   icon: Icons.assignment,
-                  text: 'Pelamaran',
+                  text: 'Pelamaran' ,
                   isSelected: _selectedIndex == 0,
                   onTap: () {
                     setState(() {
@@ -597,13 +597,13 @@ class TabButton extends StatelessWidget {
             Icon(
               icon,
               color: isSelected ? Colors.blue : Colors.grey,
-              size: 20,
+              size: 13,
             ),
             SizedBox(width: 8), // Spasi antara ikon dan teks
             Text(
               text,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: FontWeight.w500,
                 color: isSelected ? Colors.blue : Colors.grey,
               ),
