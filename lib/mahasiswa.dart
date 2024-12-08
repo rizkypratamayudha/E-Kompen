@@ -5,6 +5,8 @@ import 'Mahasiswa/pekerjaan.dart';
 import 'Mahasiswa/profile.dart';
 import 'Mahasiswa/riwayat.dart';
 import 'bottombar/bottombar.dart';
+import '../Model/dashboardMhsModel.dart';
+import '../controller/serviceDashboardMhs.dart';
 
 class MahasiswaDashboard extends StatefulWidget {
   const MahasiswaDashboard({super.key});
@@ -14,15 +16,22 @@ class MahasiswaDashboard extends StatefulWidget {
 }
 
 class _MahasiswaDashboardState extends State<MahasiswaDashboard> {
+  bool _isLoading = true;
+  bool _isError = false;
   int _selectedIndex = 0;
   String _nama = 'User';
   String _avatarUrl = '';
-  String _selectedSemester = 'Semester 1';
+  String _prodi = 'Tidak Diketahui';
+  String _periode = 'Tidak Diketahui';
+  int _totalJamKompen = 0;
+  List<Map<String, dynamic>> _details = [];
+  String _token = '';
 
   @override
   void initState() {
     super.initState();
     _loadUserData();
+    _fetchDashboardData();
   }
 
   Future<void> _loadUserData() async {
@@ -30,7 +39,40 @@ class _MahasiswaDashboardState extends State<MahasiswaDashboard> {
     setState(() {
       _nama = prefs.getString('nama') ?? 'User';
       _avatarUrl = prefs.getString('avatarUrl') ?? '';
+      _token = prefs.getString('token') ?? '';
     });
+  }
+
+  Future<void> _fetchDashboardData() async {
+    ServiceDashboardMhs service = ServiceDashboardMhs();
+    DashboardMhs? data = await service.fetchDashboard();
+
+    if (data != null) {
+      setState(() {
+        _prodi = data.user.detailMahasiswa.prodi.prodiNama ?? 'Tidak Diketahui';
+        _periode =
+            data.user.detailMahasiswa.periode.periodeNama ?? 'Tidak Diketahui';
+        _totalJamKompen =
+            data.jamKompen.isNotEmpty ? data.jamKompen.first.akumulasiJam : 0;
+        _details = data.jamKompen.isNotEmpty
+            ? data.jamKompen.first.detailJamKompen.map((item) {
+                return {
+                  'matkulId': item.matkulId,
+                  'detailJamKompenId': item.detailJamKompenId,
+                  'matkulNama': item.matkul.matkulNama,
+                  'jumlahJam': item.jumlahJam,
+                };
+              }).toList()
+            : [];
+        _isLoading = false;
+      });
+    } else {
+      setState(() {
+        _isError = true;
+        _isLoading = false;
+      });
+      print("No data received from the server.");
+    }
   }
 
   void _onItemTapped(int index) {
@@ -46,185 +88,237 @@ class _MahasiswaDashboardState extends State<MahasiswaDashboard> {
     } else if (index == 2) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => RiwayatPage()),
+        MaterialPageRoute(builder: (context) => const RiwayatPage()),
       );
     } else if (index == 3) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => ProfilePage()),
+        MaterialPageRoute(builder: (context) => const ProfilePage()),
       );
     }
   }
 
+// Hanya bagian build yang diperbarui untuk meningkatkan desain
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(10.0, 50.0, 10.0, 20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                CircleAvatar(
-                  radius: 30,
-                  backgroundColor: Colors.grey,
-                  backgroundImage: _avatarUrl.isNotEmpty
-                      ? NetworkImage(_avatarUrl)
-                      : const AssetImage('assets/img/polinema.png')
-                          as ImageProvider,
-                ),
-                const SizedBox(width: 10),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Halo',
-                      style: GoogleFonts.poppins(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+      backgroundColor: Colors.grey[100],
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _isError
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        'Terjadi kesalahan, coba lagi.',
+                        style: TextStyle(fontSize: 16, color: Colors.redAccent),
                       ),
-                    ),
-                    Text(
-                      _nama,
-                      style: GoogleFonts.poppins(),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Container(
-              padding: const EdgeInsets.all(20.0),
-              decoration: BoxDecoration(
-                color: Colors.blueAccent,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Jam kompen: 192 jam',
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontSize: 14,
-                    ),
+                      const SizedBox(height: 10),
+                      ElevatedButton(
+                        onPressed: _fetchDashboardData,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blueAccent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text('Coba Lagi'),
+                      ),
+                    ],
                   ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 5),
-                    child: Divider(
-                      color: Colors.white,
-                      thickness: 2,
-                      endIndent: 20,
-                    ),
-                  ),
-                  Text(
-                    'Status: tidak dalam proses Kompen',
-                    style:
-                        GoogleFonts.poppins(color: Colors.white, fontSize: 14),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: DropdownButtonFormField<String>(
-                    value: _selectedSemester,
-                    items: [
-                      'Semester 1',
-                      'Semester 2',
-                      'Semester 3',
-                      'Semester 4',
-                      'Semester 5'
-                    ]
-                        .map((semester) => DropdownMenuItem(
-                              value: semester,
-                              child: Text(
-                                semester,
-                                style: GoogleFonts.poppins(),
+                )
+              : Padding(
+                  padding: const EdgeInsets.fromLTRB(20.0, 40.0, 20.0, 10.0),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        // Header
+                        Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 35,
+                              backgroundColor: Colors.grey[300],
+                              backgroundImage: _avatarUrl.isNotEmpty
+                                  ? NetworkImage(_avatarUrl)
+                                  : const AssetImage('assets/img/polinema.png')
+                                      as ImageProvider,
+                            ),
+                            const SizedBox(width: 20),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Selamat Datang,',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 16,
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                                Text(
+                                  _nama,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blueAccent,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        // Program Studi Card
+                        Card(
+                          elevation: 6,
+                          margin: const EdgeInsets.symmetric(vertical: 10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(15),
+                              gradient: const LinearGradient(
+                                colors: [Colors.blue, Colors.lightBlueAccent],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
                               ),
-                            ))
-                        .toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedSemester = value!;
-                      });
-                    },
-                    decoration: const InputDecoration(
-                      labelText: 'Pilih Semester',
-                      border: OutlineInputBorder(),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Program Studi',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  _prodi,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const Divider(color: Colors.white),
+                                Text(
+                                  'Periode: $_periode',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    color: Colors.white70,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        // Total Akumulasi Jam Card
+                        Card(
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.yellow[600],
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.access_time, size: 28),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Text(
+                                    'Total Akumulasi Jam',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  '$_totalJamKompen Jam',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        // Detail Section
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Detail Jam Kompen',
+                            style: GoogleFonts.poppins(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blueAccent,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: _details.length,
+                          itemBuilder: (context, index) {
+                            final detail = _details[index];
+                            return Card(
+                              margin: const EdgeInsets.symmetric(
+                                horizontal: 0,
+                                vertical: 8,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 3,
+                              child: ListTile(
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
+                                leading: CircleAvatar(
+                                  backgroundColor: Colors.blueAccent,
+                                  child: const Icon(Icons.book,
+                                      color: Colors.white),
+                                ),
+                                title: Text(
+                                  detail['matkulNama'] ?? 'Tidak Diketahui',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.grey[800],
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  'Jumlah Jam: ${detail['jumlahJam']} Jam',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 12,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
                     ),
                   ),
                 ),
-                const SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: () {
-                    // Tambahkan logika pencarian jika diperlukan
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    backgroundColor: Colors.blue,
-                    fixedSize: const Size(76, 44),
-                  ),
-                  child: const Icon(Icons.search, color: Colors.white),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: ListView(
-                children: [
-                  _buildKompenCard('Praktikum Basis Data', '8 Jam'),
-                  _buildKompenCard('Praktikum Daspro', '4 Jam'),
-                  _buildKompenCard('Total Alpha', '12 Jam'),
-                  _buildSummaryCard('Semester Mahasiswa Saat Ini: 5'),
-                  _buildSummaryCard(
-                      'Total Akumulasi Alpha sampai semester 5 (x2 setiap semester)\n12 * 2^4 = 192 Jam'),
-                  _buildKompenCard('Akumulasi Alpha', '192 Jam'),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
       bottomNavigationBar: BottomNavBar(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
-      ),
-      backgroundColor: Colors.white,
-    );
-  }
-
-  Widget _buildKompenCard(String title, String hours) {
-    return Card(
-      color: Colors.blue,
-      child: ListTile(
-        title: Text(
-          title,
-          style: GoogleFonts.poppins(
-            fontSize: 14,
-            color: Colors.white,
-          ),
-        ),
-        trailing: Text(
-          hours,
-          style: GoogleFonts.poppins(fontSize: 14, color: Colors.white),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSummaryCard(String summary) {
-    return Card(
-      color: Colors.grey[400],
-      child: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Text(
-          summary,
-          style: GoogleFonts.poppins(fontSize: 14),
-        ),
       ),
     );
   }
