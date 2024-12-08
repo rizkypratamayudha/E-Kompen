@@ -1,3 +1,6 @@
+import 'package:firstapp/config/config.dart';
+import 'package:firstapp/controller/auth_service.dart';
+import 'package:firstapp/controller/pengerjaan.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../bottombar/bottombar.dart'; // Import BottomNavBar
@@ -6,6 +9,8 @@ import 'pekerjaan.dart';
 import '../mahasiswa.dart';
 import 'progress_mahasiswa.dart';
 import 'cetak_surat.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class RiwayatPage extends StatefulWidget {
   const RiwayatPage({super.key});
@@ -16,6 +21,51 @@ class RiwayatPage extends StatefulWidget {
 
 class _RiwayatPageState extends State<RiwayatPage> {
   int _selectedIndex = 2; // Sesuaikan dengan tab yang sedang aktif
+
+  List<Pekerjaan> prosesItems = [];
+  List<Pekerjaan> selesaiItems = [];
+  List<Pekerjaan> ttdKaprodiItems = [];
+
+  Future<void> _fetchData() async {
+  try {
+    final authService = AuthService();
+    final userId = await authService.getUserId(); // Ambil userId dari AuthService
+
+    if (userId != null) {
+      // Ganti URL dengan endpoint API Anda
+      final response = await http.get(
+        Uri.parse('${config.baseUrl}/$userId/getPekerjaanPengerjaan'),
+      );
+
+      if (response.statusCode == 200) {
+        final decodedData = json.decode(response.body);
+        final data = decodedData['data'] as List;
+
+        setState(() {
+          // Map data ke model Pekerjaan
+          final pekerjaanList = data.map((e) => Pekerjaan.fromJson(e)).toList();
+
+          // Pisahkan data berdasarkan kategori
+          prosesItems =
+              pekerjaanList.where((e) => e.status == 'proses').toList();
+          selesaiItems =
+              pekerjaanList.where((e) => e.status == 'selesai').toList();
+          ttdKaprodiItems =
+              pekerjaanList.where((e) => e.status == 'ttd_kaprodi').toList();
+        });
+      } else {
+        print("Failed to fetch data: ${response.statusCode}");
+      }
+    } else {
+      print("User ID is null. Redirecting to login.");
+      // Arahkan ke halaman login jika userId tidak tersedia
+    }
+  } catch (error) {
+    // Tangani error (misalnya tampilkan dialog)
+    print("Error fetching data: $error");
+  }
+}
+
 
   void _onItemTapped(int index) {
     if (index == _selectedIndex) {
@@ -66,21 +116,30 @@ class _RiwayatPageState extends State<RiwayatPage> {
             ),
           ),
         ),
-        backgroundColor:
-            Colors.white, 
-        body: RiwayatScreen(),
+        backgroundColor: Colors.white,
+        body: RiwayatScreen(prosesItems: [],selesaiItems: [],ttdKaprodiItems: [],),
         bottomNavigationBar: BottomNavBar(
           selectedIndex: _selectedIndex,
           onItemTapped: _onItemTapped,
         ),
-        
       ),
     );
   }
 }
 
 class RiwayatScreen extends StatefulWidget {
-  const RiwayatScreen({super.key});
+  List<Pekerjaan> prosesItems = [];
+  List<Pekerjaan> selesaiItems = [];
+  List<Pekerjaan> ttdKaprodiItems = [];
+
+  RiwayatScreen({
+    Key? key,
+    required this.prosesItems,
+    required this.selesaiItems,
+    required this.ttdKaprodiItems,
+  }) : super(key: key);
+
+  
 
   @override
   _RiwayatScreenState createState() => _RiwayatScreenState();
@@ -164,31 +223,29 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
                   });
                 },
                 children: [
-                  _buildRiwayatList(context,
-                      prosesItems), // Menampilkan semua item di kategori Proses
-                  _buildRiwayatList(context,
-                      selesaiItems), // Menampilkan semua item di kategori Telah Selesai
-                  _buildTTDKaprodiList(context,
-                      ttdKaprodiItems), // Menampilkan semua item di kategori TTD Kaprodi
+                  _buildRiwayatList(context, widget.prosesItems),
+                  _buildRiwayatList(context, widget.selesaiItems),
+                  _buildRiwayatList(context, widget.ttdKaprodiItems),
                 ],
               ),
-            ),
+            )
           ],
         ));
   }
 
   // Fungsi untuk membangun daftar riwayat untuk tiap kategori
-  Widget _buildRiwayatList(BuildContext context, List<String> items) {
+  Widget _buildRiwayatList(BuildContext context, List<Pekerjaan> items) {
     return ListView.builder(
       itemCount: items.length,
       itemBuilder: (context, index) {
-        return _buildRiwayat(context, items[index]);
+        final pekerjaan = items[index];
+        return _buildRiwayat(context, pekerjaan);
       },
     );
   }
 
   // Fungsi untuk membangun satu item riwayat
-  Widget _buildRiwayat(BuildContext context, String title) {
+  Widget _buildRiwayat(BuildContext context, Pekerjaan pekerjaan) {
     return Align(
       alignment: Alignment.topCenter,
       child: FractionallySizedBox(
@@ -196,25 +253,46 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
         child: Card(
           color: Colors.blue,
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+            padding: const EdgeInsets.all(10),
             child: ListTile(
               title: Text(
-                title,
+                pekerjaan.pekerjaanNama,
                 style: GoogleFonts.poppins(
-                  fontSize: 14,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Status: ${pekerjaan.status}',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.white70,
+                    ),
+                  ),
+                  if (pekerjaan.akumulasiDeadline != null)
+                    Text(
+                      'Deadline: ${pekerjaan.akumulasiDeadline}',
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: Colors.white70,
+                      ),
+                    ),
+                ],
+              ),
               onTap: () {
-                if (title == 'Pembuatan Mobile') {
+                // Aksi ketika item ditekan
+                if (pekerjaan.jenisPekerjaan == 'Pembuatan Mobile') {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          ProgressMahasiswaPage(), // Ubah ke class ProgressPenerimaanPage
+                      builder: (context) => ProgressMahasiswaPage(),
                     ),
                   );
-                } else if (title == 'Pembuatan Web') {
+                } else if (pekerjaan.jenisPekerjaan == 'Pembuatan Web') {
                   _showWebPopup(context);
                 }
               },
@@ -265,8 +343,10 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
               ),
               onTap: () {
                 if (title == 'Memasukkan Nilai') {
-                  Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => CetakSuratPage()));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => CetakSuratPage()));
                 }
               },
             ),
@@ -283,7 +363,8 @@ class TabButton extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
 
-  const TabButton({super.key, 
+  const TabButton({
+    super.key,
     required this.icon, // Parameter ikon harus disertakan
     required this.text,
     required this.isSelected,

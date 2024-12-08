@@ -119,13 +119,59 @@ class _PenerimaanScreenState extends State<PenerimaanScreen> {
     }
   }
 
+  Future<void> declinePekerjaan(int pekerjaanId, int userId) async {
+    try {
+      final client = http.Client();
+      final response = await client.post(
+        Uri.parse('${config.baseUrl}/pekerjaan/decline-pekerjaan'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          'pekerjaan_id': pekerjaanId,
+          'user_id': userId,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        print('Pekerjaan approved');
+        _showdeclineDialog();
+      } else {
+        print('Request failed with status: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error occurred: $e');
+    }
+  }
+
   void _showSuccessDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Success', style: GoogleFonts.poppins()),
-          content: Text('Pekerjaan has been successfully approved!',
+          title: Text('Berhasil', style: GoogleFonts.poppins()),
+          content: Text('Pelamaran Disetujui',
+              style: GoogleFonts.poppins()),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.push(context,
+                MaterialPageRoute(builder: (context) => PenerimaanDosen1())
+                );
+              },
+              child: Text('OK', style: GoogleFonts.poppins()),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showdeclineDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Berhasil', style: GoogleFonts.poppins()),
+          content: Text('Pelamar Ditolak',
               style: GoogleFonts.poppins()),
           actions: <Widget>[
             TextButton(
@@ -289,8 +335,8 @@ class _PenerimaanScreenState extends State<PenerimaanScreen> {
                           color: Colors.red,
                           size: 50,
                         ),
-                        onPressed: () {
-                          // Handle cancel action
+                        onPressed: () async{
+                            await declinePekerjaan(pekerjaanId, userId);
                         },
                       ),
                     ],

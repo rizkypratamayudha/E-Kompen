@@ -198,58 +198,73 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
   }
 
   Widget _buildPekerjaan(String title, int anggota, Pekerjaan pekerjaan, int anggotasekarang) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 6.0),
-      decoration: BoxDecoration(
-        color: Colors.blue,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 5,
-            offset: const Offset(0, 3),
+  return Container(
+    margin: const EdgeInsets.symmetric(vertical: 6.0),
+    decoration: BoxDecoration(
+      color: Colors.blue,
+      borderRadius: BorderRadius.circular(10),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.1),
+          blurRadius: 5,
+          offset: const Offset(0, 3),
+        ),
+      ],
+    ),
+    child: ListTile(
+      contentPadding:
+          const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+      title: Text(
+        title,
+        style: GoogleFonts.poppins(
+          fontSize: 16,
+          color: Colors.white,
+          fontWeight: FontWeight.w300,
+        ),
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(
+            Icons.person,
+            color: Colors.white,
+          ),
+          const SizedBox(width: 5),
+          Text(
+            '$anggotasekarang/$anggota',
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              color: Colors.white,
+            ),
           ),
         ],
       ),
-      child: ListTile(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-        title: Text(
-          title,
-          style: GoogleFonts.poppins(
-            fontSize: 16,
-            color: Colors.white,
-            fontWeight: FontWeight.w300,
-          ),
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              Icons.person,
-              color: Colors.white,
-            ),
-            const SizedBox(width: 5),
-            Text(
-              '$anggotasekarang/$anggota',
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                color: Colors.white,
+      onTap: () {
+        if (anggotasekarang >= anggota) {
+          // Tampilkan pesan jika kapasitas penuh
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Pekerjaan ini sudah penuh. Tidak bisa melakukan apply.',
+                style: GoogleFonts.poppins(),
               ),
+              backgroundColor: Colors.red,
             ),
-          ],
-        ),
-        onTap: () {
+          );
+        } else {
+          // Tampilkan dialog apply jika kapasitas belum penuh
           showDialog(
             context: context,
             builder: (BuildContext context) {
               return PopUpPekerjaan(pekerjaan: pekerjaan);
             },
           );
-        },
-      ),
-    );
-  }
+        }
+      },
+    ),
+  );
+}
+
 
   void _showlist() {
     showModalBottomSheet(
