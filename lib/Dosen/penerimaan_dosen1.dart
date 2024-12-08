@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:firstapp/Mahasiswa/riwayat.dart';
 import 'package:firstapp/config/config.dart';
+import 'package:firstapp/controller/auth_service.dart';
 import 'package:firstapp/controller/getPelamaran.dart';
 import 'package:firstapp/controller/pending_pekerjaan.dart';
 import 'package:flutter/material.dart';
@@ -97,50 +98,65 @@ class _PenerimaanScreenState extends State<PenerimaanScreen> {
   }
 
   Future<void> approvePekerjaan(int pekerjaanId, int userId) async {
-    try {
-      final client = http.Client();
-      final response = await client.post(
-        Uri.parse('${config.baseUrl}/pekerjaan/approve-pekerjaan'),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
-          'pekerjaan_id': pekerjaanId,
-          'user_id': userId,
-        }),
-      );
+  try {
+    final client = http.Client();
+    final token = await AuthService().getToken();
 
-      if (response.statusCode == 200) {
-        print('Pekerjaan approved');
-        _showSuccessDialog();
-      } else {
-        print('Request failed with status: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error occurred: $e');
+    final response = await client.post(
+      Uri.parse('${config.baseUrl}/pekerjaan/approve-pekerjaan'),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token", // Uncomment if needed
+      },
+      body: jsonEncode({
+        'pekerjaan_id': pekerjaanId,
+        'user_id': userId,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      print('Pekerjaan approved');
+      _showSuccessDialog();
+    } else if (response.statusCode == 302) {
+      print('Redirect detected: ${response.headers['location']}');
+    } else {
+      print('Request failed with status: ${response.statusCode}');
     }
+  } catch (e) {
+    print('Error occurred: $e');
   }
+}
+
 
   Future<void> declinePekerjaan(int pekerjaanId, int userId) async {
-    try {
-      final client = http.Client();
-      final response = await client.post(
-        Uri.parse('${config.baseUrl}/pekerjaan/decline-pekerjaan'),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
-          'pekerjaan_id': pekerjaanId,
-          'user_id': userId,
-        }),
-      );
+  try {
+    final client = http.Client();
+    final token = await AuthService().getToken();
 
-      if (response.statusCode == 200) {
-        print('Pekerjaan approved');
-        _showdeclineDialog();
-      } else {
-        print('Request failed with status: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error occurred: $e');
+    final response = await client.post(
+      Uri.parse('${config.baseUrl}/pekerjaan/decline-pekerjaan'),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token", // Uncomment if needed
+      },
+      body: jsonEncode({
+        'pekerjaan_id': pekerjaanId,
+        'user_id': userId,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      print('Pekerjaan approved');
+      _showSuccessDialog();
+    } else if (response.statusCode == 302) {
+      print('Redirect detected: ${response.headers['location']}');
+    } else {
+      print('Request failed with status: ${response.statusCode}');
     }
+  } catch (e) {
+    print('Error occurred: $e');
   }
+}
 
   void _showSuccessDialog() {
     showDialog(

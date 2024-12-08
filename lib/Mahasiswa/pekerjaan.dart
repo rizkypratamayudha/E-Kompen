@@ -83,6 +83,7 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
       });
     } else {
       print('Response body: ${response.body}');
+      print('Response Status Code: ${response.statusCode}');
       throw Exception('Failed to load pekerjaan');
     }
   } catch (e) {

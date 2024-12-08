@@ -29,14 +29,14 @@ class AuthService {
 
       if (response.statusCode == 200) {
         if (responseData['success'] == true) {
-          final prefs = await SharedPreferences.getInstance();
-          // Save the token using 'token' key
-          await prefs.setString('token', responseData['token']);
+          await _storage.write(key: 'token', value: responseData['token']);
 
+          final prefs = await SharedPreferences.getInstance();
           await prefs.setString('nama', responseData['user']['name']);
           await prefs.setString('username', responseData['user']['username']);
           await prefs.setInt('userId', responseData['user']['id']);
 
+          // Periksa jika avatar null, simpan nilai default
           String avatarUrl = responseData['user']['avatar'] ?? '';
           await prefs.setString('avatarUrl', avatarUrl);
 
