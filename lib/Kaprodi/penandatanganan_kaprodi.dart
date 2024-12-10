@@ -1,9 +1,14 @@
 import 'dart:async';
+import 'package:firstapp/config/config.dart';
+import 'package:firstapp/controller/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import '../bottombar/bottombarKaprodi.dart';
 import '../kaprodi.dart';
 import 'profile.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class PenandatangananKaprodi extends StatefulWidget {
   const PenandatangananKaprodi({super.key});
@@ -180,31 +185,118 @@ class _PenandatangananScreenState extends State<PenandatangananScreen> {
     );
   }
 
- // Fungsi untuk membuat daftar Tanda Tangan
-  Widget _buildTandaTanganList(BuildContext context) {
-  return ListView(
-    children: [
-      _buildTandaTanganCard(
-          context, 'Solikhin', '2241760020', '2024-09-15', 'Memasukkan Nilai'),
-      _buildTandaTanganCard(
-          context, 'M Rizky Yudha', '2241760020', '2024-09-15', 'Membuat Web'),
-    ],
-  );
+  Future<List<dynamic>> _fetchTandaTanganData() async {
+  try {
+    final token = await AuthService().getToken();
+    final response = await http.get(
+      Uri.parse('${config.baseUrl}/kaprodi'),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+    );
+
+    print('Response status code: ${response.statusCode}');  // Log status code
+    print('Response body: ${response.body}');  // Log response body
+
+    if (response.statusCode == 200) {
+      var data = json.decode(response.body);
+      if (data['success'] == true) {
+        return data['data']; // Return the data
+      } else {
+        throw Exception('Failed to load data');
+      }
+    } else {
+      throw Exception('Failed to load data');
+    }
+  } catch (e) {
+    print('Error: $e');  // Log the error message
+    throw Exception('Error: $e');
+  }
 }
 
-Widget _buildTandaTanganCard(BuildContext context, String nama, String id,
-    String tanggal, String tugas) {
-  return Align(
-    alignment: Alignment.topCenter,
-    child: FractionallySizedBox(
-      widthFactor: 0.9,
-      child: InkWell(
-        onTap: () {
-          // Untuk sementara, tampilkan pesan atau tidak lakukan apa-apa
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Halaman belum tersedia")),
+
+  // Fungsi untuk membuat daftar Tanda Tangan
+  Widget _buildTandaTanganList(BuildContext context) {
+    return FutureBuilder<List<dynamic>>(
+      future: _fetchTandaTanganData(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Terjadi kesalahan: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(child: Text('Tidak ada data penerimaan.'));
+        } else {
+          var tandaTanganList = snapshot.data!;
+
+          return ListView.builder(
+            itemCount: tandaTanganList.length,
+            itemBuilder: (context, index) {
+              var tandaTangan = tandaTanganList[index];
+              return _buildTandaTanganCard(
+                context,
+                tandaTangan['user']['nama'], // Replace with correct key path
+                tandaTangan['user']
+                    ['username'], // Replace with correct key path
+                tandaTangan['created_at'], // Replace with correct key path
+                tandaTangan['pekerjaan']
+                    ['pekerjaan_nama'], // Replace with correct key path
+                tandaTangan['pekerjaan_id'].toString(),
+                tandaTangan['user']['user_id'].toString(),
+              );
+            },
           );
+        }
+      },
+    );
+  }
+
+  Future<void> approveTandaTangan(String pekerjaanId, String userId) async {
+    try {
+      final token = await AuthService().getToken();
+      final userIdKap = await AuthService().getUserId();
+      
+      final response = await http.post(
+        Uri.parse('${config.baseUrl}/kaprodi/approvesurat'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
         },
+        body: json.encode({
+          'user_id': userId,
+            'pekerjaan_id': pekerjaanId,
+            'user_id_kap': userIdKap
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        // If successful, show a confirmation message
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Berhasil Menyetujui'),backgroundColor: Colors.green,));
+      } else {
+
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Approval failed: ${response.body}'),backgroundColor: Colors.red,));
+      }
+    } catch (e) {
+      // Handle any errors during the API call
+      print('Error: $e'); // Debug log
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('An error occurred: $e'),backgroundColor: Colors.red,));
+    }
+  }
+
+  Widget _buildTandaTanganCard(BuildContext context, String nama, String id,
+      String tanggal, String tugas, String pekerjaanId, String userId) {
+    DateTime? deadline;
+    deadline = DateTime.parse(tanggal);
+    String formatdeadline = '';
+    formatdeadline = DateFormat('dd MMM yyyy HH:mm').format(deadline);
+    return Align(
+      alignment: Alignment.topCenter,
+      child: FractionallySizedBox(
+        widthFactor: 0.9,
         child: Card(
           elevation: 2,
           shape: RoundedRectangleBorder(
@@ -230,7 +322,7 @@ Widget _buildTandaTanganCard(BuildContext context, String nama, String id,
                             ),
                           ),
                           Text(
-                            tanggal,
+                            formatdeadline,
                             style: GoogleFonts.poppins(
                               fontSize: 14,
                               fontWeight: FontWeight.w300,
@@ -259,7 +351,7 @@ Widget _buildTandaTanganCard(BuildContext context, String nama, String id,
                         size: 45,
                       ),
                       onPressed: () {
-                        // Action when check is clicked
+                        approveTandaTangan(pekerjaanId, userId);
                       },
                     ),
                   ],
@@ -269,10 +361,8 @@ Widget _buildTandaTanganCard(BuildContext context, String nama, String id,
           ),
         ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 
   // Fungsi untuk membuat daftar yang sudah Selesai
   Widget _buildSelesaiList(BuildContext context) {

@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firstapp/Mahasiswa/progress_mahasiswa.dart';
@@ -15,8 +15,6 @@ import 'profile.dart';
 import 'pekerjaan.dart';
 import '../mahasiswa.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_downloader/src/downloader.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
@@ -542,24 +540,6 @@ class _PengumpulanBuktiPageState extends State<PengumpulanBuktiPage> {
     }
   }
 
-  Future<void> _downloadFile(String fileUrl) async {
-    try {
-      if (!FlutterDownloader.initialized) {
-        print("Downloader belum diinisialisasi!");
-        return;
-      }
-
-      final taskId = await FlutterDownloader.enqueue(
-        url: 'http://localhost/kompenjti/public/storage/$fileUrl',
-        savedDir: '/storage/emulated/0/Download', // Lokasi penyimpanan file
-        showNotification: true,
-        openFileFromNotification: true,
-      );
-      print("Download dimulai: $taskId");
-    } catch (e) {
-      print("Error saat mengunduh file: $e");
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -694,7 +674,7 @@ class _PengumpulanBuktiPageState extends State<PengumpulanBuktiPage> {
                                 ? ClipRRect(
                                     borderRadius: BorderRadius.circular(10),
                                     child: Image.network(
-                                      'http://localhost/kompenjti/public/storage/$buktiPengumpulanUrl',
+                                      'http://10.0.2.2/kompenjti/public/storage/$buktiPengumpulanUrl',
                                       fit: BoxFit.contain,
                                       loadingBuilder:
                                           (context, child, loadingProgress) {
@@ -839,4 +819,59 @@ class _PengumpulanBuktiPageState extends State<PengumpulanBuktiPage> {
       ),
     );
   }
+
+  void _downloadFile(String fileUrl) async {
+  try {
+    // Tentukan base URL untuk file yang akan diunduh
+    String baseUrl = 'http://10.0.2.2/kompenjti/public/storage/';
+
+    // Cek apakah fileUrl relatif atau URL lengkap
+    if (!fileUrl.startsWith('http')) {
+      fileUrl = baseUrl + fileUrl; // Tambahkan base URL jika fileUrl relatif
+    }
+
+    // Dapatkan nama file dari `namaoriginal` atau gunakan fallback dari URL
+    String fileName = widget.progres.pengumpulan.isNotEmpty
+        ? widget.progres.pengumpulan[0].namaoriginal.toString()
+        : fileUrl.split('/').last; // Ambil nama file dari URL jika `namaoriginal` kosong
+
+    // Dapatkan direktori Downloads
+    Directory? downloadsDirectory;
+    if (Platform.isAndroid) {
+      downloadsDirectory = Directory('/storage/emulated/0/Download'); // Folder Downloads Android
+    } else if (Platform.isIOS) {
+      downloadsDirectory = await getApplicationDocumentsDirectory(); // Sandbox Documents di iOS
+    }
+
+    // Tentukan path file yang akan disimpan
+    String filePath = '${downloadsDirectory!.path}/$fileName';
+
+    // Buat instance Dio untuk mengunduh file
+    Dio dio = Dio();
+
+    // Mulai proses pengunduhan
+    await dio.download(
+      fileUrl,
+      filePath,
+      onReceiveProgress: (received, total) {
+        if (total != -1) {
+          print("Mengunduh: ${(received / total * 100).toStringAsFixed(0)}%");
+        }
+      },
+    );
+
+    // Tampilkan pesan sukses setelah file berhasil diunduh
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("File berhasil diunduh ke folder Downloads")),
+    );
+    print("File berhasil disimpan di: $filePath");
+  } catch (e) {
+    // Tangani jika terjadi error selama pengunduhan
+    print("Pengunduhan gagal: $e");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Gagal mengunduh file")),
+    );
+  }
+}
+
 }

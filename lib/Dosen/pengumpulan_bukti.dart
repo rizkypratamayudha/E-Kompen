@@ -12,6 +12,7 @@ import 'profile.dart';
 import 'pekerjaan.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:path_provider/path_provider.dart';
+import 'dart:io';
 
 class PengumpulanBuktiDosenPage extends StatefulWidget {
   final String nama;
@@ -247,11 +248,10 @@ class _PengumpulanBuktiDosenPageState extends State<PengumpulanBuktiDosenPage> {
     }
   }
 
-  // Function to handle file download
- void _downloadFile(String fileUrl) async {
+void _downloadFile(String fileUrl) async {
   try {
     // Tentukan base URL untuk file yang akan diunduh
-    String baseUrl = 'http://localhost/kompenjti/public/storage/';
+    String baseUrl = 'http://10.0.2.2/kompenjti/public/storage/';
 
     // Cek apakah fileUrl relatif atau URL lengkap
     if (!fileUrl.startsWith('http')) {
@@ -263,11 +263,16 @@ class _PengumpulanBuktiDosenPageState extends State<PengumpulanBuktiDosenPage> {
         ? widget.nama_original
         : fileUrl.split('/').last; // Ambil nama file dari URL jika `nama_original` kosong
 
-    // Dapatkan direktori tempat file akan disimpan
-    var dir = await getApplicationDocumentsDirectory();
+    // Dapatkan direktori Downloads
+    Directory? downloadsDirectory;
+    if (Platform.isAndroid) {
+      downloadsDirectory = Directory('/storage/emulated/0/Download');
+    } else if (Platform.isIOS) {
+      downloadsDirectory = await getApplicationDocumentsDirectory(); // Gunakan Documents di iOS
+    }
 
     // Tentukan path file yang akan disimpan
-    String filePath = '${dir.path}/$fileName'; // Gunakan nama file yang sesuai
+    String filePath = '${downloadsDirectory!.path}/$fileName';
 
     // Buat instance Dio untuk mengunduh file
     Dio dio = Dio();
@@ -285,8 +290,9 @@ class _PengumpulanBuktiDosenPageState extends State<PengumpulanBuktiDosenPage> {
 
     // Tampilkan pesan sukses setelah file berhasil diunduh
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("File berhasil diunduh ke $filePath")),
+      SnackBar(content: Text("File berhasil diunduh ke folder Downloads")),
     );
+    print("File berhasil disimpan di: $filePath");
   } catch (e) {
     // Tangani jika terjadi error selama pengunduhan
     print("Pengunduhan gagal: $e");
@@ -295,5 +301,6 @@ class _PengumpulanBuktiDosenPageState extends State<PengumpulanBuktiDosenPage> {
     );
   }
 }
+
 
 }

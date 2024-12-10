@@ -255,8 +255,8 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
         final pekerjaan = items[index];
 
         if (pekerjaan == null) {
-        return Container();  // Return an empty container or an error message if pekerjaan is null
-      }
+          return Container(); // Return an empty container or an error message if pekerjaan is null
+        }
 
         // Mengecek apakah item ini berasal dari selesaiItems
         return GestureDetector(
@@ -376,6 +376,49 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
 
   // Fungsi untuk menampilkan popup dialog
   void _showWebPopup(BuildContext context, Pekerjaan pekerjaan) {
+    Future<void> _requestTTDKaprodi(int pekerjaanId) async {
+      try {
+        final userId = await AuthService().getUserId();
+        final token = await AuthService().getToken();
+        final response = await http.post(
+          Uri.parse('${config.baseUrl}/mahasiswa/$pekerjaanId/request-cetak-surat'),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization':
+                'Bearer $token', // Ganti dengan token autentikasi Anda
+          },
+          body: jsonEncode({
+            'user_id': userId,
+            'pekerjaan_id': pekerjaanId,
+          })
+        );
+
+        
+
+        if (response.statusCode == 201) {
+          // Permintaan berhasil
+          final data = json.decode(response.body);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(data['message'] ?? 'Permintaan berhasil!'), backgroundColor: Colors.green,),
+          );
+        } else {
+          // Permintaan gagal
+          final data = json.decode(response.body);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(data['message'] ??
+                  'Terjadi kesalahan saat mengajukan permintaan.'),backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } catch (e) {
+        // Error jaringan atau server
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Terjadi kesalahan: $e'),backgroundColor: Colors.red,),
+        );
+      }
+    }
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -389,7 +432,8 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Nama Dosen : ${pekerjaan.user?.nama ?? 'Nama tidak tersedia'}',
+                Text(
+                    'Nama Dosen : ${pekerjaan.user?.nama ?? 'Nama tidak tersedia'}',
                     style: GoogleFonts.poppins(fontSize: 14)),
                 SizedBox(height: 8),
                 Text('Nomor Dosen: ${pekerjaan.user?.detailDosen?.noHp ?? '-'}',
@@ -416,8 +460,10 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       Navigator.pop(context); // Tutup dialog
+                      await _requestTTDKaprodi(
+                          pekerjaan.pekerjaanId); // Kirim permintaan API
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,

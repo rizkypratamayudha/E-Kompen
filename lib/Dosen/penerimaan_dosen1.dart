@@ -125,8 +125,6 @@ class _PenerimaanScreenState extends State<PenerimaanScreen> {
   }
 }
 
-
-
   Future<List<PendingPekerjaan>> fetchPelamaran() async {
     final response = await pelamaranService.getPelamaran();
     if (response['success']) {
@@ -452,7 +450,7 @@ class _PenerimaanScreenState extends State<PenerimaanScreen> {
       // Tampilkan SnackBar jika terjadi kesalahan
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Gagal menyetujui tugas.'),
+          content: Text('Gagal menyetujui tugas.'),backgroundColor: Colors.red,
           duration: Duration(seconds: 2),
         ),
       );
@@ -464,7 +462,7 @@ class _PenerimaanScreenState extends State<PenerimaanScreen> {
     // Tampilkan SnackBar jika terjadi kesalahan jaringan
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Terjadi kesalahan jaringan!'),
+        content: Text('Terjadi kesalahan jaringan!'),backgroundColor: Colors.red,
         duration: Duration(seconds: 2),
       ),
     );
@@ -495,7 +493,7 @@ class _PenerimaanScreenState extends State<PenerimaanScreen> {
       // Tampilkan SnackBar jika terjadi kesalahan
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Gagal menyetujui tugas.'),
+          content: Text('Gagal menyetujui tugas.'),backgroundColor: Colors.red,
           duration: Duration(seconds: 2),
         ),
       );
@@ -507,7 +505,7 @@ class _PenerimaanScreenState extends State<PenerimaanScreen> {
     // Tampilkan SnackBar jika terjadi kesalahan jaringan
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Terjadi kesalahan jaringan!'),
+        content: Text('Terjadi kesalahan jaringan!'),backgroundColor: Colors.red,
         duration: Duration(seconds: 2),
       ),
     );
@@ -610,9 +608,27 @@ class _PenerimaanScreenState extends State<PenerimaanScreen> {
   );
 }
 
+  Future<List<dynamic>> fetchSelesai() async {
+    final token = await AuthService().getToken();
+    final response = await http.get(
+      Uri.parse('${config.baseUrl}/pekerjaan/getselesai'), // Ganti dengan URL API Anda
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      if (data['success'] == true) {
+        return data['data']; // Ambil data dari API
+      } else {
+        throw Exception('Gagal mengambil data');
+      }
+    } else {
+      throw Exception('Gagal menghubungi server');
+    }
+  }
 
   Widget _buildSelesai(BuildContext context, String nama, String id,
-      String tanggal, String tugas) {
+  String tugas) {
     return Align(
       alignment: Alignment.topCenter,
       child: FractionallySizedBox(
@@ -651,11 +667,6 @@ class _PenerimaanScreenState extends State<PenerimaanScreen> {
                         Text(
                           id,
                           style: GoogleFonts.poppins(fontSize: 14),
-                        ),
-                        Text(
-                          tanggal,
-                          style: GoogleFonts.poppins(
-                              fontSize: 14, fontWeight: FontWeight.w300),
                         ),
                         SizedBox(height: 10),
                         Text(
@@ -751,11 +762,32 @@ Widget _buildProsesList(BuildContext context) {
 }
 
   Widget _buildSelesaiList(BuildContext context) {
-    return ListView(
-      children: [
-        _buildSelesai(
-            context, 'Solikhin', '2241760020', '\n\n2024-12-12', 'Membuat Web')
-      ],
+    return FutureBuilder<List<dynamic>>(
+      future: fetchSelesai(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Terjadi kesalahan: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(child: Text('Tidak ada data pekerjaan selesai.'));
+        } else {
+          var selesaiList = snapshot.data!;
+
+          return ListView.builder(
+            itemCount: selesaiList.length,
+            itemBuilder: (context, index) {
+              var selesai = selesaiList[index];
+              return _buildSelesai(
+                context,
+                selesai['nama'],       // Nama pengguna
+                selesai['username'], // Tanggal (hardcoded or from API if available)
+                selesai['pekerjaan_nama'], // Nama pekerjaan
+              );
+            },
+          );
+        }
+      },
     );
   }
 }
