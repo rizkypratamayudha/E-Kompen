@@ -69,6 +69,8 @@ class _TambahProgresPageState extends State<TambahProgresPage> {
               jumlahHari: hariDiperlukan,
             );
           }).toList(),
+          kompetensiAdminId:
+              pekerjaanData['kompetensiAdminId'], // Tambahkan argumen
         );
 
         // Kirim request ke server
@@ -94,122 +96,127 @@ class _TambahProgresPageState extends State<TambahProgresPage> {
   }
 
   void _tampilkanAkumulasi() {
-  // Hitung jumlah jam akumulasi dari progressData
-  int totalJam = 0;
-  for (var progress in _progressData) {
-    final jumlahJam = int.tryParse(progress['jumlahJam'] ?? '0') ?? 0;
-    totalJam += jumlahJam;
-  }
+    // Hitung jumlah jam akumulasi dari progressData
+    int totalJam = 0;
+    for (var progress in _progressData) {
+      final jumlahJam = int.tryParse(progress['jumlahJam'] ?? '0') ?? 0;
+      totalJam += jumlahJam;
+    }
 
-  // Hitung tanggal batas pengerjaan dengan menambahkan hari
-  DateTime now = DateTime.now();
-  int totalHari = 0;
-  for (var progress in _progressData) {
-    final hari = int.tryParse(progress['hariDiperlukan'] ?? '0') ?? 0;
-    totalHari += hari;
-  }
-  DateTime batasPengerjaan = now.add(Duration(days: totalHari));
+    // Hitung total hari dari progressData
+    int totalHari = 0;
+    for (var progress in _progressData) {
+      final hari = int.tryParse(progress['hariDiperlukan'] ?? '0') ?? 0;
+      totalHari += hari;
+    }
 
-  // Format batas pengerjaan menjadi 'yyyy-MM-dd HH:mm:ss'
-  String formattedBatasPengerjaan =
-      DateFormat('yyyy-MM-dd HH:mm:ss').format(batasPengerjaan);
+    // Konversi total hari ke bulan, minggu, dan hari
+    int bulan = totalHari ~/ 30; // 1 bulan = 30 hari
+    int sisaHari = totalHari % 30;
+    int minggu = sisaHari ~/ 7; // 1 minggu = 7 hari
+    int hari = sisaHari % 7;
 
-  // Tampilkan Bottom Sheet dengan hasil perhitungan
-  showModalBottomSheet(
-    context: context,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
-    builder: (context) {
-      return Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(14.0),
-              margin: const EdgeInsets.symmetric(vertical: 8.0),
-              decoration: BoxDecoration(
-                color: Colors.blueAccent,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Jumlah Jam:',
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      color: Colors.white,
-                    ),
-                  ),
-                  Text(
-                    '$totalJam jam',
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.all(14.0),
-              margin: const EdgeInsets.symmetric(vertical: 8.0),
-              decoration: BoxDecoration(
-                color: Colors.blueAccent,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Batas Pengerjaan:',
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      color: Colors.white,
-                    ),
-                  ),
-                  Text(
-                    formattedBatasPengerjaan,
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            Align(
-              alignment: Alignment.centerRight,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _saveData();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+    // Format hasil konversi
+    String batasPengerjaan = '';
+    if (bulan > 0) batasPengerjaan += '$bulan Bulan ';
+    if (minggu > 0) batasPengerjaan += '$minggu Minggu ';
+    if (hari > 0) batasPengerjaan += '$hari Hari';
+
+    // Tampilkan Bottom Sheet dengan hasil perhitungan
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(14.0),
+                margin: const EdgeInsets.symmetric(vertical: 8.0),
+                decoration: BoxDecoration(
+                  color: Colors.blueAccent,
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                child: Text(
-                  'Simpan',
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontSize: 14,
-                  ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Jumlah Jam:',
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Text(
+                      '$totalJam jam',
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-          ],
-        ),
-      );
-    },
-  );
-}
-
+              Container(
+                padding: const EdgeInsets.all(14.0),
+                margin: const EdgeInsets.symmetric(vertical: 8.0),
+                decoration: BoxDecoration(
+                  color: Colors.blueAccent,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Batas Pengerjaan:',
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Text(
+                      batasPengerjaan,
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _saveData();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: Text(
+                    'Simpan',
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   Widget _buildProgressForm(int index) {
     return Container(
@@ -362,7 +369,7 @@ class _TambahProgresPageState extends State<TambahProgresPage> {
                 SizedBox(
                   width: MediaQuery.of(context).size.width *
                       0.8, // 80% dari lebar layar
-                      height: 50,
+                  height: 50,
                   child: ElevatedButton(
                     onPressed: _tampilkanAkumulasi,
                     style: ElevatedButton.styleFrom(

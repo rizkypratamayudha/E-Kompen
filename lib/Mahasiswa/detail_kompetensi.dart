@@ -22,6 +22,7 @@ class _DetailKompetensiMahasiswaState extends State<DetailKompetensiMahasiswa> {
   String kompetensiNama = '';
   String pengalaman = '';
   String bukti = '';
+  String errorMessage = '';
 
   bool isLoading = true;
 
@@ -34,7 +35,6 @@ class _DetailKompetensiMahasiswaState extends State<DetailKompetensiMahasiswa> {
   Future<void> _loadDetailKompetensiMahasiswa() async {
     final prefs = await SharedPreferences.getInstance();
 
-    // Ambil user data dari SharedPreferences
     setState(() {
       nama = prefs.getString('nama') ?? 'User';
       nim = prefs.getString('username') ?? 'Username';
@@ -42,8 +42,8 @@ class _DetailKompetensiMahasiswaState extends State<DetailKompetensiMahasiswa> {
 
     int userId = prefs.getInt('userId') ?? 0;
 
-    if (userId != 0) {
-      try {
+    try {
+      if (userId != 0) {
         // Fetch periode data
         var periodeData =
             await KompetensiService().fetchPeriodeByUserId(userId);
@@ -55,33 +55,34 @@ class _DetailKompetensiMahasiswaState extends State<DetailKompetensiMahasiswa> {
         setState(() {
           periodeId = periodeData['periode_id'] ?? 0;
           periode = periodeData['periode'] ?? 'Periode Tidak Ditemukan';
-          kompetensiNama = kompetensiDetail?.kompetensiNama ?? '';
-          pengalaman = kompetensiDetail?.pengalaman ?? '';
-          bukti = kompetensiDetail?.bukti ?? '';
+          kompetensiNama = kompetensiDetail?.kompetensiNama ?? 'Tidak Tersedia';
+          pengalaman = kompetensiDetail?.pengalaman ?? 'Tidak Tersedia';
+          bukti = kompetensiDetail?.bukti ?? 'Tidak Tersedia';
         });
-      } catch (e) {
-        print("Error fetching data: $e");
-        setState(() {
-          periode = 'Periode Tidak Ditemukan';
-        });
+      } else {
+        throw Exception("User ID tidak ditemukan.");
       }
+    } catch (e) {
+      setState(() {
+        errorMessage = 'Gagal memuat data: ${e.toString()}';
+      });
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
-
-    setState(() {
-      isLoading = false;
-    });
   }
 
   Widget buildBoxLihatDetailKompetensi(String title, String description) {
     return FractionallySizedBox(
-      widthFactor: 0.9, // Lebar 90% dari layar
+      widthFactor: 0.9,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Title Container (Lebih ramping)
+          // Title Container
           Container(
-            width: double.infinity, // Lebar penuh
-            height: 30, // Tinggi lebih kecil untuk judul
+            width: double.infinity,
+            height: 30,
             decoration: const BoxDecoration(
               color: Color(0xFFF4D03F),
               borderRadius: BorderRadius.only(
@@ -89,7 +90,7 @@ class _DetailKompetensiMahasiswaState extends State<DetailKompetensiMahasiswa> {
                 topRight: Radius.circular(10),
               ),
             ),
-            alignment: Alignment.centerLeft, // Teks berada di tengah kiri
+            alignment: Alignment.centerLeft,
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Text(
               title,
@@ -102,9 +103,9 @@ class _DetailKompetensiMahasiswaState extends State<DetailKompetensiMahasiswa> {
           ),
           // Description Container
           Container(
-            width: double.infinity, // Lebar penuh
+            width: double.infinity,
             constraints: const BoxConstraints(
-              minHeight: 60, // Minimal tinggi kontainer deskripsi
+              minHeight: 60,
             ),
             decoration: const BoxDecoration(
               color: Color(0xFF1A6FD3),
@@ -113,7 +114,7 @@ class _DetailKompetensiMahasiswaState extends State<DetailKompetensiMahasiswa> {
                 bottomRight: Radius.circular(10),
               ),
             ),
-            alignment: Alignment.centerLeft, // Teks berada di tengah kiri
+            alignment: Alignment.centerLeft,
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
             child: Text(
               description,
@@ -149,28 +150,38 @@ class _DetailKompetensiMahasiswaState extends State<DetailKompetensiMahasiswa> {
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    buildBoxLihatDetailKompetensi("Nama", nama),
-                    const SizedBox(height: 8),
-                    buildBoxLihatDetailKompetensi("NIM", nim),
-                    const SizedBox(height: 8),
-                    buildBoxLihatDetailKompetensi("Periode", periode),
-                    const SizedBox(height: 8),
-                    const Divider(color: Colors.black, thickness: 3),
-                    const SizedBox(height: 8),
-                    buildBoxLihatDetailKompetensi("Kompetensi", kompetensiNama),
-                    const SizedBox(height: 8),
-                    buildBoxLihatDetailKompetensi("Pengalaman", pengalaman),
-                    const SizedBox(height: 8),
-                    buildBoxLihatDetailKompetensi("Bukti", bukti),
-                  ],
+          : errorMessage.isNotEmpty
+              ? Center(
+                  child: Text(
+                    errorMessage,
+                    style: GoogleFonts.poppins(color: Colors.red),
+                    textAlign: TextAlign.center,
+                  ),
+                )
+              : SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        buildBoxLihatDetailKompetensi("Nama", nama),
+                        const SizedBox(height: 8),
+                        buildBoxLihatDetailKompetensi("NIM", nim),
+                        const SizedBox(height: 8),
+                        buildBoxLihatDetailKompetensi("Periode", periode),
+                        const SizedBox(height: 8),
+                        const Divider(color: Colors.black, thickness: 3),
+                        const SizedBox(height: 8),
+                        buildBoxLihatDetailKompetensi(
+                            "Kompetensi", kompetensiNama),
+                        const SizedBox(height: 8),
+                        buildBoxLihatDetailKompetensi(
+                            "Pengalaman", pengalaman),
+                        const SizedBox(height: 8),
+                        buildBoxLihatDetailKompetensi("Bukti", bukti),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-            ),
     );
   }
 }

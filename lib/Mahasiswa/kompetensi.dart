@@ -148,25 +148,30 @@ class _KompetensiMahasiswaPageState extends State<KompetensiMahasiswaPage> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           padding: const EdgeInsets.all(16),
-                          child: SizedBox(
-                            height: MediaQuery.of(context).size.height *
-                                0.5, // Tinggi scrollable
-                            child: Scrollbar(
-                              thumbVisibility:
-                                  true, // Tambahkan scrollbar untuk navigasi
-                              child: ListView.builder(
-                                shrinkWrap: true,
-                                physics:
-                                    const BouncingScrollPhysics(), // Efek scroll lebih halus
-                                itemCount: kompetensiList.length,
-                                itemBuilder: (context, index) {
-                                  return buildKompetensiWithEditDelete(
-                                    kompetensiList[index],
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
+                          child: kompetensiList.length <= 2
+                              ? Column(
+                                  children: kompetensiList
+                                      .map((kompetensi) =>
+                                          buildKompetensiWithEditDelete(
+                                              kompetensi))
+                                      .toList(),
+                                )
+                              : SizedBox(
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.5,
+                                  child: Scrollbar(
+                                    thumbVisibility: true,
+                                    child: ListView.builder(
+                                      shrinkWrap: true,
+                                      physics: const BouncingScrollPhysics(),
+                                      itemCount: kompetensiList.length,
+                                      itemBuilder: (context, index) {
+                                        return buildKompetensiWithEditDelete(
+                                            kompetensiList[index]);
+                                      },
+                                    ),
+                                  ),
+                                ),
                         ),
                 ],
               ),
@@ -239,7 +244,8 @@ class _KompetensiMahasiswaPageState extends State<KompetensiMahasiswaPage> {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                kompetensi.kompetensiNama ?? '',
+                                kompetensi.kompetensiNama ??
+                                    'Nama Kompetensi Tidak Tersedia',
                                 style: GoogleFonts.poppins(
                                   color: Colors.white,
                                   fontSize: 12,
@@ -253,8 +259,6 @@ class _KompetensiMahasiswaPageState extends State<KompetensiMahasiswaPage> {
                       ],
                     ),
                   ),
-                  // Posisi absolut untuk tombol Detail di pojok kanan atas
-                  // Inside Kompetensi.dart
                   Positioned(
                     top: 10,
                     right: 10,
@@ -264,7 +268,8 @@ class _KompetensiMahasiswaPageState extends State<KompetensiMahasiswaPage> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => DetailKompetensiMahasiswa(
-                                kompetensiId: kompetensi.kompetensiId!),
+                              kompetensiId: kompetensi.kompetensiId!,
+                            ),
                           ),
                         );
                       },
@@ -302,7 +307,8 @@ class _KompetensiMahasiswaPageState extends State<KompetensiMahasiswaPage> {
                           builder: (context) =>
                               EditKompetensi(kompetensi: kompetensi),
                         ),
-                      );
+                      ).then((_) =>
+                          _loadKompetensi()); // Re-load kompetensi setelah edit
                     },
                     child: Container(
                       height: 50,

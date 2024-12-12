@@ -3,9 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../controller/kompetensi_service.dart';
 import '../Model/kompetensi_model.dart';
+import '../Model/kompetensi_admin_model.dart';
 import 'kompetensi.dart';
 import '../widget/popup_kompetensi_create.dart';
-
 
 class UploadKompetensi extends StatefulWidget {
   const UploadKompetensi({super.key});
@@ -17,10 +17,10 @@ class UploadKompetensi extends StatefulWidget {
 class _UploadKompetensiState extends State<UploadKompetensi> {
   String nama = '';
   String nim = '';
-  String periode =
-      ''; // Untuk menampilkan nama periode seperti "2024/2025 Ganjil"
+  String periode = ''; // Untuk menampilkan nama periode seperti "2024/2025 Ganjil"
   int periodeId = 0; // Untuk menyimpan periode_id
-  final TextEditingController kompetensiController = TextEditingController();
+  int? selectedKompetensiId; // Kompetensi yang dipilih di dropdown
+  List<KompetensiAdmin> kompetensiList = []; // Sesuaikan tipe data menjadi List<KompetensiAdmin>
   final TextEditingController pengalamanController = TextEditingController();
   final TextEditingController buktiController = TextEditingController();
 
@@ -28,46 +28,63 @@ class _UploadKompetensiState extends State<UploadKompetensi> {
   void initState() {
     super.initState();
     _loadUserData();
+    _fetchKompetensiAdmin();
   }
 
   Future<void> _loadUserData() async {
-  final prefs = await SharedPreferences.getInstance();
-  setState(() {
-    nama = prefs.getString('nama') ?? 'User';
-    nim = prefs.getString('username') ?? 'Username';
-  });
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      nama = prefs.getString('nama') ?? 'User';
+      nim = prefs.getString('username') ?? 'Username';
+    });
 
-  int userId = prefs.getInt('userId') ?? 0;
-  if (userId != 0) {
-    KompetensiService kompetensiService = KompetensiService();
+    int userId = prefs.getInt('userId') ?? 0;
+    if (userId != 0) {
+      KompetensiService kompetensiService = KompetensiService();
 
-    try {
-      // Ambil periode_id dan periode berdasarkan userId
-      var periodeData = await kompetensiService.fetchPeriodeByUserId(userId);
+      try {
+        var periodeData = await kompetensiService.fetchPeriodeByUserId(userId);
 
-      // Pastikan periodeData tidak null dan memiliki data yang diperlukan
-      setState(() {
-        periodeId = periodeData['periode_id'] ?? 0; // Menyimpan periode_id
-        periode = periodeData['periode'] ?? 'Periode Tidak Ditemukan'; // Mengatasi null pada periode
-      });
-    } catch (e) {
-      print("Error fetching periode data: $e");
-      setState(() {
-        periode = 'Periode Tidak Ditemukan';
-      });
+        setState(() {
+          periodeId = periodeData['periode_id'] ?? 0;
+          periode = periodeData['periode'] ?? 'Periode Tidak Ditemukan';
+        });
+      } catch (e) {
+        print("Error fetching periode data: $e");
+        setState(() {
+          periode = 'Periode Tidak Ditemukan';
+        });
+      }
     }
   }
-}
 
+  Future<void> _fetchKompetensiAdmin() async {
+  try {
+    KompetensiService kompetensiService = KompetensiService();
+    List<KompetensiAdmin> data = await kompetensiService.fetchKompetensiAdmin(); // Perbaikan tipe data
+
+    setState(() {
+      kompetensiList = data; // Tetapkan data ke variabel kompetensiList
+    });
+  } catch (e) {
+    print("Error fetching kompetensi admin data: $e");
+  }
+}
 
   Future<void> _saveKompetensi() async {
     final prefs = await SharedPreferences.getInstance();
     int userId = prefs.getInt('userId') ?? 0;
 
+    if (selectedKompetensiId == null) {
+      showErrorDialog('Silakan pilih kompetensi terlebih dahulu.');
+      return;
+    }
+
     Kompetensi kompetensi = Kompetensi(
       userId: userId,
-      periodeNama: periode, // tambahkan nilai untuk periodeNama
-      kompetensiNama: kompetensiController.text,
+      periodeNama: periode,
+      kompetensiAdminId: selectedKompetensiId!,
+      kompetensiNama: '', // Tidak diperlukan untuk penyimpanan
       pengalaman: pengalamanController.text,
       bukti: buktiController.text,
     );
@@ -77,29 +94,29 @@ class _UploadKompetensiState extends State<UploadKompetensi> {
     if (success) {
       showSuccessDialog();
     } else {
-      showErrorDialog();
+      showErrorDialog('Gagal menyimpan data kompetensi.');
     }
   }
 
   void showSuccessDialog() {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return const PopupKompetensiCreate();
-    },
-  );
-}
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return const PopupKompetensiCreate();
+      },
+    );
+  }
 
-  void showErrorDialog() {
+  void showErrorDialog(String message) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Gagal'),
-          content: Text('Gagal menyimpan data kompetensi'),
+          title: Text('Error'),
+          content: Text(message),
           actions: [
             TextButton(
-              child: Text('Okay'),
+              child: Text('OK'),
               onPressed: () {
                 Navigator.pop(context);
               },
@@ -120,8 +137,7 @@ class _UploadKompetensiState extends State<UploadKompetensi> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                  builder: (context) => KompetensiMahasiswaPage()),
+              MaterialPageRoute(builder: (context) => KompetensiMahasiswaPage()),
             );
           },
         ),
@@ -149,15 +165,15 @@ class _UploadKompetensiState extends State<UploadKompetensi> {
                   children: [
                     buildInfo('Nama', nama),
                     buildInfo('NIM', nim),
-                    buildInfo('Periode', periode), // Tampilkan nama periode
-                    buildInfoInput('Kompetensi', kompetensiController),
+                    buildInfo('Periode', periode),
+                    buildDropdown(),
                     buildInfoInput('Pengalaman', pengalamanController),
                     buildInfoInput('Bukti', buktiController),
                     SizedBox(height: 10),
                     buildSimpan(),
                   ],
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -193,6 +209,45 @@ class _UploadKompetensiState extends State<UploadKompetensi> {
     );
   }
 
+  Widget buildDropdown() {
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 8.0),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Kompetensi',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+          ),
+        ),
+        const SizedBox(height: 4),
+        DropdownButtonFormField<int>(
+          value: selectedKompetensiId,
+          items: kompetensiList.map((kompetensi) {
+            return DropdownMenuItem<int>(
+              value: kompetensi.id, // Mengambil ID dari KompetensiAdmin
+              child: Text(kompetensi.nama), // Menampilkan nama dari KompetensiAdmin
+            );
+          }).toList(),
+          onChanged: (value) {
+            setState(() {
+              selectedKompetensiId = value;
+            });
+          },
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
   Widget buildInfoInput(String label, TextEditingController controller) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
@@ -216,8 +271,7 @@ class _UploadKompetensiState extends State<UploadKompetensi> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8.0),
               ),
-              contentPadding:
-                  EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+              contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
             ),
           ),
         ],
