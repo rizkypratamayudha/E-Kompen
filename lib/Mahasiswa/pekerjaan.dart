@@ -26,40 +26,75 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
   bool _isLoading = true;
   List<Pekerjaan> pekerjaanList = [];
 
-  Future<void> _fetchPekerjaan() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final token = await AuthService().getToken();
-      final response = await http.get(Uri.parse('${config.baseUrl}/pekerjaan'),
+  Future<int> fetchAnggotaSekarang(int pekerjaanId) async {
+  try {
+    final token = await AuthService().getToken();
+    final response = await http.get(
+      Uri.parse('${config.baseUrl}/pekerjaan/$pekerjaanId/get-anggota'),
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token', // Attach token here
+        'Authorization': 'Bearer $token',
       },
-      );
+    );
 
-      if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
-        setState(() {
-          pekerjaanList = data.map((json) => Pekerjaan.fromJson(json)).toList();
-          _isLoading = false;
-        });
-        print('Pekerjaan List: $pekerjaanList');
-      } else {
-        print(
-            'Response body: ${response.body}'); // Print response body for debugging
-        throw Exception('Failed to load pekerjaan');
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return data['anggotaJumlah'] ?? 0;
+    } else {
+      throw Exception('Failed to fetch anggota sekarang for pekerjaan_id $pekerjaanId');
+    }
+  } catch (e) {
+    print('Error fetching anggota sekarang: $e');
+    return 0; // Default nilai jika terjadi error
+  }
+}
+
+
+  Future<void> _fetchPekerjaan() async {
+  setState(() {
+    _isLoading = true;
+  });
+
+  try {
+    final token = await AuthService().getToken();
+    final response = await http.get(
+      Uri.parse('${config.baseUrl}/pekerjaan'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      final List<Pekerjaan> pekerjaanTempList = data.map((json) {
+        return Pekerjaan.fromJson(json);
+      }).toList();
+
+      // Fetch anggota sekarang untuk setiap pekerjaan
+      for (var pekerjaan in pekerjaanTempList) {
+        pekerjaan.anggotasekarang =
+            await fetchAnggotaSekarang(pekerjaan.pekerjaan_id);
       }
-    } catch (e) {
-      print("Error: $e");
+
       setState(() {
-        pekerjaanList = [];
+        pekerjaanList = pekerjaanTempList;
         _isLoading = false;
       });
+    } else {
+      print('Response body: ${response.body}');
+      print('Response Status Code: ${response.statusCode}');
+      throw Exception('Failed to load pekerjaan');
     }
+  } catch (e) {
+    print("Error: $e");
+    setState(() {
+      pekerjaanList = [];
+      _isLoading = false;
+    });
   }
+}
+
 
   @override
   void initState() {
@@ -146,7 +181,7 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
                     int jumlahAnggota =
                         pekerjaan.detail_pekerjaan.jumlah_anggota;
                     return _buildPekerjaan(
-                        pekerjaan.pekerjaan_nama, jumlahAnggota);
+                        pekerjaan.pekerjaan_nama, jumlahAnggota, pekerjaan, pekerjaan.anggotasekarang);
                   },
                 )
               else
@@ -163,59 +198,74 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
     );
   }
 
-  Widget _buildPekerjaan(String title, int anggota) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 6.0),
-      decoration: BoxDecoration(
-        color: Colors.blue,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 5,
-            offset: const Offset(0, 3),
+  Widget _buildPekerjaan(String title, int anggota, Pekerjaan pekerjaan, int anggotasekarang) {
+  return Container(
+    margin: const EdgeInsets.symmetric(vertical: 6.0),
+    decoration: BoxDecoration(
+      color: Colors.blue,
+      borderRadius: BorderRadius.circular(10),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.1),
+          blurRadius: 5,
+          offset: const Offset(0, 3),
+        ),
+      ],
+    ),
+    child: ListTile(
+      contentPadding:
+          const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+      title: Text(
+        title,
+        style: GoogleFonts.poppins(
+          fontSize: 16,
+          color: Colors.white,
+          fontWeight: FontWeight.w300,
+        ),
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(
+            Icons.person,
+            color: Colors.white,
+          ),
+          const SizedBox(width: 5),
+          Text(
+            '$anggotasekarang/$anggota',
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              color: Colors.white,
+            ),
           ),
         ],
       ),
-      child: ListTile(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-        title: Text(
-          title,
-          style: GoogleFonts.poppins(
-            fontSize: 16,
-            color: Colors.white,
-            fontWeight: FontWeight.w300,
-          ),
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              Icons.person,
-              color: Colors.white,
-            ),
-            const SizedBox(width: 5),
-            Text(
-              anggota.toString(),
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                color: Colors.white,
+      onTap: () {
+        if (anggotasekarang >= anggota) {
+          // Tampilkan pesan jika kapasitas penuh
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Pekerjaan ini sudah penuh. Tidak bisa melakukan apply.',
+                style: GoogleFonts.poppins(),
               ),
+              backgroundColor: Colors.red,
             ),
-          ],
-        ),
-        onTap: () {
+          );
+        } else {
+          // Tampilkan dialog apply jika kapasitas belum penuh
           showDialog(
             context: context,
             builder: (BuildContext context) {
-              return const PopUpPekerjaan();
+              return PopUpPekerjaan(pekerjaan: pekerjaan);
             },
           );
-        },
-      ),
-    );
-  }
+        }
+      },
+    ),
+  );
+}
+
 
   void _showlist() {
     showModalBottomSheet(

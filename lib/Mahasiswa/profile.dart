@@ -36,36 +36,39 @@ class _ProfilePageState extends State<ProfilePage> {
   String _nama = 'Your Name';
   String _username = 'Username';
 
-  // Bottom Navigation Bar
-  int _selectedIndex = 0;
+
+  int _selectedIndex = 3;
+
 
   void _onItemTapped(int index) {
+    if (index == _selectedIndex) {
+      return;
+    }
+
     setState(() {
       _selectedIndex = index;
     });
 
-    // Navigate based on the selected index
-    switch (index) {
-      case 0:
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (context) => const MahasiswaDashboard()));
-        break;
-      case 1:
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => const PekerjaanPage()));
-        break;
-      case 2:
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => const RiwayatPage()));
-        break;
-      case 3:
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => const ProfilePage()));
-        break;
+    if (index == 3) {
+      return;
+    } else if (index == 2) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => RiwayatPage()),
+      );
+    } else if (index == 1) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => PekerjaanPage()),
+      );
+    } else if (index == 0) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const MahasiswaDashboard()),
+      );
     }
   }
+
 
   // Fungsi untuk memilih gambar dari galeri
   Future<void> _pickImage() async {
