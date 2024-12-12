@@ -63,9 +63,6 @@ class _RiwayatPageState extends State<RiwayatPage> {
               return pekerjaan.progres
                   .every((progres) => progres.pengumpulan.isNotEmpty);
             }).toList();
-
-            ttdKaprodiItems =
-                pekerjaanList.where((e) => e.status == 'ttd_kaprodi').toList();
           });
         } else {
           print("Failed to fetch data: ${response.statusCode}");
@@ -238,7 +235,7 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
               children: [
                 _buildRiwayatList(context, widget.prosesItems),
                 _buildRiwayatList(context, widget.selesaiItems),
-                _buildRiwayatList(context, widget.ttdKaprodiItems),
+                _buildSelesaiListsurat(context)
               ],
             ),
           ),
@@ -374,6 +371,401 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
     );
   }
 
+  Future<void> selesai(String pekerjaanId, String userId) async {
+    try {
+      final token = await AuthService().getToken();
+      final userIdKap = await AuthService().getUserId();
+
+      final response = await http.post(
+        Uri.parse('${config.baseUrl}/kaprodi/approvesurat'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: json.encode({
+          'user_id': userId,
+          'pekerjaan_id': pekerjaanId,
+          'user_id_kap': userIdKap
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        // If successful, show a confirmation message
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Berhasil Menyetujui'),
+          backgroundColor: Colors.green,
+        ));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Approval failed: ${response.body}'),
+          backgroundColor: Colors.red,
+        ));
+      }
+    } catch (e) {
+      // Handle any errors during the API call
+      print('Error: $e'); // Debug log
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('An error occurred: $e'),
+        backgroundColor: Colors.red,
+      ));
+    }
+  }
+
+  Future<List<dynamic>> fetchDataSelesai() async {
+    final token = await AuthService().getToken();
+    final userId = await AuthService().getUserId();
+    try {
+      final response = await http
+          .get(Uri.parse('${config.baseUrl}/kaprodi/$userId/mhs'), headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      });
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        if (jsonData['success'] == true) {
+          return jsonData['data'];
+        } else {
+          throw Exception(jsonData['message']);
+        }
+      } else {
+        throw Exception('Failed to load data');
+      }
+    } catch (e) {
+      throw Exception('Error: $e');
+    }
+  }
+
+  Future<List<dynamic>> fetchDataSelesaisurat() async {
+    final token = await AuthService().getToken();
+    final userId = await AuthService().getUserId();
+    try {
+      final response = await http.get(
+          Uri.parse('${config.baseUrl}/kaprodi/$userId/mhssurat'),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          });
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        if (jsonData['success'] == true) {
+          return jsonData['data'];
+        } else {
+          throw Exception(jsonData['message']);
+        }
+      } else {
+        throw Exception('Failed to load data');
+      }
+    } catch (e) {
+      throw Exception('Error: $e');
+    }
+  }
+
+  Widget _buildSelesaiList(BuildContext context) {
+    return FutureBuilder<List<dynamic>>(
+      future: fetchDataSelesai(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Terjadi kesalahan: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(child: Text('Tidak ada data penerimaan.'));
+        } else {
+          var tandaTanganList = snapshot.data!;
+
+          return ListView.builder(
+            itemCount: tandaTanganList.length,
+            itemBuilder: (context, index) {
+              var tandaTangan = tandaTanganList[index];
+              return _buildSelesai(
+                context,
+                tandaTangan['user']['nama'], // Replace with correct key path
+                tandaTangan['user']
+                    ['username'], // Replace with correct key path
+                tandaTangan['created_at'], // Replace with correct key path
+                tandaTangan['pekerjaan']['pekerjaan_nama'],
+              );
+            },
+          );
+        }
+      },
+    );
+  }
+
+  Widget _buildSelesaiListsurat(BuildContext context) {
+    return FutureBuilder<List<dynamic>>(
+      future: fetchDataSelesaisurat(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Terjadi kesalahan: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(child: Text('Tidak ada Surat yang disetujui.'));
+        } else {
+          var tandaTanganList = snapshot.data!;
+
+          return ListView.builder(
+            itemCount: tandaTanganList.length,
+            itemBuilder: (context, index) {
+              var tandaTangan = tandaTanganList[index];
+              return _buildSelesaisurat(
+                context,
+                tandaTangan['kaprodi']['nama'], // Replace with correct key path
+                tandaTangan['user']
+                    ['username'], // Replace with correct key path
+                tandaTangan['created_at'], // Replace with correct key path
+                tandaTangan['pekerjaan']['pekerjaan_nama'],
+                  tandaTangan['user']['nama'],
+                  tandaTangan['user']['detail_mahasiswa']['prodi']['prodi_nama'],
+                  tandaTangan['user']['detail_mahasiswa']['angkatan'],
+                  tandaTangan['user']['detail_mahasiswa']['periode']['periode_nama'],
+                  tandaTangan['pekerjaan']['user']['nama'],
+                  tandaTangan['pekerjaan']['jumlah_jam_kompen'],
+                  tandaTangan['pekerjaan']['user']['username'],
+                  tandaTangan['kaprodi']['username'],
+                  tandaTangan['t_approve_cetak_id']
+              );
+            },
+          );
+        }
+      },
+    );
+  }
+
+  Widget _buildSelesai(BuildContext context, String nama, String id,
+      String tanggal, String tugas) {
+    DateTime? deadline;
+    deadline = DateTime.parse(tanggal);
+    String formatdeadline = '';
+    formatdeadline = DateFormat('dd MMM yyyy HH:mm').format(deadline);
+    return Align(
+      alignment: Alignment.topCenter,
+      child: FractionallySizedBox(
+        widthFactor: 0.9,
+        child: InkWell(
+          child: Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Kaprodi: $nama',
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                            Text(
+                              formatdeadline,
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w300,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 5),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              id,
+                              style: GoogleFonts.poppins(fontSize: 14),
+                            ),
+                            Text(
+                              tugas,
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w300,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Text(
+                          'Status: Pengajuan',
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w300,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSelesaisurat(BuildContext context, String nama, String id,
+      String tanggal, String tugas, String namauser, String prodi, String angkatan, String periode, String namadosen, int jamkompen, String iddosen, String idkap, int id_cetak) {
+    DateTime? deadline;
+    deadline = DateTime.parse(tanggal);
+    String formatdeadline = '';
+    formatdeadline = DateFormat('dd MMM yyyy HH:mm').format(deadline);
+    return Align(
+      alignment: Alignment.topCenter,
+      child: FractionallySizedBox(
+        widthFactor: 0.9,
+        child: InkWell(
+          onTap: () async {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text(
+                    'Pekerjaan: $tugas',
+                    style: TextStyle(fontSize: 14),
+                  ),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment
+                        .start, // Menambahkan ini untuk memastikan teks di kiri
+                    children: [
+                      Text('Nama: $nama', style: GoogleFonts.poppins()),
+                      Text('NIM: $id', style: GoogleFonts.poppins()),
+                      Text('Disetujui pada: $formatdeadline',
+                          style: GoogleFonts.poppins()),
+                    ],
+                  ),
+                  actions: [
+                    OutlinedButton(
+                      onPressed: () {
+                        Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => CetakSuratPage(
+                          nama: nama,
+                          id: id,
+                          formattanggal: formatdeadline,
+                          tugas: tugas,
+                          namauser: namauser,
+                          prodi: prodi,
+                          angkatan: angkatan.toString(),
+                          periode: periode,
+                          namadosen: namadosen,
+                          jamkompen: jamkompen.toString(),
+                          iddosen: iddosen,
+                          idkap: idkap,
+                          id_cetak: id_cetak,
+                        ))
+                        );
+                    
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(
+                            color: Colors
+                                .blue), // Menambahkan border berwarna biru
+                        backgroundColor:
+                            Colors.white, // Warna latar belakang tombol
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 10), // Menambahkan padding
+                      ),
+                      child: Text(
+                        'Cetak Surat',
+                        style:
+                            TextStyle(color: Colors.blue), // Warna teks tombol
+                      ),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+          child: Card(
+            color: Colors.green,
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Kaprodi: $nama',
+                              style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.white),
+                            ),
+                            Text(
+                              formatdeadline,
+                              style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w300,
+                                  color: Colors.white),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 5),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              id,
+                              style: GoogleFonts.poppins(
+                                  fontSize: 14, color: Colors.white),
+                            ),
+                            Text(
+                              tugas,
+                              style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w300,
+                                  color: Colors.white),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Text(
+                          'Status: Telah di TTD',
+                          style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w300,
+                              color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   // Fungsi untuk menampilkan popup dialog
   void _showWebPopup(BuildContext context, Pekerjaan pekerjaan) {
     Future<void> _requestTTDKaprodi(int pekerjaanId) async {
@@ -381,25 +773,26 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
         final userId = await AuthService().getUserId();
         final token = await AuthService().getToken();
         final response = await http.post(
-          Uri.parse('${config.baseUrl}/mahasiswa/$pekerjaanId/request-cetak-surat'),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization':
-                'Bearer $token', // Ganti dengan token autentikasi Anda
-          },
-          body: jsonEncode({
-            'user_id': userId,
-            'pekerjaan_id': pekerjaanId,
-          })
-        );
-
-        
+            Uri.parse(
+                '${config.baseUrl}/mahasiswa/$pekerjaanId/request-cetak-surat'),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization':
+                  'Bearer $token', // Ganti dengan token autentikasi Anda
+            },
+            body: jsonEncode({
+              'user_id': userId,
+              'pekerjaan_id': pekerjaanId,
+            }));
 
         if (response.statusCode == 201) {
           // Permintaan berhasil
           final data = json.decode(response.body);
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(data['message'] ?? 'Permintaan berhasil!'), backgroundColor: Colors.green,),
+            SnackBar(
+              content: Text(data['message'] ?? 'Permintaan berhasil!'),
+              backgroundColor: Colors.green,
+            ),
           );
         } else {
           // Permintaan gagal
@@ -407,14 +800,18 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(data['message'] ??
-                  'Terjadi kesalahan saat mengajukan permintaan.'),backgroundColor: Colors.red,
+                  'Terjadi kesalahan saat mengajukan permintaan.'),
+              backgroundColor: Colors.red,
             ),
           );
         }
       } catch (e) {
         // Error jaringan atau server
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Terjadi kesalahan: $e'),backgroundColor: Colors.red,),
+          SnackBar(
+            content: Text('Terjadi kesalahan: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }

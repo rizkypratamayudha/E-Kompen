@@ -1,3 +1,5 @@
+import 'package:firstapp/config/config.dart';
+import 'package:firstapp/controller/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../bottombar/bottombar.dart';
@@ -5,9 +7,40 @@ import 'profile.dart';
 import 'pekerjaan.dart';
 import '../mahasiswa.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class CetakSuratPage extends StatefulWidget {
-  const CetakSuratPage({super.key});
+  final String nama;
+  final String id;
+  final String formattanggal;
+  final String tugas;
+  final String namauser;
+  final String prodi;
+  final String periode;
+  final String namadosen;
+  final String jamkompen;
+  final String angkatan;
+  final String iddosen;
+  final String idkap;
+  final int id_cetak;
+
+  const CetakSuratPage({
+    super.key,
+    required this.nama,
+    required this.id,
+    required this.formattanggal,
+    required this.tugas,
+    required this.namauser,
+    required this.prodi,
+    required this.periode,
+    required this.namadosen,
+    required this.jamkompen,
+    required this.angkatan,
+    required this.iddosen,
+    required this.idkap,
+    required this.id_cetak,
+  });
 
   @override
   _CetakSuratPageState createState() => _CetakSuratPageState();
@@ -15,6 +48,24 @@ class CetakSuratPage extends StatefulWidget {
 
 class _CetakSuratPageState extends State<CetakSuratPage> {
   int _selectedIndex = 2;
+  String? qrUrl;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadQrUrl();
+  }
+
+  Future<void> _loadQrUrl() async {
+    String? fetchedQrUrl = await fetchQrUrl(widget.id_cetak.toString());
+    print('Fetched QR URL: $fetchedQrUrl'); // Debug log
+    print('ID CETAK :: ${widget.id_cetak}');
+    setState(() {
+      qrUrl = fetchedQrUrl;
+      isLoading = false;
+    });
+  }
 
   void _onItemTapped(int index) {
     if (index == _selectedIndex) return;
@@ -98,43 +149,29 @@ class _CetakSuratPageState extends State<CetakSuratPage> {
                 const SizedBox(height: 10),
                 const Divider(thickness: 2, color: Colors.black),
                 const SizedBox(height: 10),
-                _buildDetailRow('Nama Mahasiswa', 'M. Isroqi Gelby Firmansyah'),
-                _buildDetailRow('NIM', '2241760041'),
-                _buildDetailRow('Tingkat / Kelas', '3 / C (SIB - 3C)'),
-                _buildDetailRow(
-                    'Program Studi', 'Diploma IV Sistem Informasi Bisnis'),
-                _buildDetailRow('Semester', '5'),
-                _buildDetailRow('Tugas Kompen', 'Pemrograman Web'),
-                _buildDetailRow('Pemberi Tugas', 'Dr. Topek S.T., M.T'),
-                _buildDetailRow('Jumlah Jam', '100 Jam'),
-                _buildDetailRow('Status', 'Selesai'),
+                _buildDetailRow('Nama Mahasiswa', widget.namauser),
+                _buildDetailRow('NIM', widget.id),
+                _buildDetailRow('Program Studi', widget.prodi),
+                _buildDetailRow('Angkatan', widget.angkatan),
+                _buildDetailRow('Periode', widget.periode),
+                _buildDetailRow('Tugas Kompen', widget.tugas),
+                _buildDetailRow('Pemberi Tugas', widget.namadosen),
+                _buildDetailRow('Jumlah Jam', '${widget.jamkompen} jam'),
                 const SizedBox(height: 30),
                 Text(
-                  'Deskripsi:',
+                  'QR Code Surat:',
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 10),
-                Text(
-                  'Dengan ini, kami menyatakan bahwa mahasiswa atas nama M. Isroqi Gelby Firmansyah, '
-                  'NIM 2241760041, telah menyelesaikan tugas kompensasi yang diberikan sebagai bagian dari kewajiban '
-                  'akademis. Tugas kompen ini berupa Pemrograman Web dengan jumlah jam 100, dan telah dipenuhi dengan baik '
-                  'sesuai dengan standar yang ditetapkan oleh Program Studi Diploma IV Sistem Informasi Bisnis.\n\n'
-                  'Mahasiswa telah menunjukkan komitmen dan keterampilan yang memadai dalam menyelesaikan tugas tepat waktu. '
-                  'Oleh karena itu, yang bersangkutan dinyatakan telah memenuhi kewajiban kompensasi dan tidak memiliki tanggungan '
-                  'terkait tugas kompen di semester ini.\n\n'
-                  'Kami berharap prestasi ini dapat memotivasi mahasiswa untuk lebih bersemangat dalam melaksanakan kegiatan '
-                  'akademik di masa mendatang.',
-                  style: GoogleFonts.poppins(fontSize: 12),
-                ),
                 const SizedBox(height: 30),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     _buildQrSignature(
-                      'Malang, 07 Juli 2024',
+                      'Malang, ${widget.formattanggal}',
                       'Dr. Salam, S.T., M.T',
                       'NIP: 111',
                     ),
@@ -178,7 +215,7 @@ class _CetakSuratPageState extends State<CetakSuratPage> {
     );
   }
 
-// QR Signature di kanan tengah dengan ketua program studi
+  // QR Signature di kanan tengah dengan ketua program studi
   Widget _buildQrSignature(String date, String name, String nip) {
     return Align(
       alignment: Alignment.centerRight,
@@ -196,11 +233,18 @@ class _CetakSuratPageState extends State<CetakSuratPage> {
             style: GoogleFonts.poppins(fontSize: 12),
           ),
           const SizedBox(height: 10),
-          QrImageView(
-            data: 'QR Code for $name',
-            version: QrVersions.auto,
-            size: 80.0,
-          ),
+          isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : qrUrl != null
+                        ? QrImageView(
+                            data: qrUrl!, // Data QR berupa URL
+                            version: QrVersions.auto,
+                            size: 200.0,
+                          )
+                        : Text(
+                            'Gagal memuat QR Code',
+                            style: GoogleFonts.poppins(color: Colors.red),
+                          ),
           const SizedBox(height: 10),
           Text(
             name,
@@ -214,4 +258,37 @@ class _CetakSuratPageState extends State<CetakSuratPage> {
       ),
     );
   }
+
+  Future<String?> fetchQrUrl(String id) async {
+  try {
+    final token = await AuthService().getToken();
+    print('Token: $token'); // Debug log
+    final response = await http.get(
+      Uri.parse('${config.baseUrl}/geturl/$id'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      print('Response data: $data'); // Debug log
+      if (data['qrCodeUrl'] != null) {
+        return data['qrCodeUrl'];  // Mengambil qrCodeUrl
+      } else {
+        print('QR URL is null');
+        return null;  // URL QR tidak ada
+      }
+    } else {
+      print('Error response: ${response.body}');
+      return null;
+    }
+  } catch (e) {
+    print('Error fetching QR URL: $e');
+    return null;
+  }
+}
+
+
 }
