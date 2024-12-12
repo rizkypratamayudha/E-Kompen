@@ -2,23 +2,22 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../Model/kompetensi_model.dart';
 import '../config/config.dart';
+import '../Model/kompetensi_admin_model.dart';
 
 class KompetensiService {
   final String baseUrl = config.baseUrl;
 
-  // Fungsi untuk mengambil kompetensi berdasarkan user_id
   Future<List<Kompetensi>> fetchKompetensi(int userId) async {
-    final response = await http.get(Uri.parse('$baseUrl/kompetensi/$userId'));
-    if (response.statusCode == 200) {
-      Map<String, dynamic> data = json.decode(response.body);
-      List<dynamic> kompetensiData =
-          data['kompetensi']; // Akses data kompetensi
+  final response = await http.get(Uri.parse('$baseUrl/kompetensi/$userId'));
+  if (response.statusCode == 200) {
+    Map<String, dynamic> data = json.decode(response.body);
+    List<dynamic> kompetensiData = data['kompetensi'];
 
-      return kompetensiData.map((json) => Kompetensi.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load kompetensi');
-    }
+    return kompetensiData.map((json) => Kompetensi.fromJson(json)).toList();
+  } else {
+    throw Exception('Failed to load kompetensi');
   }
+}
 
   // Fungsi untuk menambahkan data kompetensi baru
   Future<bool> addKompetensi(Kompetensi kompetensi) async {
@@ -33,6 +32,17 @@ class KompetensiService {
     } else {
       print('Error: ${response.statusCode} - ${response.body}');
       return false;
+    }
+  }
+
+  Future<List<KompetensiAdmin>> fetchKompetensiAdmin() async {
+    final response = await http.get(Uri.parse('$baseUrl/kompetensi-admin'));
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(response.body);
+      return data.map((json) => KompetensiAdmin.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load Kompetensi Admin');
     }
   }
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Model/kompetensi_model.dart';
+import '../Model/kompetensi_admin_model.dart';
 import '../controller/kompetensi_service.dart';
 import '../widget/popup_kompetensi_update.dart';
 
@@ -25,6 +26,9 @@ class _EditKompetensiState extends State<EditKompetensi> {
   late TextEditingController _pengalamanController;
   late TextEditingController _buktiController;
 
+  List<KompetensiAdmin> kompetensiList = [];
+  int? selectedKompetensiId;
+
   @override
   void initState() {
     super.initState();
@@ -35,6 +39,8 @@ class _EditKompetensiState extends State<EditKompetensi> {
     _pengalamanController =
         TextEditingController(text: widget.kompetensi.pengalaman);
     _buktiController = TextEditingController(text: widget.kompetensi.bukti);
+    selectedKompetensiId = widget.kompetensi.kompetensiAdminId;
+    _fetchKompetensiAdmin();
   }
 
   @override
@@ -72,6 +78,19 @@ class _EditKompetensiState extends State<EditKompetensi> {
     }
   }
 
+  Future<void> _fetchKompetensiAdmin() async {
+    try {
+      KompetensiService kompetensiService = KompetensiService();
+      List<KompetensiAdmin> data = await kompetensiService.fetchKompetensiAdmin();
+
+      setState(() {
+        kompetensiList = data;
+      });
+    } catch (e) {
+      print("Error fetching kompetensi admin data: $e");
+    }
+  }
+
   Future<void> _saveKompetensi() async {
     final prefs = await SharedPreferences.getInstance();
     int userId = prefs.getInt('userId') ?? 0;
@@ -82,6 +101,7 @@ class _EditKompetensiState extends State<EditKompetensi> {
       kompetensiId: kompetensiId,
       userId: userId,
       periodeNama: periode,
+      kompetensiAdminId: selectedKompetensiId ?? 0,
       kompetensiNama: _kompetensiController.text,
       pengalaman: _pengalamanController.text,
       bukti: _buktiController.text,
@@ -144,7 +164,7 @@ class _EditKompetensiState extends State<EditKompetensi> {
                     buildInfo('Nama', nama),
                     buildInfo('NIM', nim),
                     buildInfo('Periode', periode),
-                    buildInfoInput('Kompetensi', _kompetensiController),
+                    buildDropdown(), // Menambahkan Dropdown Kompetensi
                     buildInfoInput('Pengalaman', _pengalamanController),
                     buildInfoInput('Bukti', _buktiController),
                     const SizedBox(height: 10),
@@ -210,6 +230,45 @@ class _EditKompetensiState extends State<EditKompetensi> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8.0),
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildDropdown() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Kompetensi',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+            ),
+          ),
+          const SizedBox(height: 4),
+          DropdownButtonFormField<int>(
+            value: selectedKompetensiId,
+            items: kompetensiList.map((kompetensi) {
+              return DropdownMenuItem<int>(
+                value: kompetensi.id,
+                child: Text(kompetensi.nama),
+              );
+            }).toList(),
+            onChanged: (value) {
+              setState(() {
+                selectedKompetensiId = value;
+              });
+            },
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
             ),
           ),
         ],

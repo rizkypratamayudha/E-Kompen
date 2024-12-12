@@ -2,6 +2,8 @@ import 'package:firstapp/Dosen/tambah_progres.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../controller/dosen_pekerjaan_service.dart';
+import '../Model/kompetensi_admin_model.dart';
 
 class TambahPekerjaanPage extends StatefulWidget {
   const TambahPekerjaanPage({super.key});
@@ -12,11 +14,17 @@ class TambahPekerjaanPage extends StatefulWidget {
 
 class _TambahPekerjaanPageState extends State<TambahPekerjaanPage> {
   final _formKey = GlobalKey<FormState>();
+  final DosenBuatPekerjaanService _pekerjaanService =
+      DosenBuatPekerjaanService();
 
   Future<int> _getUserId() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getInt('userId') ?? 0;
   }
+
+  List<KompetensiAdmin> _kompetensiList = [];
+  List<String?> _selectedKompetensi = [];
+  int? _jumlahKompetensi;
 
   final TextEditingController _dateController = TextEditingController();
   String? _nama;
@@ -26,6 +34,25 @@ class _TambahPekerjaanPageState extends State<TambahPekerjaanPage> {
   String? _deskripsi;
   String? _status = "open";
   List<TextEditingController> _persyaratanControllers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchKompetensiData();
+  }
+
+  Future<void> _fetchKompetensiData() async {
+    try {
+      final kompetensi = await _pekerjaanService.fetchKompetensiAdmin();
+      setState(() {
+        _kompetensiList = kompetensi;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal memuat data kompetensi: $e')),
+      );
+    }
+  }
 
   @override
   void dispose() {
@@ -94,6 +121,22 @@ class _TambahPekerjaanPageState extends State<TambahPekerjaanPage> {
                     value!.isEmpty ? 'Mohon masukkan jumlah anggota' : null,
               ),
               SizedBox(height: 10),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.blue[100], // Warna latar belakang biru muda
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  'Masukkan Jumlah Persyaratan pada pekerjaan ini sesuai kebutuhan dan jika Anda tidak ingin persyaratan pada pekerjaan ini, ketik "0".',
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold, // Tulisan bold
+                    color: Colors.blue[900], // Warna teks biru gelap
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
               TextFormField(
                 decoration: InputDecoration(
                   labelText: 'Jumlah Persyaratan',
@@ -129,12 +172,72 @@ class _TambahPekerjaanPageState extends State<TambahPekerjaanPage> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    validator: (value) =>
-                        value!.isEmpty ? 'Mohon masukkan persyaratan ${index + 1}' : null,
+                    validator: (value) => value!.isEmpty
+                        ? 'Mohon masukkan persyaratan ${index + 1}'
+                        : null,
                   ),
                 );
               }).toList(),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.blue[100], // Warna latar belakang biru muda
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  'Masukkan Jumlah Kompetensi pada pekerjaan ini sesuai kebutuhan dan jika Anda tidak ingin Kompetensi pada pekerjaan ini, ketik "0".',
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold, // Tulisan bold
+                    color: Colors.blue[900], // Warna teks biru gelap
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextFormField(
+                decoration: InputDecoration(
+                  labelText: 'Jumlah Kompetensi',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                keyboardType: TextInputType.number,
+                onChanged: (value) {
+                  setState(() {
+                    _jumlahKompetensi = int.tryParse(value);
+                    _selectedKompetensi =
+                        List.filled(_jumlahKompetensi ?? 0, null);
+                  });
+                },
+              ),
+              ...List.generate(_jumlahKompetensi ?? 0, (index) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 5),
+                  child: DropdownButtonFormField<String>(
+                    decoration: InputDecoration(
+                      labelText: 'Kompetensi ${index + 1}',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    items: _kompetensiList
+                        .map((kompetensi) => DropdownMenuItem<String>(
+                              value: kompetensi.id.toString(),
+                              child: Text(kompetensi.nama),
+                            ))
+                        .toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedKompetensi[index] = value;
+                      });
+                    },
+                    validator: (value) =>
+                        value == null ? 'Pilih kompetensi' : null,
+                  ),
+                );
+              }),
+              const SizedBox(height: 10),
               TextFormField(
                 decoration: InputDecoration(
                   labelText: 'Jumlah Progress',
@@ -171,12 +274,17 @@ class _TambahPekerjaanPageState extends State<TambahPekerjaanPage> {
                         final persyaratanList = _persyaratanControllers
                             .map((controller) => controller.text)
                             .toList();
+                        final kompetensiIds = _selectedKompetensi
+                            .where((id) => id != null)
+                            .map((id) => int.parse(id!))
+                            .toList();
                         final pekerjaanData = {
                           'userId': userId,
                           'jenisTugas': _jenisTugas!,
                           'nama': _nama!,
                           'jumlahAnggota': _jumlahAnggota!,
                           'persyaratan': persyaratanList,
+                          'kompetensiAdminId': kompetensiIds,
                           'jumlahProgress': _jumlahProgress!,
                           'deskripsi': _deskripsi!,
                           'status': _status!,
