@@ -1,26 +1,30 @@
 import 'package:firstapp/Mahasiswa/riwayat.dart';
+import 'package:firstapp/controller/pengerjaan.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../bottombar/bottombar.dart'; // Import BottomNavBar
+import '../bottombar/bottombar.dart';
 import 'profile.dart';
 import 'pekerjaan.dart';
 import '../mahasiswa.dart';
-import 'pengumpulan_bukti.dart'; // Import PengumpulanBuktiPage
+import 'pengumpulan_bukti.dart';
 
 class ProgressMahasiswaPage extends StatefulWidget {
-  const ProgressMahasiswaPage({super.key});
+  final Pekerjaan pekerjaan; 
+
+  const ProgressMahasiswaPage({
+    super.key,
+    required this.pekerjaan, 
+  });
 
   @override
   _ProgressMahasiswaPageState createState() => _ProgressMahasiswaPageState();
 }
 
 class _ProgressMahasiswaPageState extends State<ProgressMahasiswaPage> {
-  int _selectedIndex = 2; // Sesuaikan dengan tab yang sedang aktif
+  int _selectedIndex = 2;
 
   void _onItemTapped(int index) {
-    if (index == _selectedIndex) {
-      return;
-    }
+    if (index == _selectedIndex) return;
 
     setState(() {
       _selectedIndex = index;
@@ -53,8 +57,10 @@ class _ProgressMahasiswaPageState extends State<ProgressMahasiswaPage> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => RiwayatPage()));
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => RiwayatPage()),
+            );
           },
         ),
         title: Text(
@@ -72,76 +78,59 @@ class _ProgressMahasiswaPageState extends State<ProgressMahasiswaPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CustomProgressWidget(),
+            CustomProgressWidget(pekerjaan: widget.pekerjaan),
             const SizedBox(height: 16),
-            // Black border wrapping all progress cards with scrolling
             Expanded(
-              // Tambahkan Expanded di sini agar scroll bekerja
               child: SingleChildScrollView(
                 child: Container(
                   decoration: BoxDecoration(
-                    border: Border.all(
-                        color: Colors.black,
-                        width: 2), // Black border around all boxes
+                    border: Border.all(color: Colors.black, width: 2),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   margin: const EdgeInsets.only(bottom: 10),
-                  padding: const EdgeInsets.all(8), // Padding inside the border
+                  padding: const EdgeInsets.all(8),
                   child: Column(
                     children: [
                       const SizedBox(height: 10),
-                      // Wrap Progress 1 with GestureDetector to navigate
-                      InkWell(
-                        onTap: () {
-                          // Navigasi ke PengumpulanBuktiPage ketika Progress 1 diklik
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => PengumpulanBuktiPage()),
-                          );
-                        },
-                        child: buildCombinedProgressCard(
-                          'Progress 1',
-                          'Pembuatan Dashboard dan Fitur Riwayat Mahasiswa',
-                          '\r\r20',
-                          Colors.green,
-                        ),
-                      ),
-                      InkWell(
-                        onTap: () {
-                          // Tambahkan navigasi atau aksi lain untuk Progress 2
-                        },
-                        child: buildCombinedProgressCard(
-                          'Progress 2',
-                          'Pembuatan Pekerjaan dan Profil Mahasiswa',
-                          '\r\r20',
-                          Colors.lightBlue.shade400,
-                        ),
-                      ),
-                      InkWell(
-                        onTap: () {
-                          // Tambahkan navigasi atau aksi lain untuk Progress 3
-                        },
-                        child: buildCombinedProgressCard(
-                          'Progress 3',
-                          'Pembuatan Dashboard Pemberian Pekerjaan Dosen',
-                          '\r\r20',
-                          Colors.lightBlue.shade400,
-                        ),
-                      ),
-                      InkWell(
-                        onTap: () {
-                          // Tambahkan navigasi atau aksi lain untuk Progress 4
-                        },
-                        child: buildCombinedProgressCard(
-                          'Progress 4',
-                          'Pembuatan profil dan penerimaan pekerjaan dan upload TTD',
-                          '\r\r40',
-                          Colors.lightBlue.shade400,
-                        ),
-                      ),
+                      ...widget.pekerjaan.progres.asMap().entries.map((entry) {
+                        // Determine the color based on status
+                        int index = entry.key;
+                        var progres = entry.value;  
+                        bool hasPengumpulan = progres.pengumpulan.isNotEmpty;
 
-                      // Tambahkan card-card lainnya di sini
+                        // Determine the color based on pengumpulan status
+                        Color rightBoxColor = Colors.red; // Default color
+                        
+                        if (hasPengumpulan) {
+                          // If there's pengumpulan, check the status
+                          var status = progres.pengumpulan[0].status;
+                          if (status != 'pending') {
+                            rightBoxColor = Colors.yellow; // Yellow if status is not pending
+                          } else {
+                            rightBoxColor = Colors.green; // Green if status is pending
+                          }
+                        }
+                        return InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PengumpulanBuktiPage(
+                                  pekerjaan: widget.pekerjaan,
+                                  progres: progres,
+                                  
+                                ),
+                              ),
+                            );
+                          },
+                          child: buildCombinedProgressCard(
+                            'Progress ${index + 1}',
+                            progres.judulProgres,
+                            '\r\r${progres.jamKompen}',
+                            rightBoxColor,
+                          ),
+                        );
+                      }).toList(),
                     ],
                   ),
                 ),
@@ -159,23 +148,18 @@ class _ProgressMahasiswaPageState extends State<ProgressMahasiswaPage> {
 
   Widget buildCombinedProgressCard(
       String title, String description, String hours, Color rightBoxColor) {
-    final double boxWidth =
-        MediaQuery.of(context).size.width * 0.80; // 90% width of screen
+    final double boxWidth = MediaQuery.of(context).size.width * 0.80;
 
     return Center(
       child: Container(
         width: boxWidth,
         margin: const EdgeInsets.only(bottom: 10),
         child: IntrinsicHeight(
-          // Gunakan IntrinsicHeight agar kedua container menyesuaikan tingginya
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment
-                .stretch, // Memastikan kedua container sama tinggi
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Left box (80% width)
               Expanded(
-                // Membungkus container kiri dengan Expanded
-                flex: 4, // Flex untuk mengatur proporsi
+                flex: 4,
                 child: Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -188,13 +172,12 @@ class _ProgressMahasiswaPageState extends State<ProgressMahasiswaPage> {
                   child: Row(
                     children: [
                       Icon(
-                        Icons.upload, // Change this to the desired icon
+                        Icons.upload,
                         color: Colors.white,
                         size: 24,
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        // Gunakan Expanded di sekitar kolom teks
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -205,9 +188,8 @@ class _ProgressMahasiswaPageState extends State<ProgressMahasiswaPage> {
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
                               ),
-                              maxLines: 1, // Membatasi judul hanya 1 baris
-                              overflow: TextOverflow
-                                  .ellipsis, // Tambahkan overflow ellipsis
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                             const SizedBox(height: 8),
                             Text(
@@ -216,10 +198,8 @@ class _ProgressMahasiswaPageState extends State<ProgressMahasiswaPage> {
                                 color: Colors.white,
                                 fontSize: 10,
                               ),
-                              maxLines:
-                                  5, // Membatasi deskripsi maksimal 5 baris
-                              overflow: TextOverflow
-                                  .ellipsis, // Tambahkan overflow ellipsis
+                              maxLines: 5,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
                         ),
@@ -228,13 +208,10 @@ class _ProgressMahasiswaPageState extends State<ProgressMahasiswaPage> {
                   ),
                 ),
               ),
-              // Right box (20% width)
               Expanded(
-                // Menggunakan Expanded di container kanan juga
-                flex: 1, // Flex untuk mengatur proporsi
+                flex: 1,
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
                   decoration: BoxDecoration(
                     color: rightBoxColor,
                     borderRadius: const BorderRadius.only(
@@ -262,9 +239,13 @@ class _ProgressMahasiswaPageState extends State<ProgressMahasiswaPage> {
   }
 }
 
-// Your custom progress widget
 class CustomProgressWidget extends StatelessWidget {
-  const CustomProgressWidget({super.key});
+  final Pekerjaan pekerjaan;
+
+  const CustomProgressWidget({
+    super.key,
+    required this.pekerjaan,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -272,7 +253,7 @@ class CustomProgressWidget extends StatelessWidget {
 
     return Center(
       child: Container(
-        width: boxWidth, // Set the container width to 75%
+        width: boxWidth,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.blue.shade700,
@@ -281,7 +262,7 @@ class CustomProgressWidget extends StatelessWidget {
         child: Row(
           children: [
             Icon(
-              Icons.hourglass_empty, // Simple built-in icon
+              Icons.hourglass_empty,
               color: Colors.white,
               size: 40,
             ),
@@ -291,15 +272,15 @@ class CustomProgressWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Jumlah Progress: 4',
+                    'Jumlah Progress: ${pekerjaan.progres.length}',
                     style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontSize: 18,
                     ),
                   ),
-                  Divider(color: Colors.white), // The separator line
+                  Divider(color: Colors.white),
                   Text(
-                    'Pekerjaan: Pembuatan Mobile',
+                    'Pekerjaan: ${pekerjaan.pekerjaanNama}',
                     style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontSize: 12,

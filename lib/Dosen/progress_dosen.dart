@@ -94,11 +94,11 @@ class _ProgressDosenPageState extends State<ProgressDosenPage> {
                       InkWell(
                         onTap: () {
                           // Navigasi ke PengumpulanBuktiPage ketika Progress 1 diklik
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => PengumpulanBuktiDosenPage()),
-                          );
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //       builder: (context) => PengumpulanBuktiDosenPage()),
+                          // );
                         },
                         child: buildCombinedProgressCard(
                           'Progress 1',

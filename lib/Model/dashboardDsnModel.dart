@@ -7,7 +7,7 @@ class DashboardDsn {
   final int totalPekerjaanClosed;
 
   DashboardDsn({
-    required this.user,
+    this.user,
     required this.pekerjaan,
     required this.pendingPekerjaan,
     required this.totalPekerjaan,
@@ -16,26 +16,21 @@ class DashboardDsn {
   });
 
   factory DashboardDsn.fromJson(Map<String, dynamic> json) {
-    // Mengambil daftar pekerjaan
-    List<Pekerjaan> pekerjaan = (json['pekerjaan'] as List<dynamic>? ?? [])
-        .map((item) => Pekerjaan.fromJson(item))
-        .toList();
-
-    // Mengambil daftar pekerjaan tertunda
-    List<PendingPekerjaan> pendingPekerjaan = (json['pending_pekerjaan'] as List<dynamic>? ?? [])
-        .map((item) => PendingPekerjaan.fromJson(item))
-        .toList();
-
     return DashboardDsn(
       user: json['user'] != null ? User.fromJson(json['user']) : null,
-      pekerjaan: pekerjaan,
-      pendingPekerjaan: pendingPekerjaan,
+      pekerjaan: (json['pekerjaan'] as List<dynamic>? ?? [])
+          .map((item) => Pekerjaan.fromJson(item))
+          .toList(),
+      pendingPekerjaan: (json['pending_pekerjaan'] as List<dynamic>? ?? [])
+          .map((item) => PendingPekerjaan.fromJson(item))
+          .toList(),
       totalPekerjaan: json['total_pekerjaan'] ?? 0,
       totalPekerjaanOpen: json['total_pekerjaan_open'] ?? 0,
       totalPekerjaanClosed: json['total_pekerjaan_closed'] ?? 0,
     );
   }
 }
+
 
 class User {
   final int userId;
@@ -51,11 +46,12 @@ class User {
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       userId: json['user_id'],
-      nama: json['nama'],
-      avatar: json['avatar'],
+      nama: json['nama'] ?? 'Tidak Diketahui', // Default value
+      avatar: json['avatar'] ?? '', // Default value
     );
   }
 }
+
 
 class Pekerjaan {
   final int pekerjaanId;

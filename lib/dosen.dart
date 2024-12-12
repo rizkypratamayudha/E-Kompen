@@ -1,3 +1,4 @@
+import 'package:firstapp/controller/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,7 +23,7 @@ class _DosenDashboardState extends State<DosenDashboard> {
   String _avatarUrl = '';
   int _jumlahTugasAktif = 0;
   bool _adaPengajuanPekerjaan = false;
-  String _token = '';
+  
   List<Pekerjaan> _pekerjaanList = [];
 
   @override
@@ -37,7 +38,7 @@ class _DosenDashboardState extends State<DosenDashboard> {
     setState(() {
       _nama = prefs.getString('nama') ?? 'User';
       _avatarUrl = prefs.getString('avatarUrl') ?? '';
-      _token = prefs.getString('token') ?? '';
+      
     });
   }
 
