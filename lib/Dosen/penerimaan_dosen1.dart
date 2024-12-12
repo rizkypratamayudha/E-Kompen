@@ -609,23 +609,34 @@ class _PenerimaanScreenState extends State<PenerimaanScreen> {
 }
 
   Future<List<dynamic>> fetchSelesai() async {
+  try {
     final token = await AuthService().getToken();
+    final userId = await AuthService().getUserId();
     final response = await http.get(
-      Uri.parse('${config.baseUrl}/pekerjaan/getselesai'), // Ganti dengan URL API Anda
+      Uri.parse('${config.baseUrl}/pekerjaan/$userId/getselesai'),
       headers: {'Authorization': 'Bearer $token'},
     );
+
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       if (data['success'] == true) {
-        return data['data']; // Ambil data dari API
+        return data['data'];
       } else {
-        throw Exception('Gagal mengambil data');
+        throw Exception(data['message'] ?? 'Gagal mengambil data');
       }
     } else {
-      throw Exception('Gagal menghubungi server');
+      throw Exception('Gagal menghubungi server: ${response.statusCode}');
     }
+  } catch (e) {
+    print('Error: $e');
+    throw Exception('Terjadi kesalahan: $e');
   }
+}
+
+
 
   Widget _buildSelesai(BuildContext context, String nama, String id,
   String tugas) {
@@ -762,34 +773,35 @@ Widget _buildProsesList(BuildContext context) {
 }
 
   Widget _buildSelesaiList(BuildContext context) {
-    return FutureBuilder<List<dynamic>>(
-      future: fetchSelesai(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Terjadi kesalahan: ${snapshot.error}'));
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(child: Text('Tidak ada data pekerjaan selesai.'));
-        } else {
-          var selesaiList = snapshot.data!;
+  return FutureBuilder<List<dynamic>>(
+    future: fetchSelesai(),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return Center(child: CircularProgressIndicator());
+      } else if (snapshot.hasError) {
+        return Center(child: Text('Terjadi kesalahan: ${snapshot.error}'));
+      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+        return Center(child: Text('Tidak ada data pekerjaan selesai.'));
+      } else {
+        var selesaiList = snapshot.data!;
 
-          return ListView.builder(
-            itemCount: selesaiList.length,
-            itemBuilder: (context, index) {
-              var selesai = selesaiList[index];
-              return _buildSelesai(
-                context,
-                selesai['nama'],       // Nama pengguna
-                selesai['username'], // Tanggal (hardcoded or from API if available)
-                selesai['pekerjaan_nama'], // Nama pekerjaan
-              );
-            },
-          );
-        }
-      },
-    );
-  }
+        return ListView.builder(
+          itemCount: selesaiList.length,
+          itemBuilder: (context, index) {
+            var selesai = selesaiList[index];
+            return _buildSelesai(
+              context,
+              selesai['nama'] ?? 'Tidak ada nama',
+              selesai['username'] ?? 'Tidak ada username',
+              selesai['pekerjaan_nama'] ?? 'Tidak ada pekerjaan',
+            );
+          },
+        );
+      }
+    },
+  );
+}
+
 }
 
 class TabButton extends StatelessWidget {

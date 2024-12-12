@@ -283,93 +283,107 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
   // Fungsi untuk membangun satu item riwayat
   // Fungsi untuk membangun satu item riwayat
   Widget _buildRiwayat(BuildContext context, Pekerjaan pekerjaan) {
-    DateTime? deadline;
-    deadline = DateTime.parse(pekerjaan.akumulasiDeadline.toString());
-    String formatDeadline = '';
+  DateTime? deadline;
+  deadline = pekerjaan.akumulasiDeadline != null
+      ? DateTime.parse(pekerjaan.akumulasiDeadline.toString())
+      : null;
+  String? formatDeadline;
 
+  if (deadline != null) {
     formatDeadline = DateFormat('dd MMM yyyy HH:mm').format(deadline);
-    return Align(
-      alignment: Alignment.topCenter,
-      child: FractionallySizedBox(
-        widthFactor: 0.9,
-        child: Card(
-          color: Colors.blue,
-          child: Padding(
-            padding: const EdgeInsets.all(10),
-            child: ListTile(
-                title: Text(
-                  pekerjaan.pekerjaanNama ?? 'Nama Pekerjaan tidak tersedia',
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (pekerjaan.akumulasiDeadline != null)
-                      Text(
-                        'Akumulasi Deadline: ${formatDeadline ?? 'Tidak tersedia'}',
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          color: Colors.white70,
-                        ),
-                      ),
-                  ],
-                ),
-                onTap: () {
-                  if (widget.selesaiItems.contains(pekerjaan)) {
-                    // Navigasi ke ProgressMahasiswaPage jika berasal dari selesaiItems
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ProgressMahasiswaPage(
-                          pekerjaan: pekerjaan,
-                        ),
-                      ),
-                    );
-                  } else if (widget.prosesItems.contains(pekerjaan)) {
-                    // Navigasi ke ProgressMahasiswaPage jika berasal dari prosesItems
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ProgressMahasiswaPage(
-                          pekerjaan: pekerjaan,
-                        ),
-                      ),
-                    );
-                  }
-                },
-                onLongPress: () {
-                  if (widget.selesaiItems.contains(pekerjaan)) {
-                    // Cek apakah semua status di progres.pengumpulan tidak 'pending'
-                    final allStatusNonPending =
-                        pekerjaan.progres.every((progres) {
-                      return progres.pengumpulan.isNotEmpty &&
-                          progres.pengumpulan.every(
-                              (pengumpulan) => pengumpulan.status != 'pending');
-                    });
+  }
 
-                    // Tampilkan popup jika semua status tidak 'pending'
-                    if (allStatusNonPending) {
-                      _showWebPopup(context, pekerjaan);
-                    } else {
-                      // Tambahkan aksi lain jika ada, misalnya menampilkan pesan
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                            content: Text(
-                          "Beberapa status masih pending.",
-                        )),
-                      );
-                    }
-                  }
-                }),
+  return Align(
+    alignment: Alignment.topCenter,
+    child: FractionallySizedBox(
+      widthFactor: 0.9,
+      child: Card(
+        color: Colors.blue,
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: ListTile(
+            title: Text(
+              pekerjaan.pekerjaanNama ?? 'Nama Pekerjaan tidak tersedia',
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (formatDeadline != null)
+                  Text(
+                    'Akumulasi Deadline: $formatDeadline',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.white70,
+                    ),
+                  ),
+                if (formatDeadline == null)
+                  Text(
+                    'Akumulasi Deadline: Tidak tersedia',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.white70,
+                    ),
+                  ),
+              ],
+            ),
+            onTap: () {
+              if (widget.selesaiItems.contains(pekerjaan)) {
+                // Navigasi ke ProgressMahasiswaPage jika berasal dari selesaiItems
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProgressMahasiswaPage(
+                      pekerjaan: pekerjaan,
+                    ),
+                  ),
+                );
+              } else if (widget.prosesItems.contains(pekerjaan)) {
+                // Navigasi ke ProgressMahasiswaPage jika berasal dari prosesItems
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProgressMahasiswaPage(
+                      pekerjaan: pekerjaan,
+                    ),
+                  ),
+                );
+              }
+            },
+            onLongPress: () {
+              if (widget.selesaiItems.contains(pekerjaan)) {
+                // Cek apakah semua status di progres.pengumpulan tidak 'pending'
+                final allStatusNonPending =
+                    pekerjaan.progres.every((progres) {
+                  return progres.pengumpulan.isNotEmpty &&
+                      progres.pengumpulan.every(
+                          (pengumpulan) => pengumpulan.status != 'pending');
+                });
+
+                // Tampilkan popup jika semua status tidak 'pending'
+                if (allStatusNonPending) {
+                  _showWebPopup(context, pekerjaan);
+                } else {
+                  // Tambahkan aksi lain jika ada, misalnya menampilkan pesan
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                        content: Text(
+                      "Beberapa status masih pending.",
+                    )),
+                  );
+                }
+              }
+            },
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Future<void> selesai(String pekerjaanId, String userId) async {
     try {

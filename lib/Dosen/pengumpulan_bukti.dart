@@ -137,7 +137,15 @@ class _PengumpulanBuktiDosenPageState extends State<PengumpulanBuktiDosenPage> {
                       // Conditional rendering of bukti_pengumpulan
                       buildBuktiPengumpulan(widget.bukti_pengumpulan),
                       const SizedBox(height: 16),
-                    ],
+                      if (widget.nama_original.isNotEmpty)
+                        Text(
+                          'Nama File: ${widget.nama_original}',
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        )
+                    ]
                   ),
                 ),
               ),
@@ -202,7 +210,7 @@ class _PengumpulanBuktiDosenPageState extends State<PengumpulanBuktiDosenPage> {
       return ClipRRect(
         borderRadius: BorderRadius.circular(10),
         child: Image.network(
-          'http://localhost/kompenjti/public/storage/$buktiPengumpulanUrl',
+          'http://10.0.2.2/kompenjti/public/storage/$buktiPengumpulanUrl',
           fit: BoxFit.contain,
           loadingBuilder: (context, child, loadingProgress) {
             if (loadingProgress == null) {

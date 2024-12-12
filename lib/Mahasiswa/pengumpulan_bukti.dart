@@ -640,88 +640,7 @@ class _PengumpulanBuktiPageState extends State<PengumpulanBuktiPage> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Container(
-                        height: 150,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.white,
-                              blurRadius: 10,
-                              offset: Offset(0, 4), // Shadow position
-                            ),
-                          ],
-                          color: Colors.grey[200],
-                        ),
-                        child: (buktiPengumpulanUrl.startsWith('https'))
-                            ? InkWell(
-                                onTap: () {
-                                  if (Uri.tryParse(buktiPengumpulanUrl)
-                                          ?.hasAbsolutePath ??
-                                      false) {
-                                    // Open the link in a browser
-                                    launch(buktiPengumpulanUrl);
-                                  }
-                                },
-                                child: Text(
-                                  'Lihat Bukti Pengumpulan',
-                                  style: TextStyle(color: Colors.blue),
-                                ),
-                              )
-                            : (buktiPengumpulanUrl
-                                    .startsWith('pengumpulan_gambar'))
-                                ? ClipRRect(
-                                    borderRadius: BorderRadius.circular(10),
-                                    child: Image.network(
-                                      'http://10.0.2.2/kompenjti/public/storage/$buktiPengumpulanUrl',
-                                      fit: BoxFit.contain,
-                                      loadingBuilder:
-                                          (context, child, loadingProgress) {
-                                        if (loadingProgress == null) {
-                                          return child;
-                                        } else {
-                                          return Center(
-                                            child: CircularProgressIndicator(
-                                              value: loadingProgress
-                                                          .expectedTotalBytes !=
-                                                      null
-                                                  ? loadingProgress
-                                                          .cumulativeBytesLoaded /
-                                                      (loadingProgress
-                                                              .expectedTotalBytes ??
-                                                          1)
-                                                  : null,
-                                            ),
-                                          );
-                                        }
-                                      },
-                                      errorBuilder:
-                                          (context, error, stackTrace) {
-                                        return Icon(
-                                          Icons.error,
-                                          color: Colors.red,
-                                        );
-                                      },
-                                    ),
-                                  )
-                                : (buktiPengumpulanUrl
-                                        .startsWith('pengumpulan_file'))
-                                    ? InkWell(
-                                        onTap: () {
-                                          _downloadFile(buktiPengumpulanUrl);
-                                        },
-                                        child: Text(
-                                          'Download Bukti Pengumpulan',
-                                          style: TextStyle(color: Colors.blue),
-                                        ),
-                                      )
-                                    : Icon(
-                                        Icons.image,
-                                        size: 50,
-                                        color: Colors.grey[400],
-                                      ),
-                      ),
+                      buildBuktiPengumpulan(buktiPengumpulanUrl),
                       const SizedBox(height: 16),
                       // Tombol Tambah/Edit
                       Row(
@@ -790,6 +709,72 @@ class _PengumpulanBuktiPageState extends State<PengumpulanBuktiPage> {
       ),
       backgroundColor: Colors.white,
     );
+  }
+
+  Widget buildBuktiPengumpulan(String buktiPengumpulanUrl) {
+    if (buktiPengumpulanUrl.startsWith('https')) {
+      // If it's a URL, show clickable text
+      return InkWell(
+        onTap: () {
+          // Open the URL if it's a valid https URL
+          if (Uri.tryParse(buktiPengumpulanUrl)?.hasAbsolutePath ?? false) {
+            launch(buktiPengumpulanUrl); // Open in browser
+          }
+        },
+        child: Text(
+          'Lihat Bukti Pengumpulan',
+          style: TextStyle(color: Colors.blue),
+        ),
+      );
+    } else if (buktiPengumpulanUrl.startsWith('pengumpulan_gambar')) {
+      // If it's an image URL
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: Image.network(
+          'http://10.0.2.2/kompenjti/public/storage/$buktiPengumpulanUrl',
+          fit: BoxFit.contain,
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) {
+              return child;
+            } else {
+              return Center(
+                child: CircularProgressIndicator(
+                  value: loadingProgress.expectedTotalBytes != null
+                      ? loadingProgress.cumulativeBytesLoaded /
+                          (loadingProgress.expectedTotalBytes ?? 1)
+                      : null,
+                ),
+              );
+            }
+          },
+          errorBuilder: (context, error, stackTrace) {
+            return Icon(
+              Icons.error,
+              color: Colors.red,
+            );
+          },
+        ),
+      );
+    } else if (buktiPengumpulanUrl.startsWith('pengumpulan_file')) {
+      // If it's a file, show download option
+      return InkWell(
+        onTap: () {
+          // Handle file download here
+          _downloadFile(buktiPengumpulanUrl);
+        },
+        child: Text(
+          'Download Bukti Pengumpulan',
+          style: TextStyle(color: Colors.blue),
+        ),
+      );
+    } else {
+      // Default icon if no matching condition
+      return Icon(
+        Icons.image,
+        size: 50,
+        color: Colors.grey[400],
+      );
+    }
   }
 
   Widget buildInfoRow(String label, String value) {
