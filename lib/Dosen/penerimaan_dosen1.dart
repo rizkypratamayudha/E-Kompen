@@ -354,7 +354,7 @@ class _PenerimaanScreenState extends State<PenerimaanScreen> {
               MaterialPageRoute(
                 builder: (context) => LihatKompetensi(
                   nama: nama,
-                  id: id,
+                  id: userId.toString(),
                   tugas: tugas,
                 ),
               ),

@@ -1,26 +1,25 @@
-import 'package:firstapp/Dosen/penerimaan_dosen1.dart';
-import 'package:firstapp/controller/Pekerjaan.dart';
-import 'package:firstapp/controller/pending_pekerjaan.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../bottombar/bottombarDosen.dart';
-import 'profile.dart';
-import 'pekerjaan.dart';
-import '../dosen.dart';
+import '../controller/kompetensi_service.dart';
+import '../Model/kompetensi_model.dart';
 import 'lihat_detail_kompetensi.dart';
+import '../dosen.dart';
+import 'pekerjaan.dart';
+import 'profile.dart';
+import 'penerimaan_dosen1.dart';
 
 class LihatKompetensi extends StatefulWidget {
   final String nama;
   final String id;
   final String tugas;
-  // final List<Kompetensi> kompetensiList;
 
-  LihatKompetensi({
+  const LihatKompetensi({
+    Key? key,
     required this.nama,
     required this.id,
     required this.tugas,
-    // required this.kompetensiList
-  });
+  }) : super(key: key);
 
   @override
   _LihatKompetensiState createState() => _LihatKompetensiState();
@@ -28,6 +27,33 @@ class LihatKompetensi extends StatefulWidget {
 
 class _LihatKompetensiState extends State<LihatKompetensi> {
   int _selectedIndex = 2;
+  List<Kompetensi> kompetensiList = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchKompetensi();
+  }
+
+  void fetchKompetensi() async {
+    try {
+      KompetensiService service = KompetensiService();
+      List<Kompetensi> data = await service.fetchKompetensi(int.parse(widget.id));
+      setState(() {
+        kompetensiList = data;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      // Tampilkan pesan error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal memuat data kompetensi: $e')),
+      );
+    }
+  }
 
   void _onItemTapped(int index) {
     if (index == _selectedIndex) {
@@ -75,51 +101,55 @@ class _LihatKompetensiState extends State<LihatKompetensi> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CustomLihatKompetensiWidget(
-              nama: widget.nama, // Pass the nama here
-              id: widget.id, // Pass the id here
-              tugas: widget.tugas, // Pass the tugas here
-              kompetensiList: [],
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.black, width: 2),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      margin: const EdgeInsets.only(bottom: 10),
-                      padding: const EdgeInsets.all(8),
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 10),
-                          buildKompetensiDosen(
-                            'Kompetensi 1',
-                            'Menguasai Bahasa Pemrograman',
+        child: isLoading
+            ? Center(child: CircularProgressIndicator())
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomKompetensiWidget(
+                    userName: widget.nama,
+                    kompetensiCount: kompetensiList.length,
+                  ),
+                  const SizedBox(height: 16),
+                  kompetensiList.isEmpty
+                      ? Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.black, width: 2),
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                          buildKompetensiDosen(
-                            'Kompetensi 2',
-                            'Menguasai Excel',
+                          padding: const EdgeInsets.all(16),
+                          child: Text(
+                            'Mahasiswa ini tidak memiliki kompetensi.',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              color: Colors.black54,
+                            ),
                           ),
-                          buildKompetensiDosen(
-                            'Kompetensi 3',
-                            'Menguasai Word',
+                        )
+                      : Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.black, width: 2),
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+                          padding: const EdgeInsets.all(16),
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            physics: const BouncingScrollPhysics(),
+                            itemCount: kompetensiList.length,
+                            itemBuilder: (context, index) {
+                              Kompetensi kompetensi = kompetensiList[index];
+                              return buildKompetensiDosen(
+                                'Kompetensi ${index + 1}',
+                                kompetensi.kompetensiNama ?? 'Nama Kompetensi Tidak Tersedia',
+                              );
+                            },
+                          ),
+                        ),
+                ],
               ),
-            ),
-          ],
-        ),
       ),
       bottomNavigationBar: BottomNavBarDosen(
         selectedIndex: _selectedIndex,
@@ -206,19 +236,12 @@ class _LihatKompetensiState extends State<LihatKompetensi> {
   }
 }
 
-class CustomLihatKompetensiWidget extends StatelessWidget {
-  final String nama;
-  final String id;
-  final String tugas;
-  final List<KompetensiDosen> kompetensiList;
+class CustomKompetensiWidget extends StatelessWidget {
+  final String userName;
+  final int kompetensiCount;
 
-  const CustomLihatKompetensiWidget({
-    Key? key,
-    required this.nama,
-    required this.id,
-    required this.tugas,
-    required this.kompetensiList
-  }) : super(key: key);
+  const CustomKompetensiWidget(
+      {required this.userName, required this.kompetensiCount, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -245,15 +268,15 @@ class CustomLihatKompetensiWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    nama, // Display the name here
+                    userName,
                     style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontSize: 14,
                     ),
                   ),
-                  Divider(color: Colors.white),
+                  const Divider(color: Colors.white),
                   Text(
-                    id, // Display the task here
+                    'Kompetensi: $kompetensiCount',
                     style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontSize: 12,

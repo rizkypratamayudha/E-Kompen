@@ -8,16 +8,17 @@ class KompetensiService {
   final String baseUrl = config.baseUrl;
 
   Future<List<Kompetensi>> fetchKompetensi(int userId) async {
-  final response = await http.get(Uri.parse('$baseUrl/kompetensi/$userId'));
-  if (response.statusCode == 200) {
-    Map<String, dynamic> data = json.decode(response.body);
-    List<dynamic> kompetensiData = data['kompetensi'];
+    final response = await http.get(Uri.parse('$baseUrl/kompetensi/$userId'));
+    print('Response: ${response.body}'); // Debug log
+    if (response.statusCode == 200) {
+      Map<String, dynamic> data = json.decode(response.body);
+      List<dynamic> kompetensiData = data['kompetensi'];
 
-    return kompetensiData.map((json) => Kompetensi.fromJson(json)).toList();
-  } else {
-    throw Exception('Failed to load kompetensi');
+      return kompetensiData.map((json) => Kompetensi.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load kompetensi');
+    }
   }
-}
 
   // Fungsi untuk menambahkan data kompetensi baru
   Future<bool> addKompetensi(Kompetensi kompetensi) async {

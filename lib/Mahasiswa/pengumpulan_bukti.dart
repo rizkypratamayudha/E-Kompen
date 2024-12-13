@@ -729,32 +729,38 @@ class _PengumpulanBuktiPageState extends State<PengumpulanBuktiPage> {
     } else if (buktiPengumpulanUrl.startsWith('pengumpulan_gambar')) {
       // If it's an image URL
       return ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: Image.network(
-          'http://10.0.2.2/kompenjti/public/storage/$buktiPengumpulanUrl',
-          fit: BoxFit.contain,
-          loadingBuilder: (context, child, loadingProgress) {
-            if (loadingProgress == null) {
-              return child;
-            } else {
-              return Center(
-                child: CircularProgressIndicator(
-                  value: loadingProgress.expectedTotalBytes != null
-                      ? loadingProgress.cumulativeBytesLoaded /
-                          (loadingProgress.expectedTotalBytes ?? 1)
-                      : null,
-                ),
-              );
-            }
-          },
-          errorBuilder: (context, error, stackTrace) {
-            return Icon(
-              Icons.error,
-              color: Colors.red,
+  borderRadius: BorderRadius.circular(10),
+  child: Builder(
+    builder: (context) {
+      print('Image URL: http://10.0.2.2/kompenjti/public/storage/$buktiPengumpulanUrl'); // Debug log
+      return Image.network(
+        'http://10.0.2.2/kompenjti/public/storage/$buktiPengumpulanUrl',
+        fit: BoxFit.contain,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) {
+            return child;
+          } else {
+            return Center(
+              child: CircularProgressIndicator(
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded /
+                        (loadingProgress.expectedTotalBytes ?? 1)
+                    : null,
+              ),
             );
-          },
-        ),
+          }
+        },
+        errorBuilder: (context, error, stackTrace) {
+          return Icon(
+            Icons.error,
+            color: Colors.red,
+          );
+        },
       );
+    },
+  ),
+);
+
     } else if (buktiPengumpulanUrl.startsWith('pengumpulan_file')) {
       // If it's a file, show download option
       return InkWell(
