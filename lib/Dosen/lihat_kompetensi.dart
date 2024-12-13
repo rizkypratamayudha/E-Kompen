@@ -144,6 +144,7 @@ class _LihatKompetensiState extends State<LihatKompetensi> {
                               return buildKompetensiDosen(
                                 'Kompetensi ${index + 1}',
                                 kompetensi.kompetensiNama ?? 'Nama Kompetensi Tidak Tersedia',
+                                kompetensi.kompetensiId!,
                               );
                             },
                           ),
@@ -158,7 +159,7 @@ class _LihatKompetensiState extends State<LihatKompetensi> {
     );
   }
 
-  Widget buildKompetensiDosen(String title, String description) {
+  Widget buildKompetensiDosen(String title, String description, int kompetensiId) {
     final double boxWidth = MediaQuery.of(context).size.width * 0.80;
 
     return Center(
@@ -168,13 +169,13 @@ class _LihatKompetensiState extends State<LihatKompetensi> {
         child: InkWell(
           onTap: () {
             Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => LihatDetailKompetensi(
-                          nama: widget.nama,
-                          id: widget.id,
-                          tugas: widget.tugas,
-                        )));
+              context,
+              MaterialPageRoute(
+                builder: (context) => LihatDetailKompetensi(
+                  kompetensiId: kompetensiId,
+                ),
+              ),
+            );
           },
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,

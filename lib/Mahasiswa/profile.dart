@@ -13,6 +13,7 @@ import '../mahasiswa.dart';
 import '../widget/popup_logout.dart';
 import '../config/config.dart';
 import '../controller/profile_service.dart'; // Import ProfileService
+import 'notifikasi.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -239,7 +240,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const KompetensiMahasiswaPage()));
+                        builder: (context) => const NotifikasiMahasiswaPage()));
               }),
             ],
           ),

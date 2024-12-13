@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../bottombar/bottombar.dart';
 import 'riwayat.dart';
+import 'profile.dart';
 import 'pekerjaan.dart';
 import '../mahasiswa.dart';
 import 'upload_kompetensi.dart';
@@ -102,7 +103,7 @@ class _KompetensiMahasiswaPageState extends State<KompetensiMahasiswaPage> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.push(context,
-                MaterialPageRoute(builder: (context) => RiwayatPage()));
+                MaterialPageRoute(builder: (context) => ProfilePage()));
           },
         ),
         title: Text(

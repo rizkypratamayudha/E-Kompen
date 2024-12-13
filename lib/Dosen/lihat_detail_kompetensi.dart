@@ -1,61 +1,97 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../bottombar/bottombarDosen.dart';
-import 'profile.dart';
-import 'pekerjaan.dart';
-import '../dosen.dart';
-import 'lihat_kompetensi.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../controller/kompetensi_service.dart';
 
 class LihatDetailKompetensi extends StatefulWidget {
-  final String nama;
-  final String id;
-  final String tugas;
+  final int kompetensiId;
 
-  const LihatDetailKompetensi({
-    Key? key,
-    required this.nama,
-    required this.id,
-    required this.tugas,
-  }) : super(key: key);
+  const LihatDetailKompetensi({super.key, required this.kompetensiId});
 
   @override
-  _LihatDetailKompetensiState createState() => _LihatDetailKompetensiState();
+  State<LihatDetailKompetensi> createState() => _LihatDetailKompetensiState();
 }
 
 class _LihatDetailKompetensiState extends State<LihatDetailKompetensi> {
-  int _selectedIndex = 2;
+  String nama = '';
+  String nim = '';
+  String periode = '';
+  int periodeId = 0;
 
-  void _onItemTapped(int index) {
-    if (index == _selectedIndex) return;
+  String kompetensiNama = '';
+  String pengalaman = '';
+  String bukti = '';
+  String errorMessage = '';
+
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLihatDetailKompetensi();
+  }
+
+  Future<void> _loadLihatDetailKompetensi() async {
+    final prefs = await SharedPreferences.getInstance();
 
     setState(() {
-      _selectedIndex = index;
+      nama = prefs.getString('nama') ?? 'User';
+      nim = prefs.getString('username') ?? 'Username';
     });
 
-    if (index == 2)
-      return;
-    else if (index == 1) {
-      Navigator.pushReplacement(context,
-          MaterialPageRoute(builder: (context) => PekerjaanDosenPage()));
-    } else if (index == 3) {
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => ProfilePage()));
-    } else if (index == 0) {
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => DosenDashboard()));
+    int userId = prefs.getInt('userId') ?? 0;
+    if (userId == 0) {
+      print("User ID tidak ditemukan.");
+      throw Exception("User ID tidak ditemukan.");
+    }
+
+    try {
+      if (userId != 0) {
+        // Fetch periode data
+        var periodeData =
+            await KompetensiService().fetchPeriodeByUserId(userId);
+
+        // Fetch kompetensi detail
+        var kompetensiDetail = await KompetensiService()
+            .fetchKompetensiDetail(widget.kompetensiId);
+
+        setState(() {
+          periodeId = periodeData['periode_id'] ?? 0;
+          periode = periodeData['periode'] ?? 'Periode Tidak Ditemukan';
+          kompetensiNama = kompetensiDetail?.kompetensiNama ?? 'Tidak Tersedia';
+          pengalaman = kompetensiDetail?.pengalaman ?? 'Tidak Tersedia';
+          bukti = kompetensiDetail?.bukti ?? 'Tidak Tersedia';
+        });
+        print('User ID: $userId');
+        print('Fetching periode data...');
+        print('Periode Data: $periodeData');
+        print('Fetching kompetensi detail...');
+        print('Kompetensi Detail: $kompetensiDetail');
+      } else {
+        throw Exception("User ID tidak ditemukan.");
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = 'Gagal memuat data: ${e.toString()}';
+        print('Error detail: $e');
+      });
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
   Widget buildBoxLihatDetailKompetensi(String title, String description) {
     return FractionallySizedBox(
-      widthFactor: 0.9, // Lebar 90% dari layar
+      widthFactor: 0.9,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Title Container (Lebih ramping)
+          // Title Container
           Container(
-            width: double.infinity, // Lebar penuh
-            height: 30, // Tinggi lebih kecil untuk judul
+            width: double.infinity,
+            height: 30,
             decoration: const BoxDecoration(
               color: Color(0xFFF4D03F),
               borderRadius: BorderRadius.only(
@@ -63,7 +99,7 @@ class _LihatDetailKompetensiState extends State<LihatDetailKompetensi> {
                 topRight: Radius.circular(10),
               ),
             ),
-            alignment: Alignment.centerLeft, // Teks berada di tengah kiri
+            alignment: Alignment.centerLeft,
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Text(
               title,
@@ -76,9 +112,9 @@ class _LihatDetailKompetensiState extends State<LihatDetailKompetensi> {
           ),
           // Description Container
           Container(
-            width: double.infinity, // Lebar penuh
+            width: double.infinity,
             constraints: const BoxConstraints(
-              minHeight: 60, // Minimal tinggi kontainer deskripsi
+              minHeight: 60,
             ),
             decoration: const BoxDecoration(
               color: Color(0xFF1A6FD3),
@@ -87,7 +123,7 @@ class _LihatDetailKompetensiState extends State<LihatDetailKompetensi> {
                 bottomRight: Radius.circular(10),
               ),
             ),
-            alignment: Alignment.centerLeft, // Teks berada di tengah kiri
+            alignment: Alignment.centerLeft,
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
             child: Text(
               description,
@@ -105,63 +141,55 @@ class _LihatDetailKompetensiState extends State<LihatDetailKompetensi> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => LihatKompetensi(
-                  nama: widget.nama, // Pass dynamic data
-                  id: widget.id,
-                  tugas: widget.tugas,
-                  // kompetensiList: [],
-                )));
+            Navigator.pop(context);
           },
         ),
         title: Text(
-          'Kompetensi 1',
-          style: GoogleFonts.poppins(
-            color: Colors.black,
-          ),
+          'Detail Kompetensi',
+          style: GoogleFonts.poppins(color: Colors.black),
         ),
         backgroundColor: Colors.white,
         elevation: 0,
         foregroundColor: Colors.black,
       ),
-      body: Center(
-        // Menempatkan konten di tengah layar
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min, // Kolom berukuran minimum
-              children: [
-                buildBoxLihatDetailKompetensi(
-                    "Nama", widget.nama),
-                const SizedBox(height: 8),
-                buildBoxLihatDetailKompetensi("NIM", widget.id),
-                const SizedBox(height: 8),
-                buildBoxLihatDetailKompetensi("Periode", "2024/2025 Genap"),
-                const SizedBox(height: 8),
-                const Divider(color: Colors.black, thickness: 3),
-                const SizedBox(height: 8),
-                buildBoxLihatDetailKompetensi(
-                    "Kompetensi", "Menguasai Pembuatan Flowchart"),
-                const SizedBox(height: 8),
-                buildBoxLihatDetailKompetensi("Pengalaman",
-                    "Pernah membuat use case dan activity diagram untuk mata kuliah APSO"),
-                const SizedBox(height: 8),
-                buildBoxLihatDetailKompetensi(
-                    "Bukti", "Phttps://app.diagrams.net#G1N3t5Xuboff26bE-mCJ7BuNy5TTWj5Rd#%7B%22pageId%22%3A%22zflMTrrlGC0nfNbhAmkl%22%7D"),
-              ],
-            ),
-          ),
-        ),
-      ),
-      bottomNavigationBar: BottomNavBarDosen(
-        selectedIndex: _selectedIndex,
-        onItemTapped: _onItemTapped,
-      ),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : errorMessage.isNotEmpty
+              ? Center(
+                  child: Text(
+                    errorMessage,
+                    style: GoogleFonts.poppins(color: Colors.red),
+                    textAlign: TextAlign.center,
+                  ),
+                )
+              : SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        buildBoxLihatDetailKompetensi("Nama", nama),
+                        const SizedBox(height: 8),
+                        buildBoxLihatDetailKompetensi("NIM", nim),
+                        const SizedBox(height: 8),
+                        buildBoxLihatDetailKompetensi("Periode", periode),
+                        const SizedBox(height: 8),
+                        const Divider(color: Colors.black, thickness: 3),
+                        const SizedBox(height: 8),
+                        buildBoxLihatDetailKompetensi(
+                            "Kompetensi", kompetensiNama),
+                        const SizedBox(height: 8),
+                        buildBoxLihatDetailKompetensi("Pengalaman", pengalaman),
+                        const SizedBox(height: 8),
+                        buildBoxLihatDetailKompetensi("Bukti", bukti),
+                      ],
+                    ),
+                  ),
+                ),
     );
   }
 }
