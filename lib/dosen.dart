@@ -7,6 +7,7 @@ import '../Model/dashboardDsnModel.dart';
 import 'Dosen/pekerjaan.dart';
 import 'Dosen/profile.dart';
 import 'bottombar/bottombarDosen.dart';
+import 'Dosen/penerimaan_dosen1.dart';
 
 class DosenDashboard extends StatefulWidget {
   const DosenDashboard({super.key});
@@ -79,6 +80,11 @@ class _DosenDashboardState extends State<DosenDashboard> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const PekerjaanDosenPage()),
+      );
+      } else if (index == 2) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => PenerimaanDosen1()),
       );
     } else if (index == 3) {
       Navigator.pushReplacement(

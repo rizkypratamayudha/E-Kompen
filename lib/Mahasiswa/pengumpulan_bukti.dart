@@ -731,7 +731,7 @@ class _PengumpulanBuktiPageState extends State<PengumpulanBuktiPage> {
       return ClipRRect(
         borderRadius: BorderRadius.circular(10),
         child: Image.network(
-          'http://10.0.2.2/kompenjti/public/storage/$buktiPengumpulanUrl',
+          'http://192.168.70.100/kompenjti/public/storage/$buktiPengumpulanUrl',
           fit: BoxFit.contain,
           loadingBuilder: (context, child, loadingProgress) {
             if (loadingProgress == null) {
@@ -808,7 +808,7 @@ class _PengumpulanBuktiPageState extends State<PengumpulanBuktiPage> {
   void _downloadFile(String fileUrl) async {
   try {
     // Tentukan base URL untuk file yang akan diunduh
-    String baseUrl = 'http://10.0.2.2/kompenjti/public/storage/';
+    String baseUrl = 'http://192.168.70.100/kompenjti/public/storage/';
 
     // Cek apakah fileUrl relatif atau URL lengkap
     if (!fileUrl.startsWith('http')) {

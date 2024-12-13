@@ -513,7 +513,7 @@ class _PenerimaanScreenState extends State<PenerimaanScreen> {
 }
 
   Widget _buildCardProses(BuildContext context, String nama, String id,
-    String tanggal, String tugas, String jenisTugas, String judulProgres, int jumlahjam, String bukti_pengumpulan, String nama_original, int pengumpulan_id) {
+    String tanggal, String tugas, String jenisTugas, String judulProgres, int jumlahjam, String bukti_pengumpulan, String nama_original, int pengumpulan_id, String tanggaldikumpulkan) {
   return Align(
     alignment: Alignment.topCenter,
     child: FractionallySizedBox(
@@ -533,6 +533,7 @@ class _PenerimaanScreenState extends State<PenerimaanScreen> {
                 jumlahjam: jumlahjam,
                 bukti_pengumpulan: bukti_pengumpulan,
                 nama_original: nama_original,
+                tanggaldikumpulkan: tanggaldikumpulkan,
               ),
             ),
           );
@@ -752,6 +753,7 @@ Widget _buildProsesList(BuildContext context) {
             final bukti_pengumpulan = item['bukti_pengumpulan'] ?? ''; // Use fallback value for null
             final nama_original = item['namaoriginal'] ?? ''; // Use fallback value for null
             final pengumpulan_id = item['pengumpulan_id'];
+            final tanggaldikumpulkan = item['created_at'];
             return _buildCardProses(
               context,
               item['user']['nama'] ?? 'Nama tidak tersedia', // Handle null value for nama
@@ -764,6 +766,7 @@ Widget _buildProsesList(BuildContext context) {
               bukti_pengumpulan,
               nama_original,
               pengumpulan_id,
+              tanggaldikumpulkan,
             );
           },
         );

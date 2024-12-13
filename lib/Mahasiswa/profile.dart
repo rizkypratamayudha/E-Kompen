@@ -159,6 +159,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(0, 0, 0, 50.0),
@@ -227,6 +228,13 @@ class _ProfilePageState extends State<ProfilePage> {
               }),
               if (_isPasswordSectionVisible) buildPasswordForm(),
               buildSection('Daftar Kompetensi Mahasiswa', Icons.person_search,
+                  () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const KompetensiMahasiswaPage()));
+              }),
+              buildSection('Notifikasi', Icons.notification_add,
                   () {
                 Navigator.push(
                     context,

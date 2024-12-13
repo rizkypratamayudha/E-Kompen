@@ -364,18 +364,83 @@ class _PenandatangananScreenState extends State<PenandatangananScreen> {
     );
   }
 
+  Future<List<dynamic>> fetchRiwayatPenerimaan() async {
+  try {
+    final token = await AuthService().getToken();
+    final response = await http.get(
+      Uri.parse('${config.baseUrl}/kaprodi/getriwayat'), // Ganti dengan endpoint Anda
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token', // Jika menggunakan token autentikasi
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      if (data['success']) {
+        return data['data'] as List<dynamic>;
+      } else {
+        throw Exception('Gagal memuat data riwayat.');
+      }
+    } else {
+      throw Exception('Error: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Error fetching riwayat: $e');
+    return [];
+  }
+}
+
   // Fungsi untuk membuat daftar yang sudah Selesai
   Widget _buildSelesaiList(BuildContext context) {
-    return ListView(
-      children: [
-        _buildSelesai(
-            context, 'Solikhin', '2241760020', '2024-12-12', 'Membuat Web'),
-      ],
-    );
-  }
+  return FutureBuilder<List<dynamic>>(
+    future: fetchRiwayatPenerimaan(),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return Center(child: CircularProgressIndicator());
+      } else if (snapshot.hasError) {
+        return Center(
+          child: Text(
+            'Terjadi kesalahan: ${snapshot.error}',
+            style: GoogleFonts.poppins(fontSize: 14, color: Colors.red),
+          ),
+        );
+      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+        return Center(
+          child: Text(
+            'Tidak ada data riwayat.',
+            style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey),
+          ),
+        );
+      } else {
+        final riwayatList = snapshot.data!;
+        return ListView.builder(
+          itemCount: riwayatList.length,
+          itemBuilder: (context, index) {
+            final riwayat = riwayatList[index];
+            return _buildSelesai(
+              context,
+              riwayat['user']['nama'] ?? '-', // Nama user
+              riwayat['user']['username'] ?? 'ID tidak tersedia',     // ID user
+              riwayat['created_at'] ?? 'Tanggal tidak tersedia', // Tanggal dibuat
+              riwayat['pekerjaan']['pekerjaan_nama'] ?? 'Tugas tidak tersedia', // Nama pekerjaan
+            );
+          },
+        );
+      }
+    },
+  );
+}
+
 
   Widget _buildSelesai(BuildContext context, String nama, String id,
       String tanggal, String tugas) {
+        DateTime? deadline;
+        String formatDeadline = '';
+
+        deadline = DateTime.parse(tanggal);
+        formatDeadline = DateFormat('dd MMM yyyy HH:mm').format(deadline);
+
     return Align(
       alignment: Alignment.topCenter,
       child: FractionallySizedBox(
@@ -406,7 +471,7 @@ class _PenandatangananScreenState extends State<PenandatangananScreen> {
                               ),
                             ),
                             Text(
-                              tanggal,
+                              formatDeadline,
                               style: GoogleFonts.poppins(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w300,

@@ -24,6 +24,7 @@ class PengumpulanBuktiDosenPage extends StatefulWidget {
   final int jumlahjam;
   final String bukti_pengumpulan;
   final String nama_original;
+  final String tanggaldikumpulkan;
 
   const PengumpulanBuktiDosenPage(
       {super.key,
@@ -35,7 +36,8 @@ class PengumpulanBuktiDosenPage extends StatefulWidget {
       required this.judulProgres,
       required this.jumlahjam,
       required this.bukti_pengumpulan,
-      required this.nama_original});
+      required this.nama_original,
+      required this.tanggaldikumpulkan});
 
   @override
   _PengumpulanBuktiDosenPageState createState() =>
@@ -83,6 +85,12 @@ class _PengumpulanBuktiDosenPageState extends State<PengumpulanBuktiDosenPage> {
     deadline = DateTime.parse(widget.tanggal);
     formatdeadline = DateFormat('dd MMM yyyy HH:mm').format(deadline);
 
+    DateTime?dikumpulkan;
+    String dikumpulkantgl = '';
+
+    dikumpulkan = DateTime.parse(widget.tanggaldikumpulkan);
+    dikumpulkantgl = DateFormat('dd MMM yyyy HH:mm').format(dikumpulkan);
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -124,6 +132,7 @@ class _PengumpulanBuktiDosenPageState extends State<PengumpulanBuktiDosenPage> {
                       buildInfoRow('Nama Progres:', widget.judulProgres),
                       buildInfoRow('Jumlah Jam:', widget.jumlahjam.toString()),
                       buildInfoRow('Batas Pengerjaan:', formatdeadline),
+                      buildInfoRow('Diserahkan pada:', dikumpulkantgl),
                       const SizedBox(height: 16),
                       // Foto Bukti
                       Text(
@@ -210,7 +219,7 @@ class _PengumpulanBuktiDosenPageState extends State<PengumpulanBuktiDosenPage> {
       return ClipRRect(
         borderRadius: BorderRadius.circular(10),
         child: Image.network(
-          'http://10.0.2.2/kompenjti/public/storage/$buktiPengumpulanUrl',
+          'http://192.168.70.100/kompenjti/public/storage/$buktiPengumpulanUrl',
           fit: BoxFit.contain,
           loadingBuilder: (context, child, loadingProgress) {
             if (loadingProgress == null) {
@@ -259,7 +268,7 @@ class _PengumpulanBuktiDosenPageState extends State<PengumpulanBuktiDosenPage> {
 void _downloadFile(String fileUrl) async {
   try {
     // Tentukan base URL untuk file yang akan diunduh
-    String baseUrl = 'http://10.0.2.2/kompenjti/public/storage/';
+    String baseUrl = 'http://192.168.70.100/kompenjti/public/storage/';
 
     // Cek apakah fileUrl relatif atau URL lengkap
     if (!fileUrl.startsWith('http')) {
