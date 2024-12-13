@@ -12,8 +12,8 @@ class DashboardKap {
   factory DashboardKap.fromJson(Map<String, dynamic> json) {
     return DashboardKap(
       user: User.fromJson(json['user']),
-      pendingCount: json['pendingCount'],
-      approveCount: json['approveCount'],
+      pendingCount: json['pendingCount'] ?? 0, // Default to 0 if null
+      approveCount: json['approveCount'] ?? 0, // Default to 0 if null
     );
   }
 }
@@ -23,7 +23,7 @@ class User {
   final int levelId;
   final String username;
   final String nama;
-  final String avatar;
+  final String? avatar; // Nullable avatar
   final Level level;
   final DetailKaprodi detailKaprodi;
 
@@ -43,7 +43,7 @@ class User {
       levelId: json['level_id'],
       username: json['username'],
       nama: json['nama'],
-      avatar: json['avatar'],
+      avatar: json['avatar'], // Allow null
       level: Level.fromJson(json['level']),
       detailKaprodi: DetailKaprodi.fromJson(json['detail_kaprodi']),
     );

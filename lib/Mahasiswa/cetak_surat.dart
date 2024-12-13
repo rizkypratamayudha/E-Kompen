@@ -172,8 +172,8 @@ class _CetakSuratPageState extends State<CetakSuratPage> {
                   children: [
                     _buildQrSignature(
                       'Malang, ${widget.formattanggal}',
-                      'Dr. Salam, S.T., M.T',
-                      'NIP: 111',
+                      widget.nama,
+                      widget.idkap,
                     ),
                   ],
                 ),

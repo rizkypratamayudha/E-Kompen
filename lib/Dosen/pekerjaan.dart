@@ -1,3 +1,5 @@
+import 'package:firstapp/config/config.dart';
+import 'package:firstapp/controller/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,6 +14,8 @@ import '../controller/dosen_pekerjaan_service.dart';
 import '../Model/dosen_pekerjaan_model.dart';
 import 'mulai_deadline.dart';
 import 'edit_deadline.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class PekerjaanDosenPage extends StatefulWidget {
   const PekerjaanDosenPage({super.key});
@@ -55,6 +59,29 @@ class _PekerjaanDosenPageState extends State<PekerjaanDosenPage> {
       );
     }
   }
+
+  Future<int> fetchAnggotaSekarang(int pekerjaanId) async {
+  try {
+    final token = await AuthService().getToken();
+    final response = await http.get(
+      Uri.parse('${config.baseUrl}/pekerjaan/$pekerjaanId/get-anggota'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return data['anggotaJumlah'] ?? 0;
+    } else {
+      throw Exception('Failed to fetch anggota sekarang for pekerjaan_id $pekerjaanId');
+    }
+  } catch (e) {
+    print('Error fetching anggota sekarang: $e');
+    return 0; // Default nilai jika terjadi error
+  }
+}
 
   Future<void> _showConfirmationDialog(
       BuildContext context, DosenPekerjaan pekerjaan) async {
@@ -214,29 +241,67 @@ class _PekerjaanDosenPageState extends State<PekerjaanDosenPage> {
   }
 
   Widget _buildPekerjaanList(List<DosenPekerjaan> pekerjaanList) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: pekerjaanList.asMap().entries.map((entry) {
-          final index = entry.key + 1; // Nomor urut, dimulai dari 1
-          final pekerjaan = entry.value;
-          return Column(
-            children: [
-              _buildPekerjaan(
-                pekerjaan.pekerjaanNama,
-                pekerjaan.jumlahAnggota,
-                pekerjaan.jumlahAnggota,
-                index,
-                pekerjaan, // Menambahkan data pekerjaan
-              ),
-              const SizedBox(height: 16),
-            ],
-          );
-        }).toList(),
-      ),
-    );
-  }
+  return SingleChildScrollView(
+    padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: pekerjaanList.asMap().entries.map((entry) {
+        final index = entry.key + 1; // Nomor urut, dimulai dari 1
+        final pekerjaan = entry.value;
+
+        // Gunakan FutureBuilder untuk mengambil jumlah anggota sekarang
+        return Column(
+          children: [
+            FutureBuilder<int>(
+              future: fetchAnggotaSekarang(pekerjaan.pekerjaanId),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Container(
+                    height: 100,
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.blueGrey,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Center(
+                      child: CircularProgressIndicator(color: Colors.white),
+                    ),
+                  );
+                } else if (snapshot.hasError) {
+                  return Container(
+                    height: 100,
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Error: ${snapshot.error}',
+                        style: GoogleFonts.poppins(fontSize: 12, color: Colors.white),
+                      ),
+                    ),
+                  );
+                } else {
+                  final anggotaSekarang = snapshot.data ?? 0;
+                  return _buildPekerjaan(
+                    pekerjaan.pekerjaanNama,
+                    anggotaSekarang,
+                    pekerjaan.jumlahAnggota,
+                    index,
+                    pekerjaan,
+                  );
+                }
+              },
+            ),
+            const SizedBox(height: 16),
+          ],
+        );
+      }).toList(),
+    ),
+  );
+}
+
 
   Widget _buildAddButton() {
     return Positioned(
@@ -368,6 +433,49 @@ class _PekerjaanDosenPageState extends State<PekerjaanDosenPage> {
       ),
     );
   }
+
+  Widget buildPekerjaanInfoWithAnggota(int pekerjaanId, String title, int totalAnggota) {
+  return FutureBuilder<int>(
+    future: fetchAnggotaSekarang(pekerjaanId),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        // Sementara menunggu data
+        return Container(
+          height: 100,
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.blueGrey,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Center(
+            child: CircularProgressIndicator(color: Colors.white),
+          ),
+        );
+      } else if (snapshot.hasError) {
+        // Jika terjadi error
+        return Container(
+          height: 100,
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.red,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Center(
+            child: Text(
+              'Error: ${snapshot.error}',
+              style: GoogleFonts.poppins(fontSize: 12, color: Colors.white),
+            ),
+          ),
+        );
+      } else {
+        // Jika data tersedia
+        final anggota = snapshot.data ?? 0; // Nilai default jika null
+        return _buildPekerjaanInfo(title, anggota, totalAnggota);
+      }
+    },
+  );
+}
+
 
   Widget _buildStatusButton(DosenPekerjaan pekerjaan) {
     final isOpen = pekerjaan.status == 'open';

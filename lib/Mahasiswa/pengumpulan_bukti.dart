@@ -814,7 +814,7 @@ class _PengumpulanBuktiPageState extends State<PengumpulanBuktiPage> {
   void _downloadFile(String fileUrl) async {
   try {
     // Tentukan base URL untuk file yang akan diunduh
-    String baseUrl = 'http://10.0.2.2/kompenjti/public/storage/';
+    String baseUrl = 'http://192.168.70.100/kompenjti/public/storage/';
 
     // Cek apakah fileUrl relatif atau URL lengkap
     if (!fileUrl.startsWith('http')) {
