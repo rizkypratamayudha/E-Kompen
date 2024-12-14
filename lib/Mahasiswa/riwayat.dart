@@ -26,6 +26,33 @@ class _RiwayatPageState extends State<RiwayatPage> {
   List<Pekerjaan> prosesItems = [];
   List<Pekerjaan> selesaiItems = [];
   List<Pekerjaan> ttdKaprodiItems = [];
+  int _notificationCount = 0;
+
+  Future<void> _fetchNotificationCount() async {
+    try {
+      final userId = await AuthService().getUserId();
+      final token = await AuthService().getToken();
+      final response = await http.get(
+        Uri.parse(
+            '${config.baseUrl}/mahasiswa/$userId/notifikasijumlah'), // Your endpoint for notification count
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token', // Add the token if necessary
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          _notificationCount = data['jumlah'];
+        });
+      } else {
+        print('Failed to load notification count');
+      }
+    } catch (e) {
+      print('Error fetching notification count: $e');
+    }
+  }
 
   Future<void> _fetchData() async {
     try {
@@ -81,6 +108,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
   void initState() {
     super.initState();
     _fetchData(); // Panggil fungsi fetch data saat halaman pertama kali dimuat
+    _fetchNotificationCount();
   }
 
   void _onItemTapped(int index) {
@@ -141,6 +169,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
         bottomNavigationBar: BottomNavBar(
           selectedIndex: _selectedIndex,
           onItemTapped: _onItemTapped,
+          notificationCount: _notificationCount,
         ),
       ),
     );
@@ -283,107 +312,107 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
   // Fungsi untuk membangun satu item riwayat
   // Fungsi untuk membangun satu item riwayat
   Widget _buildRiwayat(BuildContext context, Pekerjaan pekerjaan) {
-  DateTime? deadline;
-  deadline = pekerjaan.akumulasiDeadline != null
-      ? DateTime.parse(pekerjaan.akumulasiDeadline.toString())
-      : null;
-  String? formatDeadline;
+    DateTime? deadline;
+    deadline = pekerjaan.akumulasiDeadline != null
+        ? DateTime.parse(pekerjaan.akumulasiDeadline.toString())
+        : null;
+    String? formatDeadline;
 
-  if (deadline != null) {
-    formatDeadline = DateFormat('dd MMM yyyy HH:mm').format(deadline);
-  }
+    if (deadline != null) {
+      formatDeadline = DateFormat('dd MMM yyyy HH:mm').format(deadline);
+    }
 
-  return Align(
-    alignment: Alignment.topCenter,
-    child: FractionallySizedBox(
-      widthFactor: 0.9,
-      child: Card(
-        color: Colors.blue,
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: ListTile(
-            title: Text(
-              pekerjaan.pekerjaanNama ?? 'Nama Pekerjaan tidak tersedia',
-              style: GoogleFonts.poppins(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+    return Align(
+      alignment: Alignment.topCenter,
+      child: FractionallySizedBox(
+        widthFactor: 0.9,
+        child: Card(
+          color: Colors.blue,
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: ListTile(
+              title: Text(
+                pekerjaan.pekerjaanNama ?? 'Nama Pekerjaan tidak tersedia',
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (formatDeadline != null)
-                  Text(
-                    'Akumulasi Deadline: $formatDeadline',
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      color: Colors.white70,
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (formatDeadline != null)
+                    Text(
+                      'Akumulasi Deadline: $formatDeadline',
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: Colors.white70,
+                      ),
                     ),
-                  ),
-                if (formatDeadline == null)
-                  Text(
-                    'Akumulasi Deadline: Tidak tersedia',
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      color: Colors.white70,
+                  if (formatDeadline == null)
+                    Text(
+                      'Akumulasi Deadline: Tidak tersedia',
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: Colors.white70,
+                      ),
                     ),
-                  ),
-              ],
-            ),
-            onTap: () {
-              if (widget.selesaiItems.contains(pekerjaan)) {
-                // Navigasi ke ProgressMahasiswaPage jika berasal dari selesaiItems
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ProgressMahasiswaPage(
-                      pekerjaan: pekerjaan,
+                ],
+              ),
+              onTap: () {
+                if (widget.selesaiItems.contains(pekerjaan)) {
+                  // Navigasi ke ProgressMahasiswaPage jika berasal dari selesaiItems
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProgressMahasiswaPage(
+                        pekerjaan: pekerjaan,
+                      ),
                     ),
-                  ),
-                );
-              } else if (widget.prosesItems.contains(pekerjaan)) {
-                // Navigasi ke ProgressMahasiswaPage jika berasal dari prosesItems
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ProgressMahasiswaPage(
-                      pekerjaan: pekerjaan,
+                  );
+                } else if (widget.prosesItems.contains(pekerjaan)) {
+                  // Navigasi ke ProgressMahasiswaPage jika berasal dari prosesItems
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProgressMahasiswaPage(
+                        pekerjaan: pekerjaan,
+                      ),
                     ),
-                  ),
-                );
-              }
-            },
-            onLongPress: () {
-              if (widget.selesaiItems.contains(pekerjaan)) {
-                // Cek apakah semua status di progres.pengumpulan tidak 'pending'
-                final allStatusNonPending =
-                    pekerjaan.progres.every((progres) {
-                  return progres.pengumpulan.isNotEmpty &&
-                      progres.pengumpulan.every(
-                          (pengumpulan) => pengumpulan.status != 'pending');
-                });
-
-                // Tampilkan popup jika semua status tidak 'pending'
-                if (allStatusNonPending) {
-                  _showWebPopup(context, pekerjaan);
-                } else {
-                  // Tambahkan aksi lain jika ada, misalnya menampilkan pesan
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                        content: Text(
-                      "Beberapa status masih pending.",
-                    )),
                   );
                 }
-              }
-            },
+              },
+              onLongPress: () {
+                if (widget.selesaiItems.contains(pekerjaan)) {
+                  // Cek apakah semua status di progres.pengumpulan tidak 'pending'
+                  final allStatusNonPending =
+                      pekerjaan.progres.every((progres) {
+                    return progres.pengumpulan.isNotEmpty &&
+                        progres.pengumpulan.every(
+                            (pengumpulan) => pengumpulan.status != 'pending');
+                  });
+
+                  // Tampilkan popup jika semua status tidak 'pending'
+                  if (allStatusNonPending) {
+                    _showWebPopup(context, pekerjaan);
+                  } else {
+                    // Tambahkan aksi lain jika ada, misalnya menampilkan pesan
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          content: Text(
+                        "Beberapa status masih pending.",
+                      )),
+                    );
+                  }
+                }
+              },
+            ),
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Future<void> selesai(String pekerjaanId, String userId) async {
     try {
@@ -526,22 +555,24 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
             itemBuilder: (context, index) {
               var tandaTangan = tandaTanganList[index];
               return _buildSelesaisurat(
-                context,
-                tandaTangan['kaprodi']['nama'], // Replace with correct key path
-                tandaTangan['user']
-                    ['username'], // Replace with correct key path
-                tandaTangan['created_at'], // Replace with correct key path
-                tandaTangan['pekerjaan']['pekerjaan_nama'],
+                  context,
+                  tandaTangan['kaprodi']
+                      ['nama'], // Replace with correct key path
+                  tandaTangan['user']
+                      ['username'], // Replace with correct key path
+                  tandaTangan['created_at'], // Replace with correct key path
+                  tandaTangan['pekerjaan']['pekerjaan_nama'],
                   tandaTangan['user']['nama'],
-                  tandaTangan['user']['detail_mahasiswa']['prodi']['prodi_nama'],
+                  tandaTangan['user']['detail_mahasiswa']['prodi']
+                      ['prodi_nama'],
                   tandaTangan['user']['detail_mahasiswa']['angkatan'],
-                  tandaTangan['user']['detail_mahasiswa']['periode']['periode_nama'],
+                  tandaTangan['user']['detail_mahasiswa']['periode']
+                      ['periode_nama'],
                   tandaTangan['pekerjaan']['user']['nama'],
                   tandaTangan['pekerjaan']['jumlah_jam_kompen'],
                   tandaTangan['pekerjaan']['user']['username'],
                   tandaTangan['kaprodi']['username'],
-                  tandaTangan['t_approve_cetak_id']
-              );
+                  tandaTangan['t_approve_cetak_id']);
             },
           );
         }
@@ -632,8 +663,21 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
     );
   }
 
-  Widget _buildSelesaisurat(BuildContext context, String nama, String id,
-      String tanggal, String tugas, String namauser, String prodi, String angkatan, String periode, String namadosen, int jamkompen, String iddosen, String idkap, int id_cetak) {
+  Widget _buildSelesaisurat(
+      BuildContext context,
+      String nama,
+      String id,
+      String tanggal,
+      String tugas,
+      String namauser,
+      String prodi,
+      String angkatan,
+      String periode,
+      String namadosen,
+      int jamkompen,
+      String iddosen,
+      String idkap,
+      int id_cetak) {
     DateTime? deadline;
     deadline = DateTime.parse(tanggal);
     String formatdeadline = '';
@@ -666,24 +710,24 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
                   actions: [
                     OutlinedButton(
                       onPressed: () {
-                        Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => CetakSuratPage(
-                          nama: nama,
-                          id: id,
-                          formattanggal: formatdeadline,
-                          tugas: tugas,
-                          namauser: namauser,
-                          prodi: prodi,
-                          angkatan: angkatan.toString(),
-                          periode: periode,
-                          namadosen: namadosen,
-                          jamkompen: jamkompen.toString(),
-                          iddosen: iddosen,
-                          idkap: idkap,
-                          id_cetak: id_cetak,
-                        ))
-                        );
-                    
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => CetakSuratPage(
+                                      nama: nama,
+                                      id: id,
+                                      formattanggal: formatdeadline,
+                                      tugas: tugas,
+                                      namauser: namauser,
+                                      prodi: prodi,
+                                      angkatan: angkatan.toString(),
+                                      periode: periode,
+                                      namadosen: namadosen,
+                                      jamkompen: jamkompen.toString(),
+                                      iddosen: iddosen,
+                                      idkap: idkap,
+                                      id_cetak: id_cetak,
+                                    )));
                       },
                       style: OutlinedButton.styleFrom(
                         side: BorderSide(

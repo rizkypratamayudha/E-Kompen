@@ -35,6 +35,7 @@ class PengumpulanBuktiPage extends StatefulWidget {
 class _PengumpulanBuktiPageState extends State<PengumpulanBuktiPage> {
   int _selectedIndex = 2; // Sesuaikan dengan tab yang sedang aktif
   bool isPengumpulanExist = false; // To track if pengumpulan data exists
+  int _notificationCount = 0;
 
   void _onItemTapped(int index) {
     if (index == _selectedIndex) {
@@ -68,11 +69,37 @@ class _PengumpulanBuktiPageState extends State<PengumpulanBuktiPage> {
   @override
   void initState() {
     super.initState();
+    _fetchNotificationCount();
 
     if (widget.progres.pengumpulan.isNotEmpty) {
       isPengumpulanExist = true;
     }
   }
+
+  Future<void> _fetchNotificationCount() async {
+  try {
+    final userId = await AuthService().getUserId();
+    final token = await AuthService().getToken();
+    final response = await http.get(
+      Uri.parse('${config.baseUrl}/mahasiswa/$userId/notifikasijumlah'), // Your endpoint for notification count
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token', // Add the token if necessary
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      setState(() {
+        _notificationCount = data['jumlah'];
+      });
+    } else {
+      print('Failed to load notification count');
+    }
+  } catch (e) {
+    print('Error fetching notification count: $e');
+  }
+}
 
   Future<void> _storeLinkBukti(int progresId, String link) async {
     try {
@@ -706,6 +733,7 @@ class _PengumpulanBuktiPageState extends State<PengumpulanBuktiPage> {
       bottomNavigationBar: BottomNavBar(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
+        notificationCount: _notificationCount,
       ),
       backgroundColor: Colors.white,
     );
@@ -732,9 +760,9 @@ class _PengumpulanBuktiPageState extends State<PengumpulanBuktiPage> {
   borderRadius: BorderRadius.circular(10),
   child: Builder(
     builder: (context) {
-      print('Image URL: http://10.0.2.2/kompenjti/public/storage/$buktiPengumpulanUrl'); // Debug log
+      print('Image URL: http://192.168.1.7/kompenjti/public/storage/$buktiPengumpulanUrl'); // Debug log
       return Image.network(
-        'http://10.0.2.2/kompenjti/public/storage/$buktiPengumpulanUrl',
+        'http://192.168.1.7/kompenjti/public/storage/$buktiPengumpulanUrl',
         fit: BoxFit.contain,
         loadingBuilder: (context, child, loadingProgress) {
           if (loadingProgress == null) {
@@ -814,7 +842,7 @@ class _PengumpulanBuktiPageState extends State<PengumpulanBuktiPage> {
   void _downloadFile(String fileUrl) async {
   try {
     // Tentukan base URL untuk file yang akan diunduh
-    String baseUrl = 'http://192.168.70.100/kompenjti/public/storage/';
+    String baseUrl = 'http://192.168.1.7/kompenjti/public/storage/';
 
     // Cek apakah fileUrl relatif atau URL lengkap
     if (!fileUrl.startsWith('http')) {

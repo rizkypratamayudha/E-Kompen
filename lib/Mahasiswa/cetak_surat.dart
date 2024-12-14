@@ -50,12 +50,39 @@ class _CetakSuratPageState extends State<CetakSuratPage> {
   int _selectedIndex = 2;
   String? qrUrl;
   bool isLoading = true;
+  int _notificationCount = 0;
 
   @override
   void initState() {
     super.initState();
     _loadQrUrl();
+    _fetchNotificationCount();
   }
+
+  Future<void> _fetchNotificationCount() async {
+  try {
+    final userId = await AuthService().getUserId();
+    final token = await AuthService().getToken();
+    final response = await http.get(
+      Uri.parse('${config.baseUrl}/mahasiswa/$userId/notifikasijumlah'), // Your endpoint for notification count
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token', // Add the token if necessary
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      setState(() {
+        _notificationCount = data['jumlah'];
+      });
+    } else {
+      print('Failed to load notification count');
+    }
+  } catch (e) {
+    print('Error fetching notification count: $e');
+  }
+}
 
   Future<void> _loadQrUrl() async {
     String? fetchedQrUrl = await fetchQrUrl(widget.id_cetak.toString());
@@ -184,6 +211,7 @@ class _CetakSuratPageState extends State<CetakSuratPage> {
         bottomNavigationBar: BottomNavBar(
           selectedIndex: _selectedIndex,
           onItemTapped: _onItemTapped,
+          notificationCount: _notificationCount,
         ),
       ),
     );

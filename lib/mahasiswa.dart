@@ -1,3 +1,5 @@
+import 'package:firstapp/config/config.dart';
+import 'package:firstapp/controller/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,6 +9,8 @@ import 'Mahasiswa/riwayat.dart';
 import 'bottombar/bottombar.dart';
 import '../Model/dashboardMhsModel.dart';
 import '../controller/serviceDashboardMhs.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class MahasiswaDashboard extends StatefulWidget {
   const MahasiswaDashboard({super.key});
@@ -27,12 +31,40 @@ class _MahasiswaDashboardState extends State<MahasiswaDashboard> {
   List<Map<String, dynamic>> _details = [];
   String _token = '';
 
+  int _notificationCount = 0;
+
   @override
   void initState() {
     super.initState();
     _loadUserData();
     _fetchDashboardData();
+    _fetchNotificationCount();
   }
+
+  Future<void> _fetchNotificationCount() async {
+  try {
+    final userId = await AuthService().getUserId();
+    final token = await AuthService().getToken();
+    final response = await http.get(
+      Uri.parse('${config.baseUrl}/mahasiswa/$userId/notifikasijumlah'), // Your endpoint for notification count
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token', // Add the token if necessary
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      setState(() {
+        _notificationCount = data['jumlah'];
+      });
+    } else {
+      print('Failed to load notification count');
+    }
+  } catch (e) {
+    print('Error fetching notification count: $e');
+  }
+}
 
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
@@ -348,6 +380,7 @@ class _MahasiswaDashboardState extends State<MahasiswaDashboard> {
       bottomNavigationBar: BottomNavBar(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
+        notificationCount: _notificationCount,
       ),
     );
   }
