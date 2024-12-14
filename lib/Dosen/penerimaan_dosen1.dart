@@ -185,7 +185,7 @@ class _PenerimaanScreenState extends State<PenerimaanScreen> {
 
       if (response.statusCode == 200) {
         print('Pekerjaan approved');
-        _showSuccessDialog();
+        _showdeclineDialog();
       } else if (response.statusCode == 302) {
         print('Redirect detected: ${response.headers['location']}');
       } else {

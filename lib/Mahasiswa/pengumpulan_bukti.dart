@@ -77,29 +77,30 @@ class _PengumpulanBuktiPageState extends State<PengumpulanBuktiPage> {
   }
 
   Future<void> _fetchNotificationCount() async {
-  try {
-    final userId = await AuthService().getUserId();
-    final token = await AuthService().getToken();
-    final response = await http.get(
-      Uri.parse('${config.baseUrl}/mahasiswa/$userId/notifikasijumlah'), // Your endpoint for notification count
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token', // Add the token if necessary
-      },
-    );
+    try {
+      final userId = await AuthService().getUserId();
+      final token = await AuthService().getToken();
+      final response = await http.get(
+        Uri.parse(
+            '${config.baseUrl}/mahasiswa/$userId/notifikasijumlah'), // Your endpoint for notification count
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token', // Add the token if necessary
+        },
+      );
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      setState(() {
-        _notificationCount = data['jumlah'];
-      });
-    } else {
-      print('Failed to load notification count');
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          _notificationCount = data['jumlah'];
+        });
+      } else {
+        print('Failed to load notification count');
+      }
+    } catch (e) {
+      print('Error fetching notification count: $e');
     }
-  } catch (e) {
-    print('Error fetching notification count: $e');
   }
-}
 
   Future<void> _storeLinkBukti(int progresId, String link) async {
     try {
@@ -567,7 +568,6 @@ class _PengumpulanBuktiPageState extends State<PengumpulanBuktiPage> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     String buktiPengumpulanUrl = '';
@@ -757,38 +757,38 @@ class _PengumpulanBuktiPageState extends State<PengumpulanBuktiPage> {
     } else if (buktiPengumpulanUrl.startsWith('pengumpulan_gambar')) {
       // If it's an image URL
       return ClipRRect(
-  borderRadius: BorderRadius.circular(10),
-  child: Builder(
-    builder: (context) {
-      print('Image URL: http://192.168.1.7/kompenjti/public/storage/$buktiPengumpulanUrl'); // Debug log
-      return Image.network(
-        'http://192.168.1.7/kompenjti/public/storage/$buktiPengumpulanUrl',
-        fit: BoxFit.contain,
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) {
-            return child;
-          } else {
-            return Center(
-              child: CircularProgressIndicator(
-                value: loadingProgress.expectedTotalBytes != null
-                    ? loadingProgress.cumulativeBytesLoaded /
-                        (loadingProgress.expectedTotalBytes ?? 1)
-                    : null,
-              ),
+        borderRadius: BorderRadius.circular(10),
+        child: Builder(
+          builder: (context) {
+            print(
+                'Image URL: http://192.168.1.7/kompenjti/public/storage/$buktiPengumpulanUrl'); // Debug log
+            return Image.network(
+              'http://192.168.1.7/kompenjti/public/storage/$buktiPengumpulanUrl',
+              fit: BoxFit.contain,
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) {
+                  return child;
+                } else {
+                  return Center(
+                    child: CircularProgressIndicator(
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded /
+                              (loadingProgress.expectedTotalBytes ?? 1)
+                          : null,
+                    ),
+                  );
+                }
+              },
+              errorBuilder: (context, error, stackTrace) {
+                return Icon(
+                  Icons.error,
+                  color: Colors.red,
+                );
+              },
             );
-          }
-        },
-        errorBuilder: (context, error, stackTrace) {
-          return Icon(
-            Icons.error,
-            color: Colors.red,
-          );
-        },
+          },
+        ),
       );
-    },
-  ),
-);
-
     } else if (buktiPengumpulanUrl.startsWith('pengumpulan_file')) {
       // If it's a file, show download option
       return InkWell(
@@ -840,57 +840,60 @@ class _PengumpulanBuktiPageState extends State<PengumpulanBuktiPage> {
   }
 
   void _downloadFile(String fileUrl) async {
-  try {
-    // Tentukan base URL untuk file yang akan diunduh
-    String baseUrl = 'http://192.168.1.7/kompenjti/public/storage/';
+    try {
+      // Tentukan base URL untuk file yang akan diunduh
+      String baseUrl = 'http://192.168.1.7/kompenjti/public/storage/';
 
-    // Cek apakah fileUrl relatif atau URL lengkap
-    if (!fileUrl.startsWith('http')) {
-      fileUrl = baseUrl + fileUrl; // Tambahkan base URL jika fileUrl relatif
+      // Cek apakah fileUrl relatif atau URL lengkap
+      if (!fileUrl.startsWith('http')) {
+        fileUrl = baseUrl + fileUrl; // Tambahkan base URL jika fileUrl relatif
+      }
+
+      // Dapatkan nama file dari `namaoriginal` atau gunakan fallback dari URL
+      String fileName = widget.progres.pengumpulan.isNotEmpty
+          ? widget.progres.pengumpulan[0].namaoriginal.toString()
+          : fileUrl
+              .split('/')
+              .last; // Ambil nama file dari URL jika `namaoriginal` kosong
+
+      // Dapatkan direktori Downloads
+      Directory? downloadsDirectory;
+      if (Platform.isAndroid) {
+        downloadsDirectory = Directory(
+            '/storage/emulated/0/Download'); // Folder Downloads Android
+      } else if (Platform.isIOS) {
+        downloadsDirectory =
+            await getApplicationDocumentsDirectory(); // Sandbox Documents di iOS
+      }
+
+      // Tentukan path file yang akan disimpan
+      String filePath = '${downloadsDirectory!.path}/$fileName';
+
+      // Buat instance Dio untuk mengunduh file
+      Dio dio = Dio();
+
+      // Mulai proses pengunduhan
+      await dio.download(
+        fileUrl,
+        filePath,
+        onReceiveProgress: (received, total) {
+          if (total != -1) {
+            print("Mengunduh: ${(received / total * 100).toStringAsFixed(0)}%");
+          }
+        },
+      );
+
+      // Tampilkan pesan sukses setelah file berhasil diunduh
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("File berhasil diunduh ke folder Downloads")),
+      );
+      print("File berhasil disimpan di: $filePath");
+    } catch (e) {
+      // Tangani jika terjadi error selama pengunduhan
+      print("Pengunduhan gagal: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Gagal mengunduh file")),
+      );
     }
-
-    // Dapatkan nama file dari `namaoriginal` atau gunakan fallback dari URL
-    String fileName = widget.progres.pengumpulan.isNotEmpty
-        ? widget.progres.pengumpulan[0].namaoriginal.toString()
-        : fileUrl.split('/').last; // Ambil nama file dari URL jika `namaoriginal` kosong
-
-    // Dapatkan direktori Downloads
-    Directory? downloadsDirectory;
-    if (Platform.isAndroid) {
-      downloadsDirectory = Directory('/storage/emulated/0/Download'); // Folder Downloads Android
-    } else if (Platform.isIOS) {
-      downloadsDirectory = await getApplicationDocumentsDirectory(); // Sandbox Documents di iOS
-    }
-
-    // Tentukan path file yang akan disimpan
-    String filePath = '${downloadsDirectory!.path}/$fileName';
-
-    // Buat instance Dio untuk mengunduh file
-    Dio dio = Dio();
-
-    // Mulai proses pengunduhan
-    await dio.download(
-      fileUrl,
-      filePath,
-      onReceiveProgress: (received, total) {
-        if (total != -1) {
-          print("Mengunduh: ${(received / total * 100).toStringAsFixed(0)}%");
-        }
-      },
-    );
-
-    // Tampilkan pesan sukses setelah file berhasil diunduh
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("File berhasil diunduh ke folder Downloads")),
-    );
-    print("File berhasil disimpan di: $filePath");
-  } catch (e) {
-    // Tangani jika terjadi error selama pengunduhan
-    print("Pengunduhan gagal: $e");
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Gagal mengunduh file")),
-    );
   }
-}
-
 }

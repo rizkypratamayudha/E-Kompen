@@ -40,7 +40,7 @@ class _RegisterPageState extends State<RegisterPage> {
             const SizedBox(height: 40),
             DropdownButtonFormField<String>(
               value: _role,
-              items: ['Mahasiswa', 'Dosen/Tendik', 'Kaprodi']
+              items: ['Mahasiswa', 'Dosen/Tendik']
                   .map((role) => DropdownMenuItem(
                         value: role,
                         child: Text(
@@ -146,18 +146,6 @@ class _RegisterPageState extends State<RegisterPage> {
                         password: _passwordController.text,
                         nama: _namaController.text,
                         roleId: 2, // Role ID for Dosen/Tendik
-                      ),
-                    ),
-                  );
-                } else if (_role == 'Kaprodi') {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => RegisterKaprodi(
-                        username: _usernameController.text,
-                        password: _passwordController.text,
-                        nama: _namaController.text,
-                        roleId: 4, // Role ID for Kaprodi
                       ),
                     ),
                   );

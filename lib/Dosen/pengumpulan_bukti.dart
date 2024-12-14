@@ -13,6 +13,7 @@ import 'pekerjaan.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
+import 'package:permission_handler/permission_handler.dart';
 
 class PengumpulanBuktiDosenPage extends StatefulWidget {
   final String nama;
@@ -266,55 +267,65 @@ class _PengumpulanBuktiDosenPageState extends State<PengumpulanBuktiDosenPage> {
   }
 
 void _downloadFile(String fileUrl) async {
-  try {
-    // Tentukan base URL untuk file yang akan diunduh
-    String baseUrl = 'http://192.168.1.7/kompenjti/public/storage/';
+  // Request storage permission
+  PermissionStatus status = await Permission.storage.request();
 
-    // Cek apakah fileUrl relatif atau URL lengkap
-    if (!fileUrl.startsWith('http')) {
-      fileUrl = baseUrl + fileUrl; // Tambahkan base URL jika fileUrl relatif
+  if (status.isGranted) {
+    try {
+      // Tentukan base URL untuk file yang akan diunduh
+      String baseUrl = 'http://192.168.1.7/kompenjti/public/storage/';
+
+      // Cek apakah fileUrl relatif atau URL lengkap
+      if (!fileUrl.startsWith('http')) {
+        fileUrl = baseUrl + fileUrl; // Tambahkan base URL jika fileUrl relatif
+      }
+
+      // Dapatkan nama file dari `nama_original` atau gunakan `bukti_pengumpulan` sebagai fallback
+      String fileName = widget.nama_original.isNotEmpty
+          ? widget.nama_original
+          : fileUrl.split('/').last; // Ambil nama file dari URL jika `nama_original` kosong
+
+      // Dapatkan direktori Downloads
+      Directory? downloadsDirectory;
+      if (Platform.isAndroid) {
+        downloadsDirectory = Directory('/storage/emulated/0/Download');
+      } else if (Platform.isIOS) {
+        downloadsDirectory = await getApplicationDocumentsDirectory(); // Gunakan Documents di iOS
+      }
+
+      // Tentukan path file yang akan disimpan
+      String filePath = '${downloadsDirectory!.path}/$fileName';
+
+      // Buat instance Dio untuk mengunduh file
+      Dio dio = Dio();
+
+      // Mulai proses pengunduhan
+      await dio.download(
+        fileUrl,
+        filePath,
+        onReceiveProgress: (received, total) {
+          if (total != -1) {
+            print("Mengunduh: ${(received / total * 100).toStringAsFixed(0)}%");
+          }
+        },
+      );
+
+      // Tampilkan pesan sukses setelah file berhasil diunduh
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("File berhasil diunduh ke folder Downloads")),
+      );
+      print("File berhasil disimpan di: $filePath");
+    } catch (e) {
+      // Tangani jika terjadi error selama pengunduhan
+      print("Pengunduhan gagal: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Gagal mengunduh file")),
+      );
     }
-
-    // Dapatkan nama file dari `nama_original` atau gunakan `bukti_pengumpulan` sebagai fallback
-    String fileName = widget.nama_original.isNotEmpty
-        ? widget.nama_original
-        : fileUrl.split('/').last; // Ambil nama file dari URL jika `nama_original` kosong
-
-    // Dapatkan direktori Downloads
-    Directory? downloadsDirectory;
-    if (Platform.isAndroid) {
-      downloadsDirectory = Directory('/storage/emulated/0/Download');
-    } else if (Platform.isIOS) {
-      downloadsDirectory = await getApplicationDocumentsDirectory(); // Gunakan Documents di iOS
-    }
-
-    // Tentukan path file yang akan disimpan
-    String filePath = '${downloadsDirectory!.path}/$fileName';
-
-    // Buat instance Dio untuk mengunduh file
-    Dio dio = Dio();
-
-    // Mulai proses pengunduhan
-    await dio.download(
-      fileUrl,
-      filePath,
-      onReceiveProgress: (received, total) {
-        if (total != -1) {
-          print("Mengunduh: ${(received / total * 100).toStringAsFixed(0)}%");
-        }
-      },
-    );
-
-    // Tampilkan pesan sukses setelah file berhasil diunduh
+  } else {
+    // Inform the user that permission was denied
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("File berhasil diunduh ke folder Downloads")),
-    );
-    print("File berhasil disimpan di: $filePath");
-  } catch (e) {
-    // Tangani jika terjadi error selama pengunduhan
-    print("Pengunduhan gagal: $e");
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Gagal mengunduh file")),
+      SnackBar(content: Text("Permission to access storage is denied")),
     );
   }
 }
