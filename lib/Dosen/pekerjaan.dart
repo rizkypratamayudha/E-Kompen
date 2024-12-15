@@ -16,6 +16,7 @@ import 'mulai_deadline.dart';
 import 'edit_deadline.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'lihat_daftar_mahasiswa.dart';
 
 class PekerjaanDosenPage extends StatefulWidget {
   const PekerjaanDosenPage({super.key});
@@ -35,7 +36,7 @@ class _PekerjaanDosenPageState extends State<PekerjaanDosenPage> {
     super.initState();
     _pekerjaanFuture =
         Future.value([]); // Inisialisasi awal untuk mencegah error
-    _loadUserId();
+    _loadUserId(); // Memuat userId dan data pekerjaan
   }
 
   Future<void> _loadUserId() async {
@@ -47,7 +48,74 @@ class _PekerjaanDosenPageState extends State<PekerjaanDosenPage> {
     });
   }
 
-  Future<void> _toggleStatus(DosenPekerjaan pekerjaan) async {
+  Future<void> _updateStatusAutomatically(
+      DosenPekerjaan pekerjaan, int anggota, int totalAnggota) async {
+    final isFull = anggota == totalAnggota;
+
+    if (isFull && pekerjaan.status == 'open') {
+      try {
+        await _service.updateStatus(pekerjaan.pekerjaanId, 'close');
+        setState(() {
+          pekerjaan.status = 'close';
+        });
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal memperbarui status otomatis: $e')),
+        );
+      }
+    }
+  }
+
+  // Fungsi untuk memeriksa pelamar pekerjaan
+  Future<Map<String, dynamic>> _checkPendingApplicants(int pekerjaanId) async {
+    try {
+      final service = DosenBuatPekerjaanService();
+      final response = await service.getPendingApplicants(pekerjaanId);
+      return {'success': true, 'data': response};
+    } catch (e) {
+      return {
+        'success': false,
+        'error': 'Gagal memeriksa data pelamar.',
+        'message': e.toString(),
+      };
+    }
+  }
+
+// Dialog informasi
+  void _showInfoDialog(BuildContext context, String title, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Tutup dialog
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _toggleStatus(
+      DosenPekerjaan pekerjaan, int anggota, int totalAnggota) async {
+    final isFull = anggota == totalAnggota;
+
+    if (isFull && pekerjaan.status == 'close') {
+      await _showDialogKondisi(
+        context,
+        'Perubahan Status Dilarang',
+        'Pekerjaan ini sudah penuh dan tidak bisa mengubah status ke Open. '
+            'Jika Anda ingin mengubah status ke Open, tambahkan total anggota atau kurangi anggota yang ada.',
+      );
+      return;
+    }
+
     try {
       await _service.updateStatus(pekerjaan.pekerjaanId, pekerjaan.status!);
       setState(() {
@@ -61,32 +129,46 @@ class _PekerjaanDosenPageState extends State<PekerjaanDosenPage> {
   }
 
   Future<int> fetchAnggotaSekarang(int pekerjaanId) async {
-  try {
-    final token = await AuthService().getToken();
-    final response = await http.get(
-      Uri.parse('${config.baseUrl}/pekerjaan/$pekerjaanId/get-anggota'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
+    try {
+      final token = await AuthService().getToken();
+      final response = await http.get(
+        Uri.parse('${config.baseUrl}/pekerjaan/$pekerjaanId/get-anggota'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      return data['anggotaJumlah'] ?? 0;
-    } else {
-      throw Exception('Failed to fetch anggota sekarang for pekerjaan_id $pekerjaanId');
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['anggotaJumlah'] ?? 0;
+      } else {
+        throw Exception(
+            'Failed to fetch anggota sekarang for pekerjaan_id $pekerjaanId');
+      }
+    } catch (e) {
+      print('Error fetching anggota sekarang: $e');
+      return 0; // Default nilai jika terjadi error
     }
-  } catch (e) {
-    print('Error fetching anggota sekarang: $e');
-    return 0; // Default nilai jika terjadi error
   }
-}
 
-  Future<void> _showConfirmationDialog(
-      BuildContext context, DosenPekerjaan pekerjaan) async {
+  Future<void> _showConfirmationDialog(BuildContext context,
+      DosenPekerjaan pekerjaan, int anggota, int totalAnggota) async {
     final isOpen = pekerjaan.status == 'open';
     final newStatus = isOpen ? 'close' : 'open';
+
+    final isFull = anggota == totalAnggota;
+
+    // Jika pekerjaan full dan status ingin diubah ke open
+    if (isFull && newStatus == 'open') {
+      await _showDialogKondisi(
+        context,
+        'Perubahan Status Dilarang',
+        'Pekerjaan ini sudah penuh dan tidak bisa mengubah status ke Open. '
+            'Jika Anda ingin mengubah status ke Open, tambahkan total anggota atau kurangi anggota yang ada.',
+      );
+      return;
+    }
 
     final result = await showDialog<bool>(
       context: context,
@@ -110,8 +192,38 @@ class _PekerjaanDosenPageState extends State<PekerjaanDosenPage> {
     );
 
     if (result == true) {
-      await _toggleStatus(pekerjaan);
+      await _toggleStatus(pekerjaan, anggota, totalAnggota);
     }
+  }
+
+  Future<void> _showDialogKondisi(
+      BuildContext context, String title, String message) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible:
+          false, // Dialog tidak bisa ditutup dengan klik di luar
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            title,
+            style:
+                GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          content: Text(
+            message,
+            style: GoogleFonts.poppins(fontSize: 14),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Okay'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Tutup dialog
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _onItemTapped(int index) {
@@ -241,67 +353,67 @@ class _PekerjaanDosenPageState extends State<PekerjaanDosenPage> {
   }
 
   Widget _buildPekerjaanList(List<DosenPekerjaan> pekerjaanList) {
-  return SingleChildScrollView(
-    padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: pekerjaanList.asMap().entries.map((entry) {
-        final index = entry.key + 1; // Nomor urut, dimulai dari 1
-        final pekerjaan = entry.value;
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: pekerjaanList.asMap().entries.map((entry) {
+          final index = entry.key + 1; // Nomor urut, dimulai dari 1
+          final pekerjaan = entry.value;
 
-        // Gunakan FutureBuilder untuk mengambil jumlah anggota sekarang
-        return Column(
-          children: [
-            FutureBuilder<int>(
-              future: fetchAnggotaSekarang(pekerjaan.pekerjaanId),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Container(
-                    height: 100,
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.blueGrey,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Center(
-                      child: CircularProgressIndicator(color: Colors.white),
-                    ),
-                  );
-                } else if (snapshot.hasError) {
-                  return Container(
-                    height: 100,
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Center(
-                      child: Text(
-                        'Error: ${snapshot.error}',
-                        style: GoogleFonts.poppins(fontSize: 12, color: Colors.white),
+          // Gunakan FutureBuilder untuk mengambil jumlah anggota sekarang
+          return Column(
+            children: [
+              FutureBuilder<int>(
+                future: fetchAnggotaSekarang(pekerjaan.pekerjaanId),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Container(
+                      height: 100,
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.blueGrey,
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                    ),
-                  );
-                } else {
-                  final anggotaSekarang = snapshot.data ?? 0;
-                  return _buildPekerjaan(
-                    pekerjaan.pekerjaanNama,
-                    anggotaSekarang,
-                    pekerjaan.jumlahAnggota,
-                    index,
-                    pekerjaan,
-                  );
-                }
-              },
-            ),
-            const SizedBox(height: 16),
-          ],
-        );
-      }).toList(),
-    ),
-  );
-}
-
+                      child: Center(
+                        child: CircularProgressIndicator(color: Colors.white),
+                      ),
+                    );
+                  } else if (snapshot.hasError) {
+                    return Container(
+                      height: 100,
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Center(
+                        child: Text(
+                          'Error: ${snapshot.error}',
+                          style: GoogleFonts.poppins(
+                              fontSize: 12, color: Colors.white),
+                        ),
+                      ),
+                    );
+                  } else {
+                    final anggotaSekarang = snapshot.data ?? 0;
+                    return _buildPekerjaan(
+                      pekerjaan.pekerjaanNama,
+                      anggotaSekarang,
+                      pekerjaan.jumlahAnggota,
+                      index,
+                      pekerjaan,
+                    );
+                  }
+                },
+              ),
+              const SizedBox(height: 16),
+            ],
+          );
+        }).toList(),
+      ),
+    );
+  }
 
   Widget _buildAddButton() {
     return Positioned(
@@ -357,7 +469,7 @@ class _PekerjaanDosenPageState extends State<PekerjaanDosenPage> {
                     title, anggota, totalAnggota, pekerjaan),
               ),
               const SizedBox(width: 8),
-              _buildActionButtons(pekerjaan),
+              _buildActionButtons(pekerjaan, anggota),
             ],
           ),
         ],
@@ -391,115 +503,182 @@ class _PekerjaanDosenPageState extends State<PekerjaanDosenPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildPekerjaanInfo(title, anggota, totalAnggota),
+        _buildPekerjaanInfo(pekerjaan, title, anggota, totalAnggota),
         const SizedBox(height: 8),
-        _buildStatusButton(pekerjaan),
+        _buildStatusAndConditionButtons(pekerjaan, anggota, totalAnggota),
         const SizedBox(height: 8),
         _buildDeadlineButtons(pekerjaan), // Mengirim data pekerjaan
       ],
     );
   }
 
-  Widget _buildPekerjaanInfo(String title, int anggota, int totalAnggota) {
-    return Container(
-      height: 100,
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Colors.blue,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Text(
-              title,
-              style: GoogleFonts.poppins(fontSize: 12, color: Colors.white),
-              overflow: TextOverflow.ellipsis,
+  Widget _buildPekerjaanInfo(
+      DosenPekerjaan pekerjaan, String title, int anggota, int totalAnggota) {
+    return GestureDetector(
+      onTap: () {
+        // Arahkan ke halaman LihatDaftarMahasiswa
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => LihatDaftarMahasiswa(
+              pekerjaanId: pekerjaan.pekerjaanId ??
+                  0, // Pastikan pekerjaanId didefinisikan
+              pekerjaanNama: pekerjaan.pekerjaanNama ?? 'Nama Tidak Tersedia',
             ),
           ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.person, color: Colors.white, size: 16),
-              const SizedBox(width: 4),
-              Text(
-                '$anggota/$totalAnggota',
-                style: GoogleFonts.poppins(fontSize: 14, color: Colors.white),
+        );
+      },
+      child: Container(
+        height: 100,
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.blue,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Text(
+                title,
+                style: GoogleFonts.poppins(fontSize: 12, color: Colors.white),
+                overflow: TextOverflow.ellipsis,
               ),
-            ],
-          ),
-        ],
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.person, color: Colors.white, size: 16),
+                const SizedBox(width: 4),
+                Text(
+                  '$anggota/$totalAnggota',
+                  style: GoogleFonts.poppins(fontSize: 14, color: Colors.white),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget buildPekerjaanInfoWithAnggota(int pekerjaanId, String title, int totalAnggota) {
-  return FutureBuilder<int>(
-    future: fetchAnggotaSekarang(pekerjaanId),
-    builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        // Sementara menunggu data
-        return Container(
-          height: 100,
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.blueGrey,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Center(
-            child: CircularProgressIndicator(color: Colors.white),
-          ),
-        );
-      } else if (snapshot.hasError) {
-        // Jika terjadi error
-        return Container(
-          height: 100,
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.red,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Center(
-            child: Text(
-              'Error: ${snapshot.error}',
-              style: GoogleFonts.poppins(fontSize: 12, color: Colors.white),
+  Widget buildPekerjaanInfoWithAnggota(
+      DosenPekerjaan pekerjaan, pekerjaanId, String title, int totalAnggota) {
+    return FutureBuilder<int>(
+      future: fetchAnggotaSekarang(pekerjaanId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          // Sementara menunggu data
+          return Container(
+            height: 100,
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.blueGrey,
+              borderRadius: BorderRadius.circular(10),
             ),
-          ),
-        );
-      } else {
-        // Jika data tersedia
-        final anggota = snapshot.data ?? 0; // Nilai default jika null
-        return _buildPekerjaanInfo(title, anggota, totalAnggota);
-      }
-    },
-  );
-}
-
-
-  Widget _buildStatusButton(DosenPekerjaan pekerjaan) {
-    final isOpen = pekerjaan.status == 'open';
-    return GestureDetector(
-      onTap: () async {
-        await _showConfirmationDialog(context, pekerjaan);
+            child: Center(
+              child: CircularProgressIndicator(color: Colors.white),
+            ),
+          );
+        } else if (snapshot.hasError) {
+          // Jika terjadi error
+          return Container(
+            height: 100,
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.red,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Center(
+              child: Text(
+                'Error: ${snapshot.error}',
+                style: GoogleFonts.poppins(fontSize: 12, color: Colors.white),
+              ),
+            ),
+          );
+        } else {
+          // Jika data tersedia
+          final anggota = snapshot.data ?? 0; // Nilai default jika null
+          return _buildPekerjaanInfo(pekerjaan, title, anggota, totalAnggota);
+        }
       },
-      child: Container(
-        height: 40,
-        decoration: BoxDecoration(
-          color: isOpen ? Colors.green : Colors.red,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Center(
-          child: Text(
-            isOpen ? 'Open' : 'Closed',
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
+    );
+  }
+
+  Widget _buildStatusAndConditionButtons(
+      DosenPekerjaan pekerjaan, int anggota, int totalAnggota) {
+    final isFull = anggota == totalAnggota;
+
+    // Pastikan status pekerjaan otomatis diperbarui saat widget dimuat
+    _updateStatusAutomatically(pekerjaan, anggota, totalAnggota);
+
+    return Row(
+      children: [
+        // Tombol Status
+        GestureDetector(
+          onTap: () async {
+            await _showConfirmationDialog(
+                context, pekerjaan, anggota, totalAnggota);
+          },
+          child: Container(
+            height: 40,
+            width: 112, // Lebar tetap untuk tombol status
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: pekerjaan.status == 'open' ? Colors.green : Colors.red,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Center(
+              child: Text(
+                pekerjaan.status == 'open' ? 'Open' : 'Closed',
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ),
         ),
-      ),
+        const SizedBox(width: 12),
+        // Tombol Kondisi
+        GestureDetector(
+          onTap: () async {
+            if (isFull) {
+              await _showDialogKondisi(
+                context,
+                'Kondisi Pekerjaan',
+                'Pekerjaan ini sudah penuh.',
+              );
+            } else {
+              await _showDialogKondisi(
+                context,
+                'Kondisi Pekerjaan',
+                'Pekerjaan ini masih memerlukan anggota tambahan.',
+              );
+            }
+          },
+          child: Container(
+            height: 40,
+            width: 112, // Lebar tetap untuk tombol kondisi
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: isFull ? Colors.green : Colors.orange,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Center(
+              child: Text(
+                isFull ? 'Full' : 'Belum Full',
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -623,7 +802,7 @@ class _PekerjaanDosenPageState extends State<PekerjaanDosenPage> {
     );
   }
 
-  Widget _buildActionButtons(DosenPekerjaan pekerjaan) {
+  Widget _buildActionButtons(DosenPekerjaan pekerjaan, int anggota) {
     return Column(
       children: [
         _buildActionButton(
@@ -667,60 +846,95 @@ class _PekerjaanDosenPageState extends State<PekerjaanDosenPage> {
           label: 'Hapus',
           color: Colors.red,
           onPressed: () {
-            _showDeleteConfirmation(pekerjaan);
+            _showDeleteConfirmation(pekerjaan, anggota);
           },
         ),
       ],
     );
   }
 
-  void _showDeleteConfirmation(DosenPekerjaan pekerjaan) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Konfirmasi Hapus'),
-          content: Text(
-            "Apakah Anda yakin ingin menghapus pekerjaan '${pekerjaan.pekerjaanNama}'?",
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Tutup dialog
-              },
-              child: const Text('Tidak'),
-            ),
-            TextButton(
-              onPressed: () async {
-                try {
-                  // Panggil service untuk menghapus pekerjaan
-                  final service = DosenBuatPekerjaanService();
-                  await service.hapusPekerjaan(pekerjaan.pekerjaanId!);
+  void _showDeleteConfirmation(DosenPekerjaan pekerjaan, int anggota) async {
+    try {
+      final hasApplicants =
+          await _checkPendingApplicants(pekerjaan.pekerjaanId!);
 
-                  // Berikan notifikasi dan kembali ke halaman pekerjaan
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Pekerjaan berhasil dihapus')),
-                  );
-                  Navigator.of(context).pop(); // Tutup dialog
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          PekerjaanDosenPage(), // Pastikan ini adalah halaman tujuan
-                    ),
-                  );
-// Kembali ke halaman pekerjaan
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Gagal menghapus pekerjaan: $e')),
-                  );
-                }
-              },
-              child: const Text('Ya'),
-            ),
-          ],
+      if (anggota > 0) {
+        _showInfoDialog(
+          context,
+          'Pekerjaan Tidak Bisa Dihapus',
+          'Pekerjaan tidak bisa dihapus dikarenakan pada pekerjaan ini masih ada anggota.',
         );
-      },
-    );
+        return;
+      } else if (!hasApplicants['success']) {
+        _showInfoDialog(
+          context,
+          'Pekerjaan Tidak Bisa Dihapus',
+          'Pekerjaan tidak bisa dihapus dikarenakan pada pekerjaan ini anggota sudah mengupulkan progres pekerjaan',
+        );
+        return;
+      } else if (hasApplicants['data'].isNotEmpty) {
+        _showInfoDialog(
+          context,
+          'Pekerjaan Tidak Bisa Dihapus',
+          'Pekerjaan tidak bisa dihapus dikarenakan terdapat pelamar pending.',
+        );
+        return;
+      }
+
+      // Jika memenuhi syarat untuk dihapus, tampilkan dialog konfirmasi
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Konfirmasi Hapus'),
+            content: Text(
+              "Apakah Anda yakin ingin menghapus pekerjaan '${pekerjaan.pekerjaanNama}'?",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Tutup dialog
+                },
+                child: const Text('Tidak'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  try {
+                    // Panggil service untuk menghapus pekerjaan
+                    final service = DosenBuatPekerjaanService();
+                    await service.hapusPekerjaan(pekerjaan.pekerjaanId!);
+
+                    // Berikan notifikasi dan kembali ke halaman pekerjaan
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text('Pekerjaan berhasil dihapus')),
+                    );
+                    Navigator.of(context).pop(); // Tutup dialog
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            PekerjaanDosenPage(), // Pastikan ini adalah halaman tujuan
+                      ),
+                    );
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Gagal menghapus pekerjaan: $e')),
+                    );
+                  }
+                },
+                child: const Text('Ya'),
+              ),
+            ],
+          );
+        },
+      );
+    } catch (e) {
+      _showInfoDialog(
+        context,
+        'Error',
+        'Gagal memeriksa data pekerjaan: $e',
+      );
+    }
   }
 
   Widget _buildActionButton({
@@ -728,6 +942,7 @@ class _PekerjaanDosenPageState extends State<PekerjaanDosenPage> {
     required String label,
     required Color color,
     required VoidCallback onPressed,
+    int? anggota,
   }) {
     return GestureDetector(
       onTap: onPressed,

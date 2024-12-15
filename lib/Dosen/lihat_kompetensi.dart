@@ -13,17 +13,20 @@ class LihatKompetensi extends StatefulWidget {
   final String nama;
   final String id;
   final String tugas;
+  final int mahasiswaId; // Pastikan nama parameter ini benar
 
   const LihatKompetensi({
     Key? key,
     required this.nama,
     required this.id,
     required this.tugas,
+    required this.mahasiswaId, // Pastikan nama parameter ini benar
   }) : super(key: key);
 
   @override
   _LihatKompetensiState createState() => _LihatKompetensiState();
 }
+
 
 class _LihatKompetensiState extends State<LihatKompetensi> {
   int _selectedIndex = 2;
@@ -173,6 +176,7 @@ class _LihatKompetensiState extends State<LihatKompetensi> {
               MaterialPageRoute(
                 builder: (context) => LihatDetailKompetensi(
                   kompetensiId: kompetensiId,
+                  mahasiswaId: widget.mahasiswaId, // Tambahkan mahasiswaId
                 ),
               ),
             );

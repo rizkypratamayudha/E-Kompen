@@ -69,7 +69,10 @@ class _ShowPekerjaanPageState extends State<ShowPekerjaanPage> {
       appBar: AppBar(
         title: Text(
           'Detail Pekerjaan: ${widget.pekerjaanNama}',
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w600,
+            fontSize: 14, // Atur ukuran font sesuai keinginan Anda
+          ),
         ),
       ),
       body: Stack(

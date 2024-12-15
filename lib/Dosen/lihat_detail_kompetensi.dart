@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../controller/kompetensi_service.dart';
 
 class LihatDetailKompetensi extends StatefulWidget {
   final int kompetensiId;
+  final int mahasiswaId; // Tambahkan parameter mahasiswaId
 
-  const LihatDetailKompetensi({super.key, required this.kompetensiId});
+  const LihatDetailKompetensi({
+    super.key,
+    required this.kompetensiId,
+    required this.mahasiswaId, // Tambahkan parameter mahasiswaId
+  });
 
   @override
   State<LihatDetailKompetensi> createState() => _LihatDetailKompetensiState();
@@ -32,28 +36,25 @@ class _LihatDetailKompetensiState extends State<LihatDetailKompetensi> {
   }
 
   Future<void> _loadLihatDetailKompetensi() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    setState(() {
-      nama = prefs.getString('nama') ?? 'User';
-      nim = prefs.getString('username') ?? 'Username';
-    });
-
-    int userId = prefs.getInt('userId') ?? 0;
-    if (userId == 0) {
-      print("User ID tidak ditemukan.");
-      throw Exception("User ID tidak ditemukan.");
-    }
-
     try {
-      if (userId != 0) {
+      if (widget.mahasiswaId != 0) {
+        // Log mahasiswaId
+        print("Fetching data for mahasiswaId: ${widget.mahasiswaId}");
+
         // Fetch periode data
         var periodeData =
-            await KompetensiService().fetchPeriodeByUserId(userId);
+            await KompetensiService().fetchPeriodeByUserId(widget.mahasiswaId);
+        print("Periode data: $periodeData");
 
         // Fetch kompetensi detail
         var kompetensiDetail = await KompetensiService()
             .fetchKompetensiDetail(widget.kompetensiId);
+        print("Kompetensi detail: $kompetensiDetail");
+
+        // Fetch mahasiswa detail
+        var mahasiswaDetail = await KompetensiService()
+            .fetchDetailMahasiswaIdByUserId(widget.mahasiswaId);
+        print("Mahasiswa detail: $mahasiswaDetail");
 
         setState(() {
           periodeId = periodeData['periode_id'] ?? 0;
@@ -61,14 +62,11 @@ class _LihatDetailKompetensiState extends State<LihatDetailKompetensi> {
           kompetensiNama = kompetensiDetail?.kompetensiNama ?? 'Tidak Tersedia';
           pengalaman = kompetensiDetail?.pengalaman ?? 'Tidak Tersedia';
           bukti = kompetensiDetail?.bukti ?? 'Tidak Tersedia';
+          nama = mahasiswaDetail.nama;
+          nim = mahasiswaDetail.username;
         });
-        print('User ID: $userId');
-        print('Fetching periode data...');
-        print('Periode Data: $periodeData');
-        print('Fetching kompetensi detail...');
-        print('Kompetensi Detail: $kompetensiDetail');
       } else {
-        throw Exception("User ID tidak ditemukan.");
+        throw Exception("Mahasiswa ID tidak ditemukan.");
       }
     } catch (e) {
       setState(() {

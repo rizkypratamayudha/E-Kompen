@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../controller/dosen_pekerjaan_service.dart';
 import '../Model/dosen_pekerjaan_model.dart';
-import 'package:intl/intl.dart';
+import '../widget/popup_dosen_buat_pekerjaan.dart';
 
 class TambahProgresPage extends StatefulWidget {
   final Map<String, dynamic> pekerjaanData;
@@ -76,24 +76,25 @@ class _TambahProgresPageState extends State<TambahProgresPage> {
         // Kirim request ke server
         await pekerjaanService.tambahPekerjaan(request);
 
-        // Tampilkan notifikasi berhasil
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Data tambah pekerjaan berhasil terkirim'),
-        ));
-
-        // Navigasi ke halaman pekerjaan.dart
+        // Tampilkan pop-up jika berhasil
+      showDialog(
+        context: context,
+        builder: (context) => const PopupDosenBuatPekerjaan(),
+      ).then((_) {
+        // Navigasi ke halaman pekerjaan.dart setelah pop-up ditutup
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => PekerjaanDosenPage()),
         );
-      } catch (e) {
-        // Tampilkan notifikasi error
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Gagal menyimpan pekerjaan: $e'),
-        ));
-      }
+      });
+    } catch (e) {
+      // Tampilkan notifikasi error
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Gagal menyimpan pekerjaan: $e'),
+      ));
     }
   }
+}
 
   void _tampilkanAkumulasi() {
     // Hitung jumlah jam akumulasi dari progressData
@@ -147,14 +148,14 @@ class _TambahProgresPageState extends State<TambahProgresPage> {
                     Text(
                       'Jumlah Jam:',
                       style: GoogleFonts.poppins(
-                        fontSize: 16,
+                        fontSize: 14,
                         color: Colors.white,
                       ),
                     ),
                     Text(
                       '$totalJam jam',
                       style: GoogleFonts.poppins(
-                        fontSize: 16,
+                        fontSize: 14,
                         color: Colors.white,
                       ),
                     ),
@@ -174,14 +175,14 @@ class _TambahProgresPageState extends State<TambahProgresPage> {
                     Text(
                       'Batas Pengerjaan:',
                       style: GoogleFonts.poppins(
-                        fontSize: 16,
+                        fontSize: 14,
                         color: Colors.white,
                       ),
                     ),
                     Text(
                       batasPengerjaan,
                       style: GoogleFonts.poppins(
-                        fontSize: 16,
+                        fontSize: 14,
                         color: Colors.white,
                       ),
                     ),

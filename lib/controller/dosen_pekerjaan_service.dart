@@ -331,4 +331,47 @@ class DosenBuatPekerjaanService {
       throw Exception('Gagal menghapus pekerjaan: $e');
     }
   }
+
+  Future<List<DosenPekerjaanModel>> fetchDaftarMahasiswa(int pekerjaanId) async {
+    final String url = '$baseUrl/dosen/lihat-daftar-mahasiswa/$pekerjaanId';
+
+    try {
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return (data['data'] as List)
+            .map((item) => DosenPekerjaanModel.fromJson(item))
+            .toList();
+      } else if (response.statusCode == 404) {
+        return []; // Jika tidak ada data
+      } else {
+        throw Exception('Failed to load data. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error fetching data: $e');
+    }
+  }
+
+  Future<void> kickMahasiswa(int pekerjaanId, int userId) async {
+    final response = await http.delete(
+      Uri.parse('$baseUrl/dosen/$pekerjaanId/kick-mahasiswa/$userId'),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Gagal menghapus mahasiswa');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getPendingApplicants(int pekerjaanId) async {
+    final String url = '$baseUrl/dosen/pending-pekerjaan/$pekerjaanId';
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return List<Map<String, dynamic>>.from(data);
+    } else {
+      throw Exception('Gagal mendapatkan data pelamar pending.');
+    }
+  }
 }

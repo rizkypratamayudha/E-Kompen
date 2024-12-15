@@ -3,6 +3,7 @@ import '../Model/dosen_pekerjaan_model.dart';
 import '../controller/dosen_pekerjaan_service.dart';
 import '../Model/kompetensi_admin_model.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../widget/popup_dosen_edit_pekerjaan.dart';
 
 class EditPekerjaanPage extends StatefulWidget {
   final int pekerjaanId;
@@ -274,9 +275,10 @@ class _EditPekerjaanPageState extends State<EditPekerjaanPage> {
           await service.updatePekerjaan(widget.pekerjaanId, request);
 
       if (success) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text("Data berhasil disimpan!")));
-        Navigator.pop(context); // Kembali ke halaman sebelumnya
+        showDialog(
+          context: context,
+          builder: (context) => const PopupDosenEditPekerjaan(),
+        );
       } else {
         throw Exception("Update API response tidak berhasil");
       }
@@ -292,11 +294,11 @@ class _EditPekerjaanPageState extends State<EditPekerjaanPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-      title: Text(
-        "Edit Pekerjaan: ${namaPekerjaanController.text.isNotEmpty ? namaPekerjaanController.text : 'Pekerjaan'}",
-        style: GoogleFonts.poppins(),
+        title: Text(
+          "Edit Pekerjaan: ${namaPekerjaanController.text.isNotEmpty ? namaPekerjaanController.text : 'Pekerjaan'}",
+          style: GoogleFonts.poppins(),
+        ),
       ),
-    ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Column(
@@ -521,7 +523,8 @@ class _EditPekerjaanPageState extends State<EditPekerjaanPage> {
                           text: item.jumlahHari.toString()),
                       onChanged: (value) =>
                           item.jumlahHari = int.tryParse(value) ?? 0,
-                      decoration: InputDecoration(labelText: "Hari yang diperlukan:"),
+                      decoration:
+                          InputDecoration(labelText: "Hari yang diperlukan:"),
                       keyboardType: TextInputType.number,
                     ),
                   ],

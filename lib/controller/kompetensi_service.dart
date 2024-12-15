@@ -62,6 +62,29 @@ class KompetensiService {
     }
   }
 
+  Future<MahasiswaDetail> fetchDetailMahasiswaIdByUserId(int userId) async {
+    final response =
+        await http.get(Uri.parse('$baseUrl/mahasiswa/user/$userId'));
+
+    print("Response status: ${response.statusCode}");
+    print("Response body: ${response.body}");
+
+    if (response.statusCode == 200) {
+      final jsonData = jsonDecode(response.body);
+      print("Parsed JSON: $jsonData");
+
+      if (jsonData['success']) {
+        return MahasiswaDetail.fromJson(jsonData['data']);
+      } else {
+        print("API returned success = false: ${jsonData['message']}");
+        throw Exception(jsonData['message']);
+      }
+    } else {
+      print("HTTP Error: ${response.statusCode}");
+      throw Exception("Failed to load data");
+    }
+  }
+
   Future<bool> updateKompetensi(int id, Kompetensi kompetensi) async {
     final response = await http.put(
       Uri.parse('$baseUrl/kompetensi/update/$id'),

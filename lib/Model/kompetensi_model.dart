@@ -1,9 +1,10 @@
 class Kompetensi {
   final int? kompetensiId;
   final int userId;
-  final String periodeNama; // Untuk pengambilan data saja, tidak dikirim
-  final int kompetensiAdminId; // Mengacu ke kompetensi_admin_id
-  final String kompetensiNama; // Mengambil dari tabel kompetensi_admin
+  final int? mahasiswaId; // Tambahan variabel untuk detail_mahasiswa_id
+  final String periodeNama;
+  final int kompetensiAdminId;
+  final String kompetensiNama;
   final String pengalaman;
   final String? bukti;
   final String? createdAt;
@@ -12,6 +13,7 @@ class Kompetensi {
   Kompetensi({
     this.kompetensiId,
     required this.userId,
+    this.mahasiswaId, // Tambahkan pada constructor
     required this.periodeNama,
     required this.kompetensiAdminId,
     required this.kompetensiNama,
@@ -22,19 +24,20 @@ class Kompetensi {
   });
 
   factory Kompetensi.fromJson(Map<String, dynamic> json) {
-  return Kompetensi(
-    kompetensiId: json['kompetensi_id'],
-    userId: json['user_id'] ?? 0, // Default 0 jika tidak ada
-    periodeNama: json['periode'] ?? '', // Pastikan ada default
-    kompetensiAdminId: json['kompetensi_admin_id'],
-    kompetensiNama: json['kompetensi_nama'], // Nama kompetensi
-    pengalaman: json['pengalaman'] ?? '', // Pengalaman bisa kosong
-    bukti: json['bukti'],
-    createdAt: json['created_at'],
-    uploadAt: json['upload_at'],
-  );
-}
-
+    return Kompetensi(
+      kompetensiId: json['kompetensi_id'],
+      userId: json['user_id'] ?? 0,
+      mahasiswaId:
+          json['detail_mahasiswa_id'] ?? 0, // Ambil mahasiswa_id dari response
+      periodeNama: json['periode'] ?? '',
+      kompetensiAdminId: json['kompetensi_admin_id'],
+      kompetensiNama: json['kompetensi_nama'],
+      pengalaman: json['pengalaman'] ?? '',
+      bukti: json['bukti'],
+      createdAt: json['created_at'],
+      uploadAt: json['upload_at'],
+    );
+  }
 
   Map<String, dynamic> toJson() {
     return {
@@ -43,5 +46,19 @@ class Kompetensi {
       'pengalaman': pengalaman,
       'bukti': bukti,
     };
+  }
+}
+
+class MahasiswaDetail {
+  final String nama;
+  final String username;
+
+  MahasiswaDetail({required this.nama, required this.username});
+
+  factory MahasiswaDetail.fromJson(Map<String, dynamic> json) {
+    return MahasiswaDetail(
+      nama: json['nama'],
+      username: json['username'],
+    );
   }
 }

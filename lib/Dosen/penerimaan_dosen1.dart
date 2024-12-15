@@ -342,89 +342,91 @@ class _PenerimaanScreenState extends State<PenerimaanScreen> {
   }
 
   Widget _buildCard(BuildContext context, String nama, String id, String tugas,
-      int pekerjaanId, int userId) {
-    return Align(
-      alignment: Alignment.topCenter,
-      child: FractionallySizedBox(
-        widthFactor: 0.9,
-        child: InkWell(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => LihatKompetensi(
-                  nama: nama,
-                  id: userId.toString(),
-                  tugas: tugas,
-                ),
+    int pekerjaanId, int userId, ) {
+  return Align(
+    alignment: Alignment.topCenter,
+    child: FractionallySizedBox(
+      widthFactor: 0.9,
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => LihatKompetensi(
+                nama: nama,
+                id: userId.toString(),
+                tugas: tugas,
+                mahasiswaId: userId, // Tambahkan parameter mahasiswaId
               ),
-            );
-          },
-          child: Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          nama,
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                        Text(
-                          id,
-                          style: GoogleFonts.poppins(fontSize: 14),
-                        ),
-                        SizedBox(height: 10),
-                        Text(
-                          tugas,
-                          style: GoogleFonts.poppins(fontSize: 14),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Row(
+          );
+        },
+        child: Card(
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      IconButton(
-                        icon: Icon(
-                          Icons.check_circle,
-                          color: Colors.green,
-                          size: 50,
+                      Text(
+                        nama,
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400,
                         ),
-                        onPressed: () async {
-                          await approvePekerjaan(pekerjaanId, userId);
-                        },
                       ),
-                      IconButton(
-                        icon: Icon(
-                          Icons.cancel,
-                          color: Colors.red,
-                          size: 50,
-                        ),
-                        onPressed: () async {
-                          await declinePekerjaan(pekerjaanId, userId);
-                        },
+                      Text(
+                        id,
+                        style: GoogleFonts.poppins(fontSize: 14),
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        tugas,
+                        style: GoogleFonts.poppins(fontSize: 14),
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+                Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(
+                        Icons.check_circle,
+                        color: Colors.green,
+                        size: 50,
+                      ),
+                      onPressed: () async {
+                        await approvePekerjaan(pekerjaanId, userId);
+                      },
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        Icons.cancel,
+                        color: Colors.red,
+                        size: 50,
+                      ),
+                      onPressed: () async {
+                        await declinePekerjaan(pekerjaanId, userId);
+                      },
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
 
   Future<void> approveTugas(int id, BuildContext context) async {
 
@@ -698,36 +700,42 @@ class _PenerimaanScreenState extends State<PenerimaanScreen> {
   }
 
   Widget _buildPenerimaanList(BuildContext context) {
-    return FutureBuilder<Map<String, dynamic>>(
-      future: PelamaranService().getPelamaran(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Terjadi kesalahan: ${snapshot.error}'));
-        } else if (!snapshot.hasData || snapshot.data?['success'] == false) {
-          return Center(child: Text('Tidak ada data pelamaran.'));
-        } else {
-          var pelamaranList = snapshot.data?['data'] ?? [];
+  return FutureBuilder<Map<String, dynamic>>(
+    future: PelamaranService().getPelamaran(),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return Center(child: CircularProgressIndicator());
+      } else if (snapshot.hasError) {
+        return Center(child: Text('Terjadi kesalahan: ${snapshot.error}'));
+      } else if (!snapshot.hasData || snapshot.data?['success'] == false) {
+        return Center(child: Text('Tidak ada data pelamaran.'));
+      } else {
+        var pelamaranList = snapshot.data?['data'] ?? [];
 
-          return ListView.builder(
-            itemCount: pelamaranList.length,
-            itemBuilder: (context, index) {
-              var pelamaran = pelamaranList[index] as PendingPekerjaan;
-              return _buildCard(
-                context,
-                pelamaran.user.nama,
-                pelamaran.user.username,
-                pelamaran.pekerjaan.pekerjaanNama,
-                pelamaran.pekerjaanId,
-                pelamaran.user.userId,
-              );
-            },
-          );
+        // Tambahkan kondisi untuk mengecek jika `pelamaranList` kosong
+        if (pelamaranList.isEmpty) {
+          return Center(child: Text('Tidak ada mahasiswa yang melamar.'));
         }
-      },
-    );
-  }
+
+        return ListView.builder(
+          itemCount: pelamaranList.length,
+          itemBuilder: (context, index) {
+            var pelamaran = pelamaranList[index] as PendingPekerjaan;
+            return _buildCard(
+              context,
+              pelamaran.user.nama,
+              pelamaran.user.username,
+              pelamaran.pekerjaan.pekerjaanNama,
+              pelamaran.pekerjaanId,
+              pelamaran.user.userId,
+            );
+          },
+        );
+      }
+    },
+  );
+}
+
 
 Widget _buildProsesList(BuildContext context) {
   return FutureBuilder<List<Map<String, dynamic>>>( 

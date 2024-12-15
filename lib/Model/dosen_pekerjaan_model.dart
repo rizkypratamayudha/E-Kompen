@@ -332,3 +332,38 @@ class PekerjaanDetail {
     );
   }
 }
+
+class DosenPekerjaanModel {
+  final int userId;
+  final String nama;
+  final String nim;
+  final String email;
+  final String noHp;
+  final String periode;
+
+  DosenPekerjaanModel({
+    required this.userId,
+    required this.nama,
+    required this.nim,
+    required this.email,
+    required this.noHp,
+    required this.periode,
+  });
+
+  factory DosenPekerjaanModel.fromJson(Map<String, dynamic> json) {
+    // Pastikan JSON memiliki struktur aman untuk diakses
+    final user = json['user'] ?? {};
+    final detail = user['detail_mahasiswa'] ?? {};
+    final periode = detail['periode'] ?? {};
+
+    return DosenPekerjaanModel(
+      userId: user['user_id'] ?? 0, // Gunakan 0 sebagai fallback jika null
+      nama: user['nama'] ?? '',
+      nim: user['username'] ?? '',
+      email: detail['email'] ?? '',
+      noHp: detail['no_hp'] ?? '',
+      periode: periode['periode_nama'] ?? '',
+    );
+  }
+}
+
