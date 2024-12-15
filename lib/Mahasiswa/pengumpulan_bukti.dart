@@ -18,6 +18,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
+import 'package:open_filex/open_filex.dart';
 
 class PengumpulanBuktiPage extends StatefulWidget {
   final Pekerjaan pekerjaan;
@@ -840,60 +841,63 @@ class _PengumpulanBuktiPageState extends State<PengumpulanBuktiPage> {
   }
 
   void _downloadFile(String fileUrl) async {
-    try {
-      // Tentukan base URL untuk file yang akan diunduh
-      String baseUrl = 'http://192.168.100.225/kompenjti/public/storage/';
+  try {
+    // Tentukan base URL untuk file yang akan diunduh
+    String baseUrl = 'http://192.168.100.225/kompenjti/public/storage/';
 
-      // Cek apakah fileUrl relatif atau URL lengkap
-      if (!fileUrl.startsWith('http')) {
-        fileUrl = baseUrl + fileUrl; // Tambahkan base URL jika fileUrl relatif
-      }
-
-      // Dapatkan nama file dari `namaoriginal` atau gunakan fallback dari URL
-      String fileName = widget.progres.pengumpulan.isNotEmpty
-          ? widget.progres.pengumpulan[0].namaoriginal.toString()
-          : fileUrl
-              .split('/')
-              .last; // Ambil nama file dari URL jika `namaoriginal` kosong
-
-      // Dapatkan direktori Downloads
-      Directory? downloadsDirectory;
-      if (Platform.isAndroid) {
-        downloadsDirectory = Directory(
-            '/storage/emulated/0/Download'); // Folder Downloads Android
-      } else if (Platform.isIOS) {
-        downloadsDirectory =
-            await getApplicationDocumentsDirectory(); // Sandbox Documents di iOS
-      }
-
-      // Tentukan path file yang akan disimpan
-      String filePath = '${downloadsDirectory!.path}/$fileName';
-
-      // Buat instance Dio untuk mengunduh file
-      Dio dio = Dio();
-
-      // Mulai proses pengunduhan
-      await dio.download(
-        fileUrl,
-        filePath,
-        onReceiveProgress: (received, total) {
-          if (total != -1) {
-            print("Mengunduh: ${(received / total * 100).toStringAsFixed(0)}%");
-          }
-        },
-      );
-
-      // Tampilkan pesan sukses setelah file berhasil diunduh
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("File berhasil diunduh ke folder Downloads")),
-      );
-      print("File berhasil disimpan di: $filePath");
-    } catch (e) {
-      // Tangani jika terjadi error selama pengunduhan
-      print("Pengunduhan gagal: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Gagal mengunduh file")),
-      );
+    // Cek apakah fileUrl relatif atau URL lengkap
+    if (!fileUrl.startsWith('http')) {
+      fileUrl = baseUrl + fileUrl; // Tambahkan base URL jika fileUrl relatif
     }
+
+    // Dapatkan nama file dari `namaoriginal` atau gunakan fallback dari URL
+    String fileName = widget.progres.pengumpulan.isNotEmpty
+        ? widget.progres.pengumpulan[0].namaoriginal.toString()
+        : fileUrl.split('/').last; // Ambil nama file dari URL jika `namaoriginal` kosong
+
+    // Dapatkan direktori Downloads
+    Directory? downloadsDirectory;
+    if (Platform.isAndroid) {
+      downloadsDirectory =
+          Directory('/storage/emulated/0/Download'); // Folder Downloads Android
+    } else if (Platform.isIOS) {
+      downloadsDirectory = await getApplicationDocumentsDirectory(); // Sandbox Documents di iOS
+    }
+
+    // Tentukan path file yang akan disimpan
+    String filePath = '${downloadsDirectory!.path}/$fileName';
+
+    // Buat instance Dio untuk mengunduh file
+    Dio dio = Dio();
+
+    // Mulai proses pengunduhan
+    await dio.download(
+      fileUrl,
+      filePath,
+      onReceiveProgress: (received, total) {
+        if (total != -1) {
+          print("Mengunduh: ${(received / total * 100).toStringAsFixed(0)}%");
+        }
+      },
+    );
+
+    // Tampilkan pesan sukses setelah file berhasil diunduh
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("File berhasil diunduh ke folder Downloads")),
+    );
+    print("File berhasil disimpan di: $filePath");
+
+    // Buka file setelah berhasil diunduh
+    final result = await OpenFilex.open(filePath);
+    if (result.type != ResultType.done) {
+      print("Gagal membuka file: ${result.message}");
+    }
+  } catch (e) {
+    // Tangani jika terjadi error selama pengunduhan
+    print("Pengunduhan gagal: $e");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Gagal mengunduh file")),
+    );
   }
+}
 }
