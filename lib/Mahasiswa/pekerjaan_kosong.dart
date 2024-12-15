@@ -14,6 +14,7 @@ class PekerjaanKosongPage extends StatefulWidget {
 
 class _PekerjaanKosongPageState extends State<PekerjaanKosongPage> {
   int _selectedIndex = 1;
+  
 
   void _onItemTapped(int index) {
     if (index == _selectedIndex) {

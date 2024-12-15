@@ -18,6 +18,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
+import 'package:open_filex/open_filex.dart';
 
 class PengumpulanBuktiPage extends StatefulWidget {
   final Pekerjaan pekerjaan;
@@ -35,6 +36,7 @@ class PengumpulanBuktiPage extends StatefulWidget {
 class _PengumpulanBuktiPageState extends State<PengumpulanBuktiPage> {
   int _selectedIndex = 2; // Sesuaikan dengan tab yang sedang aktif
   bool isPengumpulanExist = false; // To track if pengumpulan data exists
+  int _notificationCount = 0;
 
   void _onItemTapped(int index) {
     if (index == _selectedIndex) {
@@ -68,9 +70,36 @@ class _PengumpulanBuktiPageState extends State<PengumpulanBuktiPage> {
   @override
   void initState() {
     super.initState();
+    _fetchNotificationCount();
 
     if (widget.progres.pengumpulan.isNotEmpty) {
       isPengumpulanExist = true;
+    }
+  }
+
+  Future<void> _fetchNotificationCount() async {
+    try {
+      final userId = await AuthService().getUserId();
+      final token = await AuthService().getToken();
+      final response = await http.get(
+        Uri.parse(
+            '${config.baseUrl}/mahasiswa/$userId/notifikasijumlah'), // Your endpoint for notification count
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token', // Add the token if necessary
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          _notificationCount = data['jumlah'];
+        });
+      } else {
+        print('Failed to load notification count');
+      }
+    } catch (e) {
+      print('Error fetching notification count: $e');
     }
   }
 
@@ -540,7 +569,6 @@ class _PengumpulanBuktiPageState extends State<PengumpulanBuktiPage> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     String buktiPengumpulanUrl = '';
@@ -706,6 +734,7 @@ class _PengumpulanBuktiPageState extends State<PengumpulanBuktiPage> {
       bottomNavigationBar: BottomNavBar(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
+        notificationCount: _notificationCount,
       ),
       backgroundColor: Colors.white,
     );
@@ -729,38 +758,38 @@ class _PengumpulanBuktiPageState extends State<PengumpulanBuktiPage> {
     } else if (buktiPengumpulanUrl.startsWith('pengumpulan_gambar')) {
       // If it's an image URL
       return ClipRRect(
-  borderRadius: BorderRadius.circular(10),
-  child: Builder(
-    builder: (context) {
-      print('Image URL: http://10.0.2.2/kompenjti/public/storage/$buktiPengumpulanUrl'); // Debug log
-      return Image.network(
-        'http://10.0.2.2/kompenjti/public/storage/$buktiPengumpulanUrl',
-        fit: BoxFit.contain,
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) {
-            return child;
-          } else {
-            return Center(
-              child: CircularProgressIndicator(
-                value: loadingProgress.expectedTotalBytes != null
-                    ? loadingProgress.cumulativeBytesLoaded /
-                        (loadingProgress.expectedTotalBytes ?? 1)
-                    : null,
-              ),
+        borderRadius: BorderRadius.circular(10),
+        child: Builder(
+          builder: (context) {
+            print(
+                'Image URL: http://192.168.100.225/kompenjti/public/storage/$buktiPengumpulanUrl'); // Debug log
+            return Image.network(
+              'http://192.168.100.225/kompenjti/public/storage/$buktiPengumpulanUrl',
+              fit: BoxFit.contain,
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) {
+                  return child;
+                } else {
+                  return Center(
+                    child: CircularProgressIndicator(
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded /
+                              (loadingProgress.expectedTotalBytes ?? 1)
+                          : null,
+                    ),
+                  );
+                }
+              },
+              errorBuilder: (context, error, stackTrace) {
+                return Icon(
+                  Icons.error,
+                  color: Colors.red,
+                );
+              },
             );
-          }
-        },
-        errorBuilder: (context, error, stackTrace) {
-          return Icon(
-            Icons.error,
-            color: Colors.red,
-          );
-        },
+          },
+        ),
       );
-    },
-  ),
-);
-
     } else if (buktiPengumpulanUrl.startsWith('pengumpulan_file')) {
       // If it's a file, show download option
       return InkWell(
@@ -814,7 +843,7 @@ class _PengumpulanBuktiPageState extends State<PengumpulanBuktiPage> {
   void _downloadFile(String fileUrl) async {
   try {
     // Tentukan base URL untuk file yang akan diunduh
-    String baseUrl = 'http://192.168.70.100/kompenjti/public/storage/';
+    String baseUrl = 'http://192.168.100.225/kompenjti/public/storage/';
 
     // Cek apakah fileUrl relatif atau URL lengkap
     if (!fileUrl.startsWith('http')) {
@@ -829,7 +858,8 @@ class _PengumpulanBuktiPageState extends State<PengumpulanBuktiPage> {
     // Dapatkan direktori Downloads
     Directory? downloadsDirectory;
     if (Platform.isAndroid) {
-      downloadsDirectory = Directory('/storage/emulated/0/Download'); // Folder Downloads Android
+      downloadsDirectory =
+          Directory('/storage/emulated/0/Download'); // Folder Downloads Android
     } else if (Platform.isIOS) {
       downloadsDirectory = await getApplicationDocumentsDirectory(); // Sandbox Documents di iOS
     }
@@ -856,6 +886,12 @@ class _PengumpulanBuktiPageState extends State<PengumpulanBuktiPage> {
       SnackBar(content: Text("File berhasil diunduh ke folder Downloads")),
     );
     print("File berhasil disimpan di: $filePath");
+
+    // Buka file setelah berhasil diunduh
+    final result = await OpenFilex.open(filePath);
+    if (result.type != ResultType.done) {
+      print("Gagal membuka file: ${result.message}");
+    }
   } catch (e) {
     // Tangani jika terjadi error selama pengunduhan
     print("Pengunduhan gagal: $e");
@@ -864,5 +900,4 @@ class _PengumpulanBuktiPageState extends State<PengumpulanBuktiPage> {
     );
   }
 }
-
 }

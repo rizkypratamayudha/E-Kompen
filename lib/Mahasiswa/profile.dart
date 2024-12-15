@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:firstapp/Mahasiswa/upload_kompetensi.dart';
 import 'package:firstapp/Mahasiswa/kompetensi.dart';
+import 'package:firstapp/controller/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,6 +15,7 @@ import '../widget/popup_logout.dart';
 import '../config/config.dart';
 import '../controller/profile_service.dart'; // Import ProfileService
 import 'notifikasi.dart';
+import 'dart:convert';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -36,6 +38,8 @@ class _ProfilePageState extends State<ProfilePage> {
   String _avatarUrl = '';
   String _nama = 'Your Name';
   String _username = 'Username';
+
+  int _notificationCount = 0;
 
 
   int _selectedIndex = 3;
@@ -120,6 +124,31 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  Future<void> _fetchNotificationCount() async {
+  try {
+    final userId = await AuthService().getUserId();
+    final token = await AuthService().getToken();
+    final response = await http.get(
+      Uri.parse('${config.baseUrl}/mahasiswa/$userId/notifikasijumlah'), // Your endpoint for notification count
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token', // Add the token if necessary
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      setState(() {
+        _notificationCount = data['jumlah'];
+      });
+    } else {
+      print('Failed to load notification count');
+    }
+  } catch (e) {
+    print('Error fetching notification count: $e');
+  }
+}
+
    // Fungsi untuk memperbarui foto profil
   Future<void> _updatePhoto() async {
     if (_profileImage == null) return;
@@ -155,6 +184,7 @@ class _ProfilePageState extends State<ProfilePage> {
   void initState() {
     super.initState();
     _loadUserData();
+    _fetchNotificationCount();
   }
 
   @override
@@ -249,31 +279,50 @@ class _ProfilePageState extends State<ProfilePage> {
       bottomNavigationBar: BottomNavBar(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
+        notificationCount: _notificationCount,
       ),
     );
   }
 
   // Helper methods
   Widget buildSection(String title, IconData icon, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
-        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        decoration: BoxDecoration(
-          color: Colors.grey[300],
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Row(
-          children: [
-            Icon(icon),
-            const SizedBox(width: 25),
-            Text(title, style: GoogleFonts.poppins()),
-          ],
-        ),
+  return InkWell(
+    onTap: onTap,
+    child: Container(
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: Colors.grey[300],
+        borderRadius: BorderRadius.circular(10),
       ),
-    );
-  }
+      child: Row(
+        children: [
+          Icon(icon),
+          const SizedBox(width: 25),
+          Text(title, style: GoogleFonts.poppins()),
+          const Spacer(),
+          if (title == 'Notifikasi' && _notificationCount > 0) // Only show if notification count is greater than 0
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+              decoration: BoxDecoration(
+                color: Colors.red,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                '$_notificationCount', // Display the notification count
+                style: GoogleFonts.poppins(
+                  fontSize: 12,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+        ],
+      ),
+    ),
+  );
+}
+
 
   Widget buildPasswordForm() {
     return Padding(

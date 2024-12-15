@@ -25,6 +25,7 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
   int _selectedIndex = 1;
   bool _isLoading = true;
   List<Pekerjaan> pekerjaanList = [];
+  int _notificationCount = 0;
 
   Future<int> fetchAnggotaSekarang(int pekerjaanId) async {
   try {
@@ -100,7 +101,33 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
   void initState() {
     super.initState();
     _fetchPekerjaan();
+    _fetchNotificationCount();
   }
+
+  Future<void> _fetchNotificationCount() async {
+  try {
+    final userId = await AuthService().getUserId();
+    final token = await AuthService().getToken();
+    final response = await http.get(
+      Uri.parse('${config.baseUrl}/mahasiswa/$userId/notifikasijumlah'), // Your endpoint for notification count
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token', // Add the token if necessary
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      setState(() {
+        _notificationCount = data['jumlah'];
+      });
+    } else {
+      print('Failed to load notification count');
+    }
+  } catch (e) {
+    print('Error fetching notification count: $e');
+  }
+}
 
   Route _createRoute(Widget page) {
     return PageRouteBuilder(
@@ -193,6 +220,7 @@ class _PekerjaanPageState extends State<PekerjaanPage> {
       bottomNavigationBar: BottomNavBar(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
+        notificationCount: _notificationCount,
       ),
       backgroundColor: Colors.white,
     );

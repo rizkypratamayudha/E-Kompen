@@ -1,4 +1,6 @@
 import 'package:firstapp/Mahasiswa/riwayat.dart';
+import 'package:firstapp/config/config.dart';
+import 'package:firstapp/controller/auth_service.dart';
 import 'package:firstapp/controller/pengerjaan.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -7,6 +9,8 @@ import 'profile.dart';
 import 'pekerjaan.dart';
 import '../mahasiswa.dart';
 import 'pengumpulan_bukti.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class ProgressMahasiswaPage extends StatefulWidget {
   final Pekerjaan pekerjaan; 
@@ -22,6 +26,7 @@ class ProgressMahasiswaPage extends StatefulWidget {
 
 class _ProgressMahasiswaPageState extends State<ProgressMahasiswaPage> {
   int _selectedIndex = 2;
+  int _notificationCount = 0;
 
   void _onItemTapped(int index) {
     if (index == _selectedIndex) return;
@@ -29,6 +34,8 @@ class _ProgressMahasiswaPageState extends State<ProgressMahasiswaPage> {
     setState(() {
       _selectedIndex = index;
     });
+
+
 
     if (index == 2) {
       return;
@@ -48,6 +55,37 @@ class _ProgressMahasiswaPageState extends State<ProgressMahasiswaPage> {
         MaterialPageRoute(builder: (context) => const MahasiswaDashboard()),
       );
     }
+  }
+
+  Future<void> _fetchNotificationCount() async {
+  try {
+    final userId = await AuthService().getUserId();
+    final token = await AuthService().getToken();
+    final response = await http.get(
+      Uri.parse('${config.baseUrl}/mahasiswa/$userId/notifikasijumlah'), // Your endpoint for notification count
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token', // Add the token if necessary
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      setState(() {
+        _notificationCount = data['jumlah'];
+      });
+    } else {
+      print('Failed to load notification count');
+    }
+  } catch (e) {
+    print('Error fetching notification count: $e');
+  }
+}
+
+@override
+  void initState() {
+    super.initState();
+    _fetchNotificationCount();
   }
 
   @override
@@ -143,6 +181,7 @@ class _ProgressMahasiswaPageState extends State<ProgressMahasiswaPage> {
       bottomNavigationBar: BottomNavBar(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
+        notificationCount: _notificationCount,
       ),
     );
   }

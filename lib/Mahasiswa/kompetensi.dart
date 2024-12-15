@@ -1,3 +1,5 @@
+import 'package:firstapp/config/config.dart';
+import 'package:firstapp/controller/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,6 +14,8 @@ import 'detail_kompetensi.dart';
 import '../controller/kompetensi_service.dart';
 import '../Model/kompetensi_model.dart';
 import '../widget/popup_kompetensi_delete.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class KompetensiMahasiswaPage extends StatefulWidget {
   const KompetensiMahasiswaPage({super.key});
@@ -26,13 +30,40 @@ class _KompetensiMahasiswaPageState extends State<KompetensiMahasiswaPage> {
   String nama = "";
   List<Kompetensi> kompetensiList = [];
   bool isLoading = true;
+  int _notificationCount = 0;
 
   @override
   void initState() {
     super.initState();
     _loadNama();
     _loadKompetensi();
+    _fetchNotificationCount();
   }
+
+  Future<void> _fetchNotificationCount() async {
+  try {
+    final userId = await AuthService().getUserId();
+    final token = await AuthService().getToken();
+    final response = await http.get(
+      Uri.parse('${config.baseUrl}/mahasiswa/$userId/notifikasijumlah'), // Your endpoint for notification count
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token', // Add the token if necessary
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      setState(() {
+        _notificationCount = data['jumlah'];
+      });
+    } else {
+      print('Failed to load notification count');
+    }
+  } catch (e) {
+    print('Error fetching notification count: $e');
+  }
+}
 
   // Fungsi untuk mengambil nama pengguna dari SharedPreferences
   Future<void> _loadNama() async {
@@ -194,6 +225,7 @@ class _KompetensiMahasiswaPageState extends State<KompetensiMahasiswaPage> {
       bottomNavigationBar: BottomNavBar(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
+        notificationCount: _notificationCount,
       ),
     );
   }

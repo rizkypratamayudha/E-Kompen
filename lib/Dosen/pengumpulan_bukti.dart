@@ -13,6 +13,7 @@ import 'pekerjaan.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
+import 'package:open_filex/open_filex.dart';
 
 class PengumpulanBuktiDosenPage extends StatefulWidget {
   final String nama;
@@ -219,7 +220,7 @@ class _PengumpulanBuktiDosenPageState extends State<PengumpulanBuktiDosenPage> {
       return ClipRRect(
         borderRadius: BorderRadius.circular(10),
         child: Image.network(
-          'http://192.168.70.100/kompenjti/public/storage/$buktiPengumpulanUrl',
+          'http://192.168.100.225/kompenjti/public/storage/$buktiPengumpulanUrl',
           fit: BoxFit.contain,
           loadingBuilder: (context, child, loadingProgress) {
             if (loadingProgress == null) {
@@ -268,14 +269,14 @@ class _PengumpulanBuktiDosenPageState extends State<PengumpulanBuktiDosenPage> {
 void _downloadFile(String fileUrl) async {
   try {
     // Tentukan base URL untuk file yang akan diunduh
-    String baseUrl = 'http://192.168.70.100/kompenjti/public/storage/';
+    String baseUrl = 'http://192.168.100.225/kompenjti/public/storage/';
 
     // Cek apakah fileUrl relatif atau URL lengkap
     if (!fileUrl.startsWith('http')) {
       fileUrl = baseUrl + fileUrl; // Tambahkan base URL jika fileUrl relatif
     }
 
-    // Dapatkan nama file dari `nama_original` atau gunakan `bukti_pengumpulan` sebagai fallback
+    // Dapatkan nama file dari `nama_original` atau gunakan fallback dari URL
     String fileName = widget.nama_original.isNotEmpty
         ? widget.nama_original
         : fileUrl.split('/').last; // Ambil nama file dari URL jika `nama_original` kosong
@@ -310,6 +311,12 @@ void _downloadFile(String fileUrl) async {
       SnackBar(content: Text("File berhasil diunduh ke folder Downloads")),
     );
     print("File berhasil disimpan di: $filePath");
+
+    // Buka file setelah berhasil diunduh
+    final result = await OpenFilex.open(filePath);
+    if (result.type != ResultType.done) {
+      print("Gagal membuka file: ${result.message}");
+    }
   } catch (e) {
     // Tangani jika terjadi error selama pengunduhan
     print("Pengunduhan gagal: $e");
@@ -318,6 +325,7 @@ void _downloadFile(String fileUrl) async {
     );
   }
 }
+
 
 
 }
