@@ -741,76 +741,79 @@ class _PengumpulanBuktiPageState extends State<PengumpulanBuktiPage> {
   }
 
   Widget buildBuktiPengumpulan(String buktiPengumpulanUrl) {
-    if (buktiPengumpulanUrl.startsWith('https')) {
-      // If it's a URL, show clickable text
-      return InkWell(
-        onTap: () {
-          // Open the URL if it's a valid https URL
-          if (Uri.tryParse(buktiPengumpulanUrl)?.hasAbsolutePath ?? false) {
-            launch(buktiPengumpulanUrl); // Open in browser
-          }
-        },
-        child: Text(
-          'Lihat Bukti Pengumpulan',
-          style: TextStyle(color: Colors.blue),
-        ),
-      );
-    } else if (buktiPengumpulanUrl.startsWith('pengumpulan_gambar')) {
-      // If it's an image URL
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: Builder(
-          builder: (context) {
-            print(
-                'Image URL: http://192.168.100.225/kompenjti/public/storage/$buktiPengumpulanUrl'); // Debug log
-            return Image.network(
-              'http://192.168.100.225/kompenjti/public/storage/$buktiPengumpulanUrl',
-              fit: BoxFit.contain,
-              loadingBuilder: (context, child, loadingProgress) {
-                if (loadingProgress == null) {
-                  return child;
-                } else {
-                  return Center(
-                    child: CircularProgressIndicator(
-                      value: loadingProgress.expectedTotalBytes != null
-                          ? loadingProgress.cumulativeBytesLoaded /
-                              (loadingProgress.expectedTotalBytes ?? 1)
-                          : null,
-                    ),
-                  );
-                }
-              },
-              errorBuilder: (context, error, stackTrace) {
-                return Icon(
-                  Icons.error,
-                  color: Colors.red,
+  if (buktiPengumpulanUrl.startsWith('https')) {
+    // If it's a URL, show clickable text
+    return InkWell(
+      onTap: () async {
+        // Open the URL if it's a valid https URL
+        final Uri url = Uri.parse(buktiPengumpulanUrl);
+        if (await canLaunchUrl(url)) {
+          await launchUrl(url, mode: LaunchMode.externalApplication);
+        } else {
+          print('Could not launch $buktiPengumpulanUrl');
+        }
+      },
+      child: Text(
+        'Lihat Bukti Pengumpulan',
+        style: TextStyle(color: Colors.blue),
+      ),
+    );
+  } else if (buktiPengumpulanUrl.startsWith('pengumpulan_gambar')) {
+    // If it's an image URL
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: Builder(
+        builder: (context) {
+          print(
+              'Image URL: http://160.19.167.28/storage/$buktiPengumpulanUrl'); // Debug log
+          return Image.network(
+            'http://160.19.167.28/storage/$buktiPengumpulanUrl',
+            fit: BoxFit.contain,
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) {
+                return child;
+              } else {
+                return Center(
+                  child: CircularProgressIndicator(
+                    value: loadingProgress.expectedTotalBytes != null
+                        ? loadingProgress.cumulativeBytesLoaded /
+                            (loadingProgress.expectedTotalBytes ?? 1)
+                        : null,
+                  ),
                 );
-              },
-            );
-          },
-        ),
-      );
-    } else if (buktiPengumpulanUrl.startsWith('pengumpulan_file')) {
-      // If it's a file, show download option
-      return InkWell(
-        onTap: () {
-          // Handle file download here
-          _downloadFile(buktiPengumpulanUrl);
+              }
+            },
+            errorBuilder: (context, error, stackTrace) {
+              return Icon(
+                Icons.error,
+                color: Colors.red,
+              );
+            },
+          );
         },
-        child: Text(
-          'Download Bukti Pengumpulan',
-          style: TextStyle(color: Colors.blue),
-        ),
-      );
-    } else {
-      // Default icon if no matching condition
-      return Icon(
-        Icons.image,
-        size: 50,
-        color: Colors.grey[400],
-      );
-    }
+      ),
+    );
+  } else if (buktiPengumpulanUrl.startsWith('pengumpulan_file')) {
+    // If it's a file, show download option
+    return InkWell(
+      onTap: () {
+        // Handle file download here
+        _downloadFile(buktiPengumpulanUrl);
+      },
+      child: Text(
+        'Download Bukti Pengumpulan',
+        style: TextStyle(color: Colors.blue),
+      ),
+    );
+  } else {
+    // Default icon if no matching condition
+    return Icon(
+      Icons.image,
+      size: 50,
+      color: Colors.grey[400],
+    );
   }
+}
 
   Widget buildInfoRow(String label, String value) {
     return Padding(
@@ -843,7 +846,7 @@ class _PengumpulanBuktiPageState extends State<PengumpulanBuktiPage> {
   void _downloadFile(String fileUrl) async {
   try {
     // Tentukan base URL untuk file yang akan diunduh
-    String baseUrl = 'http://192.168.100.225/kompenjti/public/storage/';
+    String baseUrl = 'http://160.19.167.28/storage/';
 
     // Cek apakah fileUrl relatif atau URL lengkap
     if (!fileUrl.startsWith('http')) {

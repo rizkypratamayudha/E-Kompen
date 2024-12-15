@@ -81,16 +81,27 @@ class _PengumpulanBuktiDosenPageState extends State<PengumpulanBuktiDosenPage> {
   Widget build(BuildContext context) {
 
     DateTime? deadline;
-    String formatdeadline = '';
-
+  String formatdeadline = '';
+  
+  try {
     deadline = DateTime.parse(widget.tanggal);
     formatdeadline = DateFormat('dd MMM yyyy HH:mm').format(deadline);
+  } catch (e) {
+    formatdeadline = "Invalid date format";
+    print("Error parsing 'tanggal': ${widget.tanggal}");
+  }
 
-    DateTime?dikumpulkan;
-    String dikumpulkantgl = '';
+  DateTime? dikumpulkan;
+  String dikumpulkantgl = '';
 
+  try {
     dikumpulkan = DateTime.parse(widget.tanggaldikumpulkan);
     dikumpulkantgl = DateFormat('dd MMM yyyy HH:mm').format(dikumpulkan);
+  } catch (e) {
+    dikumpulkantgl = "Invalid date format";
+    print("Error parsing 'tanggaldikumpulkan': ${widget.tanggaldikumpulkan}");
+  }
+
 
     return Scaffold(
       appBar: AppBar(
@@ -203,24 +214,27 @@ class _PengumpulanBuktiDosenPageState extends State<PengumpulanBuktiDosenPage> {
   Widget buildBuktiPengumpulan(String buktiPengumpulanUrl) {
     if (buktiPengumpulanUrl.startsWith('https')) {
       // If it's a URL, show clickable text
-      return InkWell(
-        onTap: () {
-          // Open the URL if it's a valid https URL
-          if (Uri.tryParse(buktiPengumpulanUrl)?.hasAbsolutePath ?? false) {
-            launch(buktiPengumpulanUrl); // Open in browser
-          }
-        },
-        child: Text(
-          'Lihat Bukti Pengumpulan',
-          style: TextStyle(color: Colors.blue),
-        ),
-      );
+    return InkWell(
+      onTap: () async {
+        // Open the URL if it's a valid https URL
+        final Uri url = Uri.parse(buktiPengumpulanUrl);
+        if (await canLaunchUrl(url)) {
+          await launchUrl(url, mode: LaunchMode.externalApplication);
+        } else {
+          print('Could not launch $buktiPengumpulanUrl');
+        }
+      },
+      child: Text(
+        'Lihat Bukti Pengumpulan',
+        style: TextStyle(color: Colors.blue),
+      ),
+    );
     } else if (buktiPengumpulanUrl.startsWith('pengumpulan_gambar')) {
       // If it's an image URL
       return ClipRRect(
         borderRadius: BorderRadius.circular(10),
         child: Image.network(
-          'http://192.168.100.225/kompenjti/public/storage/$buktiPengumpulanUrl',
+          'http://160.19.167.28/storage/$buktiPengumpulanUrl',
           fit: BoxFit.contain,
           loadingBuilder: (context, child, loadingProgress) {
             if (loadingProgress == null) {
@@ -269,7 +283,7 @@ class _PengumpulanBuktiDosenPageState extends State<PengumpulanBuktiDosenPage> {
 void _downloadFile(String fileUrl) async {
   try {
     // Tentukan base URL untuk file yang akan diunduh
-    String baseUrl = 'http://192.168.100.225/kompenjti/public/storage/';
+    String baseUrl = 'http://160.19.167.28/storage/';
 
     // Cek apakah fileUrl relatif atau URL lengkap
     if (!fileUrl.startsWith('http')) {
