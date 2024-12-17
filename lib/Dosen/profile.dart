@@ -191,10 +191,10 @@ class _ProfilePageState extends State<ProfilePage> {
                     children: [
                       Text(_nama,
                           style: GoogleFonts.poppins(
-                              fontSize: 18, color: Colors.white)),
+                              fontSize: 12, color: Colors.white)),
                       Text(_username,
                           style: GoogleFonts.poppins(
-                              fontSize: 16, color: Colors.white)),
+                              fontSize: 12, color: Colors.white)),
                     ],
                   ),
                   const Spacer(),

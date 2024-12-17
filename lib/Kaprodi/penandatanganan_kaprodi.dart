@@ -317,14 +317,14 @@ class _PenandatangananScreenState extends State<PenandatangananScreen> {
                           Text(
                             nama,
                             style: GoogleFonts.poppins(
-                              fontSize: 16,
+                              fontSize: 11,
                               fontWeight: FontWeight.w400,
                             ),
                           ),
                           Text(
                             formatdeadline,
                             style: GoogleFonts.poppins(
-                              fontSize: 14,
+                              fontSize: 10,
                               fontWeight: FontWeight.w300,
                             ),
                           ),
@@ -466,14 +466,14 @@ class _PenandatangananScreenState extends State<PenandatangananScreen> {
                             Text(
                               nama,
                               style: GoogleFonts.poppins(
-                                fontSize: 16,
+                                fontSize: 11,
                                 fontWeight: FontWeight.w400,
                               ),
                             ),
                             Text(
                               formatDeadline,
                               style: GoogleFonts.poppins(
-                                fontSize: 14,
+                                fontSize: 10,
                                 fontWeight: FontWeight.w300,
                               ),
                             ),
@@ -485,12 +485,12 @@ class _PenandatangananScreenState extends State<PenandatangananScreen> {
                           children: [
                             Text(
                               id,
-                              style: GoogleFonts.poppins(fontSize: 14),
+                              style: GoogleFonts.poppins(fontSize: 12),
                             ),
                             Text(
                               tugas,
                               style: GoogleFonts.poppins(
-                                fontSize: 14,
+                                fontSize: 10,
                                 fontWeight: FontWeight.w300,
                               ),
                             ),

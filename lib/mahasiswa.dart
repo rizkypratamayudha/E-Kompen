@@ -190,7 +190,7 @@ class _MahasiswaDashboardState extends State<MahasiswaDashboard> {
                                 Text(
                                   _nama,
                                   style: GoogleFonts.poppins(
-                                    fontSize: 18,
+                                    fontSize: 12,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.blueAccent,
                                   ),
