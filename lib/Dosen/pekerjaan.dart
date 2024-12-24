@@ -632,7 +632,7 @@ class _PekerjaanDosenPageState extends State<PekerjaanDosenPage> {
                 child: Text(
                   pekerjaan.status == 'open' ? 'Open' : 'Closed',
                   style: GoogleFonts.poppins(
-                    fontSize: 14,
+                    fontSize: 10,
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
@@ -671,7 +671,7 @@ class _PekerjaanDosenPageState extends State<PekerjaanDosenPage> {
                 child: Text(
                   isFull ? 'Full' : 'Belum Full',
                   style: GoogleFonts.poppins(
-                    fontSize: 14,
+                    fontSize: 10,
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
