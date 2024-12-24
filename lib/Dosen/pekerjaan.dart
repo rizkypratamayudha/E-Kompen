@@ -615,64 +615,66 @@ class _PekerjaanDosenPageState extends State<PekerjaanDosenPage> {
     return Row(
       children: [
         // Tombol Status
-        GestureDetector(
-          onTap: () async {
-            await _showConfirmationDialog(
-                context, pekerjaan, anggota, totalAnggota);
-          },
-          child: Container(
-            height: 40,
-            width: 112, // Lebar tetap untuk tombol status
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: pekerjaan.status == 'open' ? Colors.green : Colors.red,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Center(
-              child: Text(
-                pekerjaan.status == 'open' ? 'Open' : 'Closed',
-                style: GoogleFonts.poppins(
-                  fontSize: 14,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+        Expanded(
+          child: GestureDetector(
+            onTap: () async {
+              await _showConfirmationDialog(
+                  context, pekerjaan, anggota, totalAnggota);
+            },
+            child: Container(
+              height: 40,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: pekerjaan.status == 'open' ? Colors.green : Colors.red,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Center(
+                child: Text(
+                  pekerjaan.status == 'open' ? 'Open' : 'Closed',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 8),
         // Tombol Kondisi
-        GestureDetector(
-          onTap: () async {
-            if (isFull) {
-              await _showDialogKondisi(
-                context,
-                'Kondisi Pekerjaan',
-                'Pekerjaan ini sudah penuh.',
-              );
-            } else {
-              await _showDialogKondisi(
-                context,
-                'Kondisi Pekerjaan',
-                'Pekerjaan ini masih memerlukan anggota tambahan.',
-              );
-            }
-          },
-          child: Container(
-            height: 40,
-            width: 112, // Lebar tetap untuk tombol kondisi
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: isFull ? Colors.green : Colors.orange,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Center(
-              child: Text(
-                isFull ? 'Full' : 'Belum Full',
-                style: GoogleFonts.poppins(
-                  fontSize: 14,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+        Expanded(
+          child: GestureDetector(
+            onTap: () async {
+              if (isFull) {
+                await _showDialogKondisi(
+                  context,
+                  'Kondisi Pekerjaan',
+                  'Pekerjaan ini sudah penuh.',
+                );
+              } else {
+                await _showDialogKondisi(
+                  context,
+                  'Kondisi Pekerjaan',
+                  'Pekerjaan ini masih memerlukan anggota tambahan.',
+                );
+              }
+            },
+            child: Container(
+              height: 40,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: isFull ? Colors.green : Colors.orange,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Center(
+                child: Text(
+                  isFull ? 'Full' : 'Belum Full',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),

@@ -206,7 +206,7 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
             children: [
               Expanded(
                 child: TabButton(
-                  icon: Icons.access_time, // Ikon jam untuk 'Proses'
+                  icon: Icons.access_time,
                   text: "Proses",
                   isSelected: _selectedIndex == 0,
                   onTap: () {
@@ -221,8 +221,7 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
               ),
               Expanded(
                 child: TabButton(
-                  icon: Icons
-                      .check_circle_outline, // Ikon ceklis untuk 'Telah Selesai'
+                  icon: Icons.check_circle_outline,
                   text: "Telah Selesai",
                   isSelected: _selectedIndex == 1,
                   onTap: () {
@@ -237,7 +236,7 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
               ),
               Expanded(
                 child: TabButton(
-                  icon: Icons.edit, // Ikon tanda tangan untuk 'TTD Kaprodi'
+                  icon: Icons.edit,
                   text: "TTD Kaprodi",
                   isSelected: _selectedIndex == 2,
                   onTap: () {
@@ -262,8 +261,8 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
                 });
               },
               children: [
-                _buildRiwayatList(context, widget.prosesItems),
-                _buildRiwayatList(context, widget.selesaiItems),
+                _buildRiwayatList(context, widget.prosesItems, "Proses"),
+                _buildRiwayatList(context, widget.selesaiItems, "Selesai"),
                 _buildSelesaiListsurat(context)
               ],
             ),
@@ -273,26 +272,38 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
     );
   }
 
-// Fungsi untuk membangun daftar riwayat untuk tiap kategori
-  Widget _buildRiwayatList(BuildContext context, List<Pekerjaan> items) {
+  // Updated _buildRiwayatList method with custom empty state messages
+  Widget _buildRiwayatList(BuildContext context, List<Pekerjaan> items, String type) {
+    if (items.isEmpty) {
+      return Center(
+        child: Text(
+          type == "Proses"
+              ? "Anda belum ada Proses pengerjaan"
+              : "Anda belum memiliki pekerjaan yang selesai",
+          style: GoogleFonts.poppins(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Colors.grey[600],
+          ),
+          textAlign: TextAlign.center,
+        ),
+      );
+    }
+
     return ListView.builder(
       itemCount: items.length,
       itemBuilder: (context, index) {
         final pekerjaan = items[index];
 
         if (pekerjaan == null) {
-          return Container(); // Return an empty container or an error message if pekerjaan is null
+          return Container();
         }
 
-        // Mengecek apakah item ini berasal dari selesaiItems
         return GestureDetector(
           onTap: () {
-            // Menambahkan kondisi untuk memanggil popup hanya jika pekerjaan berasal dari selesaiItems
             if (items == widget.selesaiItems) {
-              // Memanggil fungsi showWebPopup jika pekerjaan ada di selesaiItems
               _showWebPopup(context, pekerjaan);
             } else {
-              // Aksi ketika item lainnya ditekan
               Navigator.push(
                 context,
                 MaterialPageRoute(
